@@ -12,7 +12,6 @@
     <Folder Include="Components\Pages\AdministradorPages\" />
     <Folder Include="Components\Pages\ProveedorPages\" />
     <Folder Include="Models\" />
-    <Folder Include="Context\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
