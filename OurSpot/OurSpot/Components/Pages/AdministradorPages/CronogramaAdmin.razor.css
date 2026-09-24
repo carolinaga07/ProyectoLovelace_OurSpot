@@ -1,0 +1,297 @@
+﻿/* ============================================
+   PÁGINA COMPLETA
+   ============================================ */
+
+.cronograma-page {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    gap: 10px;
+    padding: 12px;
+    box-sizing: border-box;
+    background-color: #eeeeec;
+}
+
+
+/* ============================================
+   PRÓXIMAMENTE
+   ============================================ */
+
+.proximamente {
+    width: 250px;
+    min-width: 250px;
+    padding: 15px 10px;
+    box-sizing: border-box;
+
+    background-color: #e2e1df;
+
+    border-radius: 5px;
+}
+
+
+.proximamente h2 {
+    margin: 10px 8px 30px;
+
+    font-size: 25px;
+    font-weight: 700;
+
+    color: #111;
+}
+
+
+/* ============================================
+   LISTA DE EVENTOS
+   ============================================ */
+
+.lista-eventos {
+    display: flex;
+    flex-direction: column;
+
+    gap: 11px;
+}
+
+
+.evento {
+    min-height: 60px;
+
+    padding: 11px 15px;
+
+    box-sizing: border-box;
+
+    background-color: #d1d1d1;
+
+    border-radius: 4px;
+}
+
+
+.evento-nombre {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    color: #111;
+}
+
+
+.evento-nombre strong {
+    font-weight: 700;
+}
+
+
+.punto {
+    width: 10px;
+    height: 10px;
+
+    min-width: 10px;
+
+    background-color: #4d7b84;
+
+    border-radius: 50%;
+}
+
+
+.evento-fecha {
+    display: block;
+
+    margin-top: 7px;
+    margin-left: 18px;
+
+    font-size: 10px;
+
+    color: #222;
+}
+
+
+/* ============================================
+   CALENDARIO
+   ============================================ */
+
+.calendario {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+/* ============================================
+   ENCABEZADO
+   ============================================ */
+
+.calendario-header {
+    height: 90px;
+
+    padding: 0 25px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background-color: #dedddc;
+
+    border-radius: 5px;
+}
+
+
+.calendario-header h1 {
+    margin: 0;
+
+    font-size: 38px;
+    font-weight: 700;
+
+    color: #111;
+}
+
+
+/* ============================================
+   BOTONES
+   ============================================ */
+
+.controles {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.controles button {
+    height: 25px;
+
+    min-width: 72px;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background-color: #315d63;
+
+    color: white;
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+
+.controles button:hover {
+    opacity: 0.85;
+}
+
+
+.controles .flecha {
+    width: 25px;
+
+    min-width: 25px;
+
+    padding: 0;
+}
+
+
+/* ============================================
+   DÍAS DE LA SEMANA
+   ============================================ */
+
+.dias-semana {
+    display: grid;
+
+    grid-template-columns: repeat(7, 1fr);
+
+    margin-top: 10px;
+    margin-bottom: 5px;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    color: #555;
+}
+
+
+/* ============================================
+   CUADRÍCULA
+   ============================================ */
+
+.calendario-grid {
+    display: grid;
+
+    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-rows: repeat(6, 1fr);
+
+    gap: 7px;
+
+    height: calc(100vh - 145px);
+
+    min-height: 520px;
+}
+
+
+/* ============================================
+   CADA DÍA
+   ============================================ */
+
+.dia {
+    position: relative;
+
+    padding: 8px;
+
+    box-sizing: border-box;
+
+    background-color: #a8bac6;
+
+    border-radius: 3px;
+
+    font-size: 10px;
+
+    color: #3f4b50;
+}
+
+
+.numero-dia {
+    display: block;
+}
+
+
+/* Días que pertenecen al mes anterior
+   o al mes siguiente */
+
+.dia.otro-mes {
+    background-color: #c0c9cf;
+
+    color: #849097;
+}
+
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 900px) {
+
+    .cronograma-page {
+        flex-direction: column;
+    }
+
+
+    .proximamente {
+        width: 100%;
+    }
+
+
+    .calendario-header h1 {
+        font-size: 28px;
+    }
+
+
+    .calendario-grid {
+        min-height: 550px;
+    }
+}

@@ -1,0 +1,265 @@
+﻿@page "/cronograma"
+@rendermode InteractiveServer
+
+<PageTitle>Cronograma</PageTitle>
+
+<div class="cronograma-page">
+
+    @* Panel Próximamente *@
+
+    <section class="proximamente">
+
+        <h2>Próximamente</h2>
+
+        <div class="lista-eventos">
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Payaso Bobby</strong>
+                </div>
+                <span class="evento-fecha">Hoy - 4:00 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Taller de Pintura</strong>
+                </div>
+                <span class="evento-fecha">Hoy - 6:30 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Repostería Dulce Encanto</strong>
+                </div>
+                <span class="evento-fecha">25 Sep - 4:30 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>DJ Carlos Music</strong>
+                </div>
+                <span class="evento-fecha">25 Sep - 5:30 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Fotografía Studio 56</strong>
+                </div>
+                <span class="evento-fecha">25 Sep - 5:30 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>SFM Fashion Night</strong>
+                </div>
+                <span class="evento-fecha">25 Sep - 6:00 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Decoraciones Elegance</strong>
+                </div>
+                <span class="evento-fecha">29 Sep - 4:00 PM</span>
+            </div>
+
+            <div class="evento">
+                <div class="evento-nombre">
+                    <span class="punto"></span>
+                    <strong>Sonido AudioMax</strong>
+                </div>
+                <span class="evento-fecha">29 Sep - 4:00 PM</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    @* Calendario *@
+
+    <section class="calendario">
+
+        @* Encabezado *@
+
+        <div class="calendario-header">
+
+            <h1>@NombreMes @AnioActual</h1>
+
+            <div class="controles">
+
+                <button type="button">
+                    Mes
+                </button>
+
+                <button type="button">
+                    Año
+                </button>
+
+                <button type="button"
+                        class="flecha"
+                        @onclick="MesAnterior">
+                    &lt;
+                </button>
+
+                <button type="button"
+                        class="flecha"
+                        @onclick="MesSiguiente">
+                    &gt;
+                </button>
+
+            </div>
+
+        </div>
+
+
+        @* Días de la Semana *@
+
+        <div class="dias-semana">
+            <span>Domingo</span>
+            <span>Lunes</span>
+            <span>Martes</span>
+            <span>Miércoles</span>
+            <span>Jueves</span>
+            <span>Viernes</span>
+            <span>Sábado</span>
+        </div>
+
+
+        @* Días del Calendario *@
+
+        <div class="calendario-grid">
+
+            @foreach (var dia in DiasCalendario)
+            {
+                <div class="dia @(dia.EsDelMesActual ? "" : "otro-mes")">
+
+                    <span class="numero-dia">
+                        @dia.Numero
+                    </span>
+
+                </div>
+            }
+
+        </div>
+
+    </section>
+
+</div>
+
+
+@code {
+    // Mes y año actual
+    private int MesActual = DateTime.Today.Month;
+    private int AnioActual = DateTime.Today.Year;
+
+    // Nombre del mes
+    private string NombreMes
+    {
+        get
+        {
+            DateTime fecha = new DateTime(AnioActual, MesActual, 1);
+            string nombre = fecha.ToString("MMMM", new System.Globalization.CultureInfo("es-ES"));
+
+            return char.ToUpper(nombre[0]) + nombre.Substring(1);
+        }
+    }
+
+    // Generación de los días del calendario
+    private List<DiaCalendario> DiasCalendario
+    {
+        get
+        {
+            var dias = new List<DiaCalendario>();
+
+            // Primer día del mes seleccionado
+            DateTime primerDia = new DateTime(AnioActual, MesActual, 1);
+
+            // Cantidad de días que posee el mes
+            int cantidadDias = DateTime.DaysInMonth(AnioActual, MesActual);
+
+            int posicionPrimerDia = (int)primerDia.DayOfWeek;
+
+            // Mes anterior
+            DateTime fechaMesAnterior = primerDia.AddMonths(-1);
+
+            int cantidadDiasMesAnterior = DateTime.DaysInMonth(
+                fechaMesAnterior.Year,
+                fechaMesAnterior.Month
+            );
+
+            for (int i = posicionPrimerDia - 1; i >= 0; i--)
+            {
+                dias.Add(
+                    new DiaCalendario
+                    {
+                        Numero = cantidadDiasMesAnterior - i,
+                        EsDelMesActual = false
+                    }
+                );
+            }
+
+            // Mes actual
+            for (int dia = 1; dia <= cantidadDias; dia++)
+            {
+                dias.Add(
+                    new DiaCalendario
+                    {
+                        Numero = dia,
+                        EsDelMesActual = true
+                    }
+                );
+            }
+
+            // Mes siguiente
+            int diaSiguiente = 1;
+
+            while (dias.Count < 42)
+            {
+                dias.Add(
+                    new DiaCalendario
+                    {
+                        Numero = diaSiguiente,
+                        EsDelMesActual = false
+                    }
+                );
+
+                diaSiguiente++;
+            }
+
+            return dias;
+        }
+    }
+
+    // Botones
+    private void MesAnterior()
+    {
+        DateTime fechaActual = new DateTime(AnioActual, MesActual, 1);
+        DateTime nuevaFecha = fechaActual.AddMonths(-1);
+
+        MesActual = nuevaFecha.Month;
+        AnioActual = nuevaFecha.Year;
+    }
+
+    private void MesSiguiente()
+    {
+        DateTime fechaActual = new DateTime(AnioActual, MesActual, 1);
+        DateTime nuevaFecha = fechaActual.AddMonths(1);
+
+        MesActual = nuevaFecha.Month;
+        AnioActual = nuevaFecha.Year;
+    }
+
+    // Casillas del calendario
+    private class DiaCalendario
+    {
+        public int Numero { get; set; }
+        public bool EsDelMesActual { get; set; }
+    }
+}
