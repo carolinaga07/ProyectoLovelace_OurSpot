@@ -1,0 +1,141 @@
+﻿@page "/Servicios"
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<header class ="mb-1">
+    <h1>Servicios</h1>
+    <p>Servicios disponibles: </p>
+
+</header>
+
+<style>
+    .servicios-container {
+        padding: 0.4rem;
+        min-height: 100vh;
+        font-family: sans-serif;
+        color: #1a1a1a;
+    }
+
+    .servicios-container h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .servicios-container p {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    .buttons-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 180px); 
+        gap: 2.5rem 3rem;
+        margin-top: 2rem;
+    }
+
+    .service-card {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        transition: transform 0.2s ease;
+    }
+
+    .service-card:hover {
+        transform: translateY(-4px);
+    }
+    .icon-box {
+        width: 100%;
+        height: 110px;
+        border-radius: 18px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .icon-box i {
+        font-size: 3rem;
+        opacity: 0.65; 
+    }
+
+    .service-card p {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin: 0;
+        text-align: center;
+    }
+
+    .bg-refrigeracion   { background-color: #aed5db; } 
+    .bg-refrigeracion i { color: #3c7a89; }        
+
+    .bg-decoracion      { background-color: #be9ac8; } 
+    .bg-decoracion i    { color: #61336c; }
+
+    .bg-catering        { background-color: #d7e078; } 
+    .bg-catering i      { color: #6b7713; }
+
+    .bg-entretenimiento { background-color: #db9eb3; } 
+    .bg-entretenimiento i { color: #2b111b; }
+
+    .bg-seguridad       { background-color: #92cd91; }
+    .bg-seguridad i     { color: #326e38; }
+
+    .bg-fotografia      { background-color: #f7b282; } 
+    .bg-fotografia i    { color: #b05115; }
+
+    </style>
+
+   <div class="servicios-container">
+    
+    <div class="buttons-grid">
+        <a href="/Servicios/Refrigeracion" class="service-card">
+            <div class="icon-box bg-refrigeracion">
+                <i class="bi bi-thermometer-snow"></i>
+            </div>
+            <p>Refrigeración</p>
+        </a>
+
+        <a href="/Servicios/Decoracion" class="service-card">
+            <div class="icon-box bg-decoracion">
+                <i class="bi bi-balloon-fill"></i>
+            </div>
+            <p>Decoración</p>
+        </a>
+
+        <a href="/Servicios/Catering" class="service-card">
+            <div class="icon-box bg-catering">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+            <p>Catering</p>
+        </a>
+
+        <a href="/Servicios/Entretenimiento" class="service-card">
+            <div class="icon-box bg-entretenimiento">
+                <i class="bi bi-mic-fill"></i>
+            </div>
+            <p>Entretenimiento</p>
+        </a>
+
+        <a href="/Servicios/Seguridad" class="service-card">
+            <div class="icon-box bg-seguridad">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <p>Seguridad</p>
+        </a>
+
+        <a href="/Servicios/Fotografia" class="service-card">
+            <div class="icon-box bg-fotografia">
+                <i class="bi bi-camera-fill"></i>
+            </div>
+            <p>Fotograf&iacutea</p>
+        </a>
+    </div>
+</div>

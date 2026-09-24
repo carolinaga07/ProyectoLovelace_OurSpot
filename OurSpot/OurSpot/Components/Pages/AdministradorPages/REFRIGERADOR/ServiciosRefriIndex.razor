@@ -1,0 +1,118 @@
+﻿@page "/Servicios/Refrigeracion"
+
+<style>
+    .grid {
+        height: 16.5rem;
+        overflow-y: auto;
+    }
+
+    .grid table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grid th, .grid td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    .grid thead {
+        position: sticky;
+        top: 0;
+        background-color: #eee;
+    }
+
+    .grid tr:nth-child(even) {
+        background: rgba(255,255,255,0.4);
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+</style>
+
+<h3>Servicios disponibles: Refrigeración.</h3>
+
+<div class="grid">
+     <div class="card-header d-flex justify-content-between align-center mb-4">
+            <h5 class="card-title"> </h5>
+            <a href="/Servicios/Refrigeracion/Crear" class="btn btn-primary">
+                <span class="bi bi-plus-square mt-3"></span> Crear
+            </a>
+        </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th class="text-right">Costo</th>
+                <th>Estado</th>
+                <th>Proveedor</th>
+                <th class="text-center">Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (listaServicios != null)
+            {
+                @foreach (var s in listaServicios)
+                {
+                    <tr>
+                        <td>@s.Id</td>
+                        <td>@s.Nombre</td>
+                        <td>@s.Descripcion</td>
+                        <td class="text-right">@s.Costo.ToString("C2")</td>
+                        <td>@s.Estado</td>
+                        <td>@s.Proveedor</td>
+                        <td class="text-center">
+                                <a href="/Servicios/Refrigeracion/Editar"
+                                    class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                <a href="/Servicios/Refrigeracion/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
+                            </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    private List<Servicio>? listaServicios;
+
+    protected override void OnInitialized()
+    {
+        listaServicios = new List<Servicio>
+        {
+            new Servicio(1, "Mantenimiento Preventivo", "Revisión general de aire acondicionado", 1500.00m, "Activo", "RefriServicios SRL"),
+            new Servicio(2, "Reparación de Fuga", "Detección y recarga de gas refrigerante", 2500.50m, "Activo", "TecnoFrío"),
+            new Servicio(3, "Instalación Split", "Montaje completo de unidad interna y externa", 4000.00m, "Inactivo", "RefriServicios SRL"),
+            new Servicio(4, "Limpieza de Filtros", "Desinfección y lavado profundo de filtros", 800.00m, "Activo", "ServiClima"),
+            new Servicio(5, "Cambio de Compresor", "Reemplazo de motor compresor dañado", 8500.00m, "Pendiente", "TecnoFrío")
+        };
+    }
+
+    public class Servicio
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public decimal Costo { get; set; }
+        public string Estado { get; set; }
+        public string Proveedor { get; set; }
+
+        public Servicio(int id, string nombre, string descripcion, decimal costo, string estado, string proveedor)
+        {
+            Id = id;
+            Nombre = nombre;
+            Descripcion = descripcion;
+            Costo = costo;
+            Estado = estado;
+            Proveedor = proveedor;
+        }
+    }
+}
