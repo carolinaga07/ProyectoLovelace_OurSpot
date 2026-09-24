@@ -1,0 +1,144 @@
+﻿@page "/Contrataciones"
+
+
+<PageTitle>Contrataciones</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Contrataciones</h5>
+            <a href="/Contrataciones/Create" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Evento</a>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
+                    </InputSelect>
+                </div>
+
+                @*Esatdo*@
+                <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Realizada">Realizada</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search"></button>
+                    </div>
+                </div>
+
+                </div>
+
+            <table class="table table-hover">
+                <thead class="table  table-striped text-black">
+                    <tr>
+                        <th>Evento</th>
+                        <th>Servicio</th>
+                        <th>Proveedor</th>
+                        <th>Fecha</th> 
+                        <th>Costo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contratacion in listaContrataciones)
+                    {
+                        <tr>
+                            <td> @contratacion.Evento</td>
+                            <td> @contratacion.Servicio</td>
+                            <td> @contratacion.Proveedor</td>
+                            <td> @contratacion.Fecha</td>
+                            <td> @contratacion.Costo</td>
+                            <td> @contratacion.Estado</td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Contrataciones>? listaContrataciones;
+
+    private string FiltroCategoria { get; set; } = string.Empty;
+    private string FiltroEstado{ get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        listaContrataciones = new List<Contrataciones>
+        {
+            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion de la recepcion", 30000, "Pendiente", "Decoracion"),
+            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Servicio de catering", 15000, "Cancelada", "Catering"),
+            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Alquiler de equipo audiovisual y proyección", 8000, "Pendiente", "Entretenimiento")
+
+        };
+    }
+
+    public class Contrataciones
+    {
+        public int Id { get; set; }
+        public string Evento { get; set; }
+        public string Proveedor { get; set; }
+        public DateOnly Fecha { get; set; }
+        public string Servicio { get; set; }
+        public decimal Costo { get; set; }
+        public string Estado { get; set; }
+        public string Categoria { get; set; }
+
+        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado, string categoria)
+        {
+            Id = id;
+            Evento = evento;
+            Proveedor = proveedor;
+            Fecha = fecha;
+            Servicio = servicio;
+            Costo = costo;
+            Estado = estado;
+            Categoria = categoria;
+        }
+    }
+}
