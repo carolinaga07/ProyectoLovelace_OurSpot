@@ -7,7 +7,7 @@
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">Contrataciones</h5>
-            <a href="/Contrataciones/Create" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Evento</a>
+            <a href="/Contrataciones/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Evento</a>
         </div>
 
         <div class="card-body">
@@ -111,9 +111,9 @@
     {
         listaContrataciones = new List<Contrataciones>
         {
-            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion de la recepcion", 30000, "Pendiente", "Decoracion"),
-            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Servicio de catering", 15000, "Cancelada", "Catering"),
-            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Alquiler de equipo audiovisual y proyección", 8000, "Pendiente", "Entretenimiento")
+            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion", 30000, "Pendiente"),
+            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Catering", 15000, "Cancelada"),
+            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Entretenimiento", 8000, "Pendiente")
 
         };
     }
@@ -127,9 +127,8 @@
         public string Servicio { get; set; }
         public decimal Costo { get; set; }
         public string Estado { get; set; }
-        public string Categoria { get; set; }
 
-        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado, string categoria)
+        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado)
         {
             Id = id;
             Evento = evento;
@@ -138,7 +137,6 @@
             Servicio = servicio;
             Costo = costo;
             Estado = estado;
-            Categoria = categoria;
         }
     }
 }

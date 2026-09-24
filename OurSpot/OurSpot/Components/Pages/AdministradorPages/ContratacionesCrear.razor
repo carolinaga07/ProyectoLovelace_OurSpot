@@ -1,0 +1,79 @@
+﻿@page "/Contrataciones/Crear"
+
+<PageTitle>Crear Contrataciones</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h3 class="card-title">Nueva Contrataci&oacute;n</h3>
+        </div>
+
+        <div class="card-body">
+            @* id *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Id</strong></label>
+                <input type="number" class="form-control" value="1" readonly />
+            </div>
+
+            @* Evento *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Evento</strong></label>
+                <input type="text" class="form-control" placeholder="Ej. Feria Municipal Santa Clara" />
+            </div>
+
+            @* Proveedor *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Proveedor</strong></label>
+                <input type="text" class="form-control" placeholder="Ej. El Buen Saz&oacute;n" />
+            </div>
+
+            @* Fecha *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Fecha</strong></label>
+                <input type="date" class="form-control" placeholder="Ej. 18/10/2026" />
+            </div>
+
+            @* Servicio *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Servicio</strong></label>
+                <Select class="form-select" >
+                    <option value="" selected disabled>Seleccione un servicio</option>
+                    <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                    <option value="Decoracion">Decoraci&oacute;n</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Fotografia">Fotograf&iacute;a</option>
+                </Select>
+            </div>
+
+            @* Costo *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Costo</strong></label>
+                <input type="number" step="0.01" class="form-control" placeholder="0.00" />
+            </div>
+
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Estado</strong></label>
+                <select class="form-select">
+                    <option selected disabled>Seleccione el estado</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Activa">Activa</option>
+                    <option value="Cancelada">Cancelada</option>
+                    <option value="Realizada">Realizada</option>
+                </select>
+            </div>
+        </div>
+
+        @* Footer con botones de navegación *@
+        <div class="card-footer text-center">
+            <a href="/Contrataciones" class="btn btn-secondary me-2" style="background-color:#2D5056">
+                <span class="bi bi-arrow-left"></span> Cancelar
+            </a>
+            <a href="#" class="btn btn-primary" style="background-color:#2D5056">
+                <span class="bi bi-floppy"></span> Guardar
+            </a>
+        </div>
+    </div>
+</div>
