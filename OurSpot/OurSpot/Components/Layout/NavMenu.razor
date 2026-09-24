@@ -1,12 +1,60 @@
-﻿<div class="top-row ps-3 navbar navbar-dark" >
+﻿<head>
+    <meta charset="utf-8" />
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body{
+            background: #4C6D76;
+        }
+
+        ul{
+            list-style: none;
+        }
+
+        .accordion-menu{
+            max-height: 350px;
+            margin:100px auto 20px;
+            background: #14353B;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow:0 0 10px #000;
+        }
+
+        .accordion-menu li: last-child .dropdown{
+            border-botton: 0;
+        }
+
+        .dropdown{
+            cursor: pointer;
+            display:block;
+            padding: 15px 15px 15px 45px;
+            font-size: 18px;
+            border-bottom: 2px solid #14353B;
+            color: #FFFFFF;
+            position: relative;
+            transition: all 0.4s ease-out;
+        }
+
+        .dropdown:hover{
+            background:
+        }
+    </style>
+</head>
+
+<div class="top-row px-3 navbar navbar-dark d-flex align-items-center gap-4" >
     <div class="container-fluid justify-content-center">
         <a class="navbar-brand" href="">
             <img src ="lib/Imagenes/OurSpot-Logo.png" style ="max-height: 55px" />
         </a>
     </div>
-
-    <div class ="d-flex align-items-center gap-2">
-           <img src ="/lib/Imagenes/icono-person.png" style ="max-height: 50px" /> <aside class ="ms-2"><h4 class ="text-white" font-size: 1.25rem>Administrador</h4></aside>
+    
+    <div class ="d-flex align-items-center gap-8">
+           <img src ="/lib/Imagenes/icono-person.png" style ="max-height: 50px" /> <aside class ="ms-2 mt-2"><h5 class ="text-white" style = "font-size: 1.2rem">Administrador</h5></aside>
     </div>
 </div>
 
@@ -15,23 +63,71 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+
+        <div class="container">
+            <ul class="acccordion-menu">
+                <li class="link">
+                    <div class="dropdown">
+                        Principal
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="SubmenuItems">
+                        <li><a href="#"></a>Inicio</li>
+                        <li><a href="#"></a>Cronograma</li>
+                    </ul>
+                </li>
+
+                <li class="link">
+                    <div class="dropdown">
+                        Gesti&oacute;n de Eventos
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="SubmenuItems">
+                        <li><a href="#"></a>Eventos</li>
+                        <li><a href="#"></a>Contrataciones</li>
+                    </ul>
+                </li>
+
+                <li class="link">
+                    <div class="dropdown">
+                        Red de Conexi&oacute;n
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="SubmenuItems">
+                        <li><a href="#"></a>Servicios</li>
+                        <li><a href="#"></a>Proveedores</li>
+                        <li><a href="#"></a>Lugares</li>
+                        <li><a href="#"></a>Personal</li>
+                        <li><a href="#"></a>Recursos</li>
+                    </ul>
+                </li>
+
+                <li class="link">
+                    <div class="dropdown">
+                        Personas
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="SubmenuItems">
+                        <li><a href="#"></a>Clientes</li>
+
+                    </ul>
+                </li>
+
+                <li class="link">
+                    <div class="dropdown">
+                        An&aacute;lisis
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="SubmenuItems">
+                        <li><a href="#"></a>Reportes</li>
+                    </ul>
+                </li>
+
+            </ul>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+     
+       
     </nav>
 </div>
 
