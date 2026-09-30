@@ -1,5 +1,5 @@
 ﻿@page "/eventos"
-@inject EventoService EventoService
+@inject EventosService EventoService
 @inject ToastService toastService
 
 <PageTitle>Eventos</PageTitle>
@@ -33,7 +33,7 @@
                     <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
                     <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
                     <TemplateColumn Title="Opciones">
-                        <a href="/eventos/edit/@context.Id" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                        <a href="/eventos/edit/@context.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                         <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"
                         @onclick="() => MostrarModal(context)"></button>
                     </TemplateColumn>
@@ -76,14 +76,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListaEventos = await EventoService.GetList(e => e.Id > 0);
+        ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
     }
 
     private async Task Buscar()
     {
         if (ValorFiltro.Trim() == "")
         {
-            ListaEventos = await EventoService.GetList(e => e.Id > 0);
+            ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
             return;
         }
 
@@ -106,11 +106,11 @@
     {
         if (EventoAEliminar == null) return;
 
-        bool eliminado = await EventoService.Eliminar(EventoAEliminar.Id);
+        bool eliminado = await EventoService.Eliminar(EventoAEliminar.EventoId);
         if (eliminado)
         {
             toastService.ShowSuccess("Evento eliminado correctamente.");
-            ListaEventos = await EventoService.GetList(e => e.Id > 0);
+            ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
         }
         else
         {

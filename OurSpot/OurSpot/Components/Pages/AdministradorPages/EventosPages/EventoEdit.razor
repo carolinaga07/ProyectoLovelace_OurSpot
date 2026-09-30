@@ -1,0 +1,177 @@
+﻿```razor
+@page "/eventos/edit/{EventoId:int}"
+@rendermode InteractiveServer
+
+@inject EventosService eventosService
+@inject NavigationManager Navigation
+@inject ToastService toastService
+
+<PageTitle>Modificar Evento</PageTitle>
+
+<EditForm Model="Evento" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+
+            <div class="card-header text-center">
+                <h5 class="card-title">Modificar Evento</h5>
+            </div>
+
+            <div class="card-body">
+
+                <!-- NOMBRE -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Nombre</strong>
+                    </label>
+
+                    <InputText class="form-control"
+                               @bind-Value="Evento.Nombre" />
+
+                    <ValidationMessage For="() => Evento.Nombre" />
+                </div>
+
+
+                <!-- CATEGORIA -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Categoría</strong>
+                    </label>
+
+                    <InputText class="form-control"
+                               @bind-Value="Evento.Categoria" />
+
+                    <ValidationMessage For="() => Evento.Categoria" />
+                </div>
+
+
+                <!-- FECHA -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Fecha</strong>
+                    </label>
+
+                    <InputDate class="form-control"
+                               @bind-Value="Evento.Fecha" />
+
+                    <ValidationMessage For="() => Evento.Fecha" />
+                </div>
+
+
+                <!-- LUGAR -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Lugar</strong>
+                    </label>
+
+                    <InputText class="form-control"
+                               @bind-Value="Evento.Lugar" />
+
+                    <ValidationMessage For="() => Evento.Lugar" />
+                </div>
+
+
+                <!-- TIPO -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Tipo</strong>
+                    </label>
+
+                    <InputText class="form-control"
+                               @bind-Value="Evento.Tipo" />
+
+                    <ValidationMessage For="() => Evento.Tipo" />
+                </div>
+
+
+                <!-- ESTADO -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Estado</strong>
+                    </label>
+
+                    <InputSelect class="form-control"
+                                 @bind-Value="Evento.Estado">
+
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Finalizado">Finalizado</option>
+
+                    </InputSelect>
+
+                    <ValidationMessage For="() => Evento.Estado" />
+                </div>
+
+            </div>
+
+
+            <!-- BOTONES -->
+            <div class="card-footer text-center mt-2">
+
+                <a href="/eventos" class="btn btn-secondary me-2">
+                    <span class="bi bi-arrow-left"></span>
+                    Volver
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    <span class="bi bi-floppy"></span>
+                    Guardar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public int EventoId { get; set; }
+
+    private Evento Evento { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var eventoEncontrado =
+            await eventosService.Buscar(EventoId);
+
+        if (eventoEncontrado == null)
+        {
+            toastService.ShowError(
+                "El evento no existe.");
+
+            Navigation.NavigateTo("/eventos");
+
+            return;
+        }
+
+        Evento = eventoEncontrado;
+    }
+
+
+    private async Task Modificar()
+    {
+        bool modificado =
+            await eventosService.Guardar(Evento);
+
+        if (modificado)
+        {
+            toastService.ShowSuccess(
+                "Se ha modificado correctamente el evento.");
+
+            Navigation.NavigateTo("/eventos");
+        }
+        else
+        {
+            toastService.ShowError(
+                "No se ha podido modificar el evento satisfactoriamente.");
+        }
+    }
+}
+
