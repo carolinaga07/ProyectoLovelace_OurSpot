@@ -1,0 +1,121 @@
+﻿@page "/eventos"
+@inject EventoService EventoService
+@inject ToastService toastService
+
+<PageTitle>Eventos</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-content-center mb-4">
+            <h5 class="card-title">Eventos</h5>
+            <a href="/eventos/create" class="btn btn-primary"><span class="bi bi-plus-lg"></span> Nuevo Evento</a>
+        </div>
+
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opcion</option>
+                        <option value="Categoria">Categoria</option>
+                        <option value="Estado">Estado</option>
+                    </InputSelect>
+                </div>
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar Evento" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+
+                <QuickGrid Items="ListaEventos.AsQueryable()" Class="table table-hover">
+                    <PropertyColumn Property="e => e.Nombre" Title="Nombre" Sortable="true" />
+                    <PropertyColumn Property="e => e.Categoria" Title="Categoria" Sortable="true" />
+                    <PropertyColumn Property="e => e.Fecha" Title="Fecha" Sortable="true" />
+                    <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
+                    <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <a href="/eventos/edit/@context.Id" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                        <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                        @onclick="() => MostrarModal(context)"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+        <div class="card-footer">
+            <label>Cantidad: @ListaEventos.Count()</label>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminacion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (EventoAEliminar != null)
+                {
+                    <p>Eliminar el evento <strong>@EventoAEliminar.Nombre</strong>?</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="ConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public List<Evento> ListaEventos { get; set; } = new();
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+    public Evento? EventoAEliminar { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaEventos = await EventoService.GetList(e => e.Id > 0);
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() == "")
+        {
+            ListaEventos = await EventoService.GetList(e => e.Id > 0);
+            return;
+        }
+
+        if (Filtro == "Categoria")
+        {
+            ListaEventos = await EventoService.GetList(e => e.Categoria.ToLower().Contains(ValorFiltro.ToLower()));
+        }
+        else if (Filtro == "Estado")
+        {
+            ListaEventos = await EventoService.GetList(e => e.Estado.ToLower().Contains(ValorFiltro.ToLower()));
+        }
+    }
+
+    private void MostrarModal(Evento evento)
+    {
+        EventoAEliminar = evento;
+    }
+
+    private async Task ConfirmarEliminar()
+    {
+        if (EventoAEliminar == null) return;
+
+        bool eliminado = await EventoService.Eliminar(EventoAEliminar.Id);
+        if (eliminado)
+        {
+            toastService.ShowSuccess("Evento eliminado correctamente.");
+            ListaEventos = await EventoService.GetList(e => e.Id > 0);
+        }
+        else
+        {
+            toastService.ShowError("No se pudo eliminar el evento");
+        }
+        EventoAEliminar = null;
+    }
+}
