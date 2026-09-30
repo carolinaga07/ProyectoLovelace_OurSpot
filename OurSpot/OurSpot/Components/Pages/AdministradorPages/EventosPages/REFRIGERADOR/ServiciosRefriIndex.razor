@@ -35,15 +35,17 @@
     }
 </style>
 
-<h3>Servicios disponibles: Refrigeración.</h3>
+<h3>Servicios disponibles: Refrigeraci&oacute;n</h3>
 
 <div class="grid">
-     <div class="card-header d-flex justify-content-between align-center mb-4">
-            <h5 class="card-title"> </h5>
-            <a href="/Servicios/Refrigeracion/Crear" class="btn btn-primary">
-                <span class="bi bi-plus-square mt-3"></span> Crear
-            </a>
-        </div>
+    <div class ="card shadow-lg">
+     <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0">Lista de Servicios</h5>
+             <a href="/Servicios/Refrigeracion/Crear" class="btn btn-primary">
+                 <label class="bi bi-plus-square me-1"> Crear</label> 
+             </a>
+     </div>
+   </div>
     <table class="table">
         <thead>
             <tr>
@@ -78,7 +80,8 @@
             }
         </tbody>
     </table>
-</div>
+    </div>
+
 
 @code {
 
@@ -88,31 +91,12 @@
     {
         listaServicios = new List<Servicio>
         {
-            new Servicio(1, "Mantenimiento Preventivo", "Revisión general de aire acondicionado", 1500.00m, "Activo", "RefriServicios SRL"),
-            new Servicio(2, "Reparación de Fuga", "Detección y recarga de gas refrigerante", 2500.50m, "Activo", "TecnoFrío"),
-            new Servicio(3, "Instalación Split", "Montaje completo de unidad interna y externa", 4000.00m, "Inactivo", "RefriServicios SRL"),
-            new Servicio(4, "Limpieza de Filtros", "Desinfección y lavado profundo de filtros", 800.00m, "Activo", "ServiClima"),
-            new Servicio(5, "Cambio de Compresor", "Reemplazo de motor compresor dañado", 8500.00m, "Pendiente", "TecnoFrío")
+            new Servicio(1, "Mantenimiento Preventivo", "Revisión general de aire acondicionado", 1500.00m, "Activo", "RefriServicios SRL", "Refrigeración"),
+            new Servicio(2, "Reparación de Fuga", "Detección y recarga de gas refrigerante", 2500.50m, "Activo", "TecnoFrío", "Refrigeración"),
+            new Servicio(3, "Instalación Split", "Montaje completo de unidad interna y externa", 4000.00m, "Inactivo", "RefriServicios SRL", "Refrigeración"),
+            new Servicio(4, "Limpieza de Filtros", "Desinfección y lavado profundo de filtros", 800.00m, "Activo", "ServiClima", "Refrigeración")
+            
         };
     }
 
-    public class Servicio
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public decimal Costo { get; set; }
-        public string Estado { get; set; }
-        public string Proveedor { get; set; }
-
-        public Servicio(int id, string nombre, string descripcion, decimal costo, string estado, string proveedor)
-        {
-            Id = id;
-            Nombre = nombre;
-            Descripcion = descripcion;
-            Costo = costo;
-            Estado = estado;
-            Proveedor = proveedor;
-        }
-    }
 }

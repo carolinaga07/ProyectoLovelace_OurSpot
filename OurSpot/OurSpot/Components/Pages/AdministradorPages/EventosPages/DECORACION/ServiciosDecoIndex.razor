@@ -1,0 +1,102 @@
+﻿@page "/Servicios/Decoracion"
+
+<style>
+    .grid {
+        height: 16.5rem;
+        overflow-y: auto;
+    }
+
+        .grid table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .grid th, .grid td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        .grid thead {
+            position: sticky;
+            top: 0;
+            background-color: #eee;
+        }
+
+        .grid tr:nth-child(even) {
+            background: rgba(255,255,255,0.4);
+        }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+</style>
+
+<h3>Servicios disponibles: Decoraci&oacute;n</h3>
+
+<div class="grid">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0">Lista de Servicios</h5>
+            <a href="/Servicios/Crear" class="btn btn-primary">
+                <label class="bi bi-plus-square me-1"> Crear</label>
+            </a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th class="text-right">Costo</th>
+                <th>Estado</th>
+                <th>Proveedor</th>
+                <th class="text-center">Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (listaServicios != null)
+            {
+                @foreach (var s in listaServicios)
+                {
+                    <tr>
+                        <td>@s.Id</td>
+                        <td>@s.Nombre</td>
+                        <td>@s.Descripcion</td>
+                        <td class="text-right">@s.Costo.ToString("C2")</td>
+                        <td>@s.Estado</td>
+                        <td>@s.Proveedor</td>
+                        <td class="text-center">
+                            <a href="/Servicios/Editar"
+                               class="btn btn-outline-primary bi bi-pencil-square"></a>
+                            <a href="/Servicios/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+
+    private List<Servicio>? listaServicios;
+
+    protected override void OnInitialized()
+    {
+        listaServicios = new List<Servicio>
+        {
+            new Servicio(1, "Decoraciones Roman", "Servicio de decoración floral", 1500.00m, "Activo", "Luis Roman", "Decoracion"),
+            new Servicio(2, "Decoarte", "Ambientación sofisticada inspirada en el estilo retro.", 2500.50m, "Activo", "Decorarte SRL", "Decoracion"),
+            new Servicio(3, "D'Felix Decoraciones", "Creación de zonas de descanso sofisticadas.", 4000.00m, "Inactivo", "Felix Hidalgo", "Decoracion"),
+            new Servicio(4, "ArtoDeco", "Montajes dinámicos de globos en multiples tamaños", 800.00m, "Activo", "Lana D. Rey", "Decoracion")
+
+};
+    }
+
+}
