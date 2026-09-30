@@ -10,20 +10,12 @@
   <ItemGroup>
     <Compile Remove="Components\Pages\ClientePages\**" />
     <Compile Remove="Components\Pages\ProveedorPages\**" />
-    <Compile Remove="Models\**" />
-    <Compile Remove="Services\**" />
     <Content Remove="Components\Pages\ClientePages\**" />
     <Content Remove="Components\Pages\ProveedorPages\**" />
-    <Content Remove="Models\**" />
-    <Content Remove="Services\**" />
     <EmbeddedResource Remove="Components\Pages\ClientePages\**" />
     <EmbeddedResource Remove="Components\Pages\ProveedorPages\**" />
-    <EmbeddedResource Remove="Models\**" />
-    <EmbeddedResource Remove="Services\**" />
     <None Remove="Components\Pages\ClientePages\**" />
     <None Remove="Components\Pages\ProveedorPages\**" />
-    <None Remove="Models\**" />
-    <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
