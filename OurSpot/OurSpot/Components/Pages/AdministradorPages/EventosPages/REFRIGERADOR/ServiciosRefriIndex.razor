@@ -35,13 +35,13 @@
     }
 </style>
 
-<h3>Servicios disponibles: Refrigeraci&oacute;n</h3>
-
-<div class="grid">
+<h3>Servicios disponibles: Refrigeraci&oacute;n. </h3>
+<hr />
+<div class="grid mt-2">
     <div class ="card shadow-lg">
      <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title m-0">Lista de Servicios</h5>
-             <a href="/Servicios/Refrigeracion/Crear" class="btn btn-primary">
+             <a href="/Servicios/Refrigerador/Crear" class="btn btn-primary">
                  <label class="bi bi-plus-square me-1"> Crear</label> 
              </a>
      </div>
@@ -71,9 +71,9 @@
                         <td>@s.Estado</td>
                         <td>@s.Proveedor</td>
                         <td class="text-center">
-                                <a href="/Servicios/Refrigeracion/Editar"
+                                <a href="/Servicios/Refrigerador/Editar"
                                     class="btn btn-outline-primary bi bi-pencil-square"></a>
-                                <a href="/Servicios/Refrigeracion/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
+                                <a href="/Servicios/Refrigerador/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
                             </td>
                     </tr>
                 }
@@ -92,7 +92,7 @@
         listaServicios = new List<Servicio>
         {
             new Servicio(1, "Mantenimiento Preventivo", "Revisión general de aire acondicionado", 1500.00m, "Activo", "RefriServicios SRL", "Refrigeración"),
-            new Servicio(2, "Reparación de Fuga", "Detección y recarga de gas refrigerante", 2500.50m, "Activo", "TecnoFrío", "Refrigeración"),
+            new Servicio(2, "Reparación de Fuga", "Detección y recarga de gas refrigerante", 2500.00m, "Activo", "TecnoFrío", "Refrigeración"),
             new Servicio(3, "Instalación Split", "Montaje completo de unidad interna y externa", 4000.00m, "Inactivo", "RefriServicios SRL", "Refrigeración"),
             new Servicio(4, "Limpieza de Filtros", "Desinfección y lavado profundo de filtros", 800.00m, "Activo", "ServiClima", "Refrigeración")
             

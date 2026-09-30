@@ -1,4 +1,4 @@
-﻿@page "/Servicios/Decoracion"
+﻿@page "/Servicios/Seguridad"
 
 <style>
     .grid {
@@ -35,13 +35,13 @@
     }
 </style>
 
-<h3>Servicios disponibles: Decoraci&oacute;n.</h3>
+<h3>Servicios disponibles: Seguridad.</h3>
 <hr />
 <div class="grid">
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title m-0">Lista de Servicios</h5>
-            <a href="/Servicios/Decoracion/Crear" class="btn btn-primary">
+            <a href="/Servicios/Seguridad/Crear" class="btn btn-primary">
                 <label class="bi bi-plus-square me-1"> Crear</label>
             </a>
         </div>
@@ -71,9 +71,9 @@
                         <td>@s.Estado</td>
                         <td>@s.Proveedor</td>
                         <td class="text-center">
-                            <a href="/Servicios/Decoracion/Editar"
+                            <a href="/Servicios/Seguridad/Editar"
                                class="btn btn-outline-primary bi bi-pencil-square"></a>
-                            <a href="/Servicios/Decoracion/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
+                            <a href="/Servicios/Seguridad/Eliminar" class="btn btn-outline-danger bi bi-trash"></a>
                         </td>
                     </tr>
                 }
@@ -91,10 +91,9 @@
     {
         listaServicios = new List<Servicio>
         {
-            new Servicio(1, "Decoraciones Roman", "Servicio de decoración floral", 1500.00m, "Activo", "Luis Roman", "Decoracion"),
-            new Servicio(2, "Decoarte", "Ambientación sofisticada inspirada en el estilo retro.", 2500.50m, "Activo", "Decorarte SRL", "Decoracion"),
-            new Servicio(3, "D'Felix Decoraciones", "Creación de zonas de descanso sofisticadas.", 4000.00m, "Inactivo", "Felix Hidalgo", "Decoracion"),
-            new Servicio(4, "ArtoDeco", "Montajes dinámicos de globos en multiples tamaños", 800.00m, "Activo", "Lana D. Rey", "Decoracion")
+            new Servicio(1, "Dominican Watchman", "Vigilancia física, patrullaje y transporte de valores.", 5500.00m, "Activo", "DWN ", "Seguridad"),
+            new Servicio(2, "Proteck Seguridad", "Consultoría de riesgos corporativos y control de acceso.", 6500.50m, "Activo", "Proteck ", "Seguridad"),
+            new Servicio(3, "Seguritix Seguridad", "Protección ejecutiva y custodia de bienes", 4000.00m, "Inactivo", " Securitrix", "Seguridad")
 
 };
     }

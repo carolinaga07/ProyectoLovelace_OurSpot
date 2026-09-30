@@ -1,4 +1,4 @@
-﻿@page "/GestionEstudiantes/Crear"
+﻿@* @page "/GestionEstudiantes/Crear"
 @inject EstudiantesService estudiantesService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
@@ -15,34 +15,34 @@
             </div>
 
             <div class="card-body">
-                @*EstudianteId*@
+                @*EstudianteId
                 <div class="mb-3">
                     <label class="form-label"><strong>EstudianteId</strong></label>
                     <InputNumber class="form-control" @bind-Value="estudiante.EstudianteId" readonly></InputNumber>
                 </div>
 
-                @*Nombres*@
+                @*Nombres
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombres</strong></label>
                     <InputText class="form-control" @bind-Value="estudiante.Nombres"></InputText>
                     <ValidationMessage For="(() => estudiante.Nombres)" />
                 </div>
 
-                @*Direccion*@
+                @*Direccion
                 <div class="mb-3">
                     <label class="form-label"><strong>Direccion</strong></label>
                     <InputText class="form-control" @bind-Value="estudiante.Direccion"></InputText>
                     <ValidationMessage For="(() => estudiante.Direccion)" />
                 </div>
 
-                @*Nombres*@
+                @*Nombres
                 <div class="mb-3">
                     <label class="form-label"><strong>E-mail</strong></label>
                     <InputText class="form-control" @bind-Value="estudiante.Email"></InputText>
                     <ValidationMessage For="(() => estudiante.Email)" />
                 </div>
 
-                @*FechaNacimiento*@
+                @*FechaNacimiento
                 <div class="mb-3">
                     <label class="form-label"><strong>Fecha de Nacimiento</strong></label>
                     <InputDate class="form-control" @bind-Value="estudiante.FechaNacimiento"></InputDate>
@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            @*footer*@
+            @*footer
             <div class="card-footer text-center mt-2">
                 <a href="/GestionEstudiantes/Index" class="btn btn-secondary"><span class="bi bi-arrow-left"></span>Volver</a>
                 <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
@@ -79,4 +79,4 @@
         }
     }
 
-}
+} *@
