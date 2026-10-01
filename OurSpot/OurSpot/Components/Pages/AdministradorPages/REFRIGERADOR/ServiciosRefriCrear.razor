@@ -1,0 +1,64 @@
+﻿@page "/Servicios/Refrigeracion/Crear"
+
+<PageTitle>Crear Servicio de Refrigeración</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h3 class="card-title">Agregar Servicio de Refrigeración</h3>
+        </div>
+
+        <div class="card-body">
+            @* id *@
+            <div class="mb-3">
+                <label class="form-label"><strong>id</strong></label>
+                <input type="number" class="form-control" value="1" readonly />
+            </div>
+
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Nombre</strong></label>
+                <input type="text" class="form-control" placeholder="Ej. Mantenimiento Preventivo" />
+            </div>
+
+            @* Descripcion *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Descripcion</strong></label>
+                <textarea class="form-control" rows="3" placeholder="Descripción detallada del servicio..."></textarea>
+            </div>
+
+            @* Costo *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Costo</strong></label>
+                <input type="number" step="0.01" class="form-control" placeholder="0.00" />
+            </div>
+
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Estado</strong></label>
+                <select class="form-select">
+                    <option selected disabled>Seleccione un estado</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
+            </div>
+
+            @* Proveedor *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Proveedor</strong></label>
+                <input type="text" class="form-control" placeholder="Ej. RefriServicios SRL" />
+            </div>
+        </div>
+
+        @* Footer con botones de navegación *@
+        <div class="card-footer text-center">
+            <a href="/Servicios/Refrigeracion" class="btn btn-secondary me-2">
+                <span class="bi bi-arrow-left"></span> Volver
+            </a>
+            <a href="/Servicios/Refrigeracion" class="btn btn-primary">
+                <span class="bi bi-floppy"></span> Guardar
+            </a>
+        </div>
+    </div>
+</div>

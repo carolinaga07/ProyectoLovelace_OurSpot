@@ -10,24 +10,18 @@
   <ItemGroup>
     <Compile Remove="Components\Pages\ClientePages\**" />
     <Compile Remove="Components\Pages\ProveedorPages\**" />
-    <Compile Remove="Models\**" />
-    <Compile Remove="Services\**" />
     <Content Remove="Components\Pages\ClientePages\**" />
     <Content Remove="Components\Pages\ProveedorPages\**" />
-    <Content Remove="Models\**" />
-    <Content Remove="Services\**" />
     <EmbeddedResource Remove="Components\Pages\ClientePages\**" />
     <EmbeddedResource Remove="Components\Pages\ProveedorPages\**" />
-    <EmbeddedResource Remove="Models\**" />
-    <EmbeddedResource Remove="Services\**" />
     <None Remove="Components\Pages\ClientePages\**" />
     <None Remove="Components\Pages\ProveedorPages\**" />
-    <None Remove="Models\**" />
-    <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aplicada1.Core" Version="1.1.0" />
     <PackageReference Include="Blazor.Bootstrap" Version="4.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
