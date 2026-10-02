@@ -33,7 +33,7 @@
                     <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
                     <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
                     <TemplateColumn Title="Opciones">
-                        <a href="/eventos/edit/@context.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                        <a href="/eventos/edit/@contexto.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                         <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"
                         @onclick="() => MostrarModal(context)"></button>
                     </TemplateColumn>
