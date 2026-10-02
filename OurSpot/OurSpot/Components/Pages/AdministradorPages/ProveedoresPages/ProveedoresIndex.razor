@@ -1,0 +1,174 @@
+﻿@page "/Proveedores"
+@rendermode InteractiveServer
+
+
+<PageTitle>Proveedores</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Proveedores</h5>
+            <a href="/Proveedores/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Agregar Proveedores</a>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search"></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>RNC</th>
+                        <th>Categoría</th>
+                        <th>Dirección</th>
+                        <th>Contacto</th>
+                        <th>Servicio</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var proveedor in listaProveedores)
+                    {
+                        <tr>
+                            <td>@proveedor.Id</td>
+                            <td>@proveedor.Nombre</td>
+                            <td>@proveedor.RNC</td>
+                            <td>@proveedor.Categoria</td>
+                            <td>@proveedor.Direccion</td>
+                            <td>@proveedor.Contacto</td>
+                            <td>@proveedor.Servicio</td>
+                            <td>
+                                <a href="/Proveedores/Editar" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="MostrarModal"> </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <p>Cantidad: @listaProveedores.Count</p>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModal)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"> </button>
+                </div>
+
+                <div class="modal-body">
+                    <p>¿Eliminar el proveedor?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal"> Cancelar </button>
+                    <button type="button" class="btn btn-danger" @onclick="CerrarModal"> Eliminar </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+@code {
+    private List<Proveedores> listaProveedores = new();
+
+    private string FiltroCategoria { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    private bool mostrarModal = false;
+
+    protected override void OnInitialized()
+    {
+        listaProveedores = new List<Proveedores>
+        {
+            new Proveedores(1, "Clima Eventos Rd", "132-45678-9", "Calle Principal #123", "Refrigeracion", "809-555-1201", "Alquiler de Aires Acondicionados"),
+            new Proveedores(2, "DecoArte Eventos", "131-78945-2", "Avenida Central #456", "Decoracion", "809-645-2345", "Decoracion de bodas"),
+            new Proveedores(3, "Sonido & Fiesta RD", "130-34567-4", "Boulevard del Sol #789", "Entretenimiento", "809-123-4567", "Dj, sonido e iluminacion")
+
+        };
+    }
+
+    private void MostrarModal()
+    {
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+
+    public class Proveedores
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string RNC { get; set; }
+        public string Direccion { get; set; }
+        public string Categoria { get; set; }
+        public string Contacto { get; set; }
+        public string Servicio { get; set; }
+
+        public Proveedores(int id, string nombre, string rnc, string direccion, string categoria, string contacto, string servicio)
+        {
+            Id = id;
+            Nombre = nombre;
+            RNC = rnc;
+            Direccion = direccion;
+            Categoria = categoria;
+            Contacto = contacto;
+            Servicio = servicio;
+        }
+    }
+}

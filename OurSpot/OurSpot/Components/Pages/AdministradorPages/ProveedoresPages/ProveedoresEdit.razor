@@ -1,0 +1,78 @@
+﻿@page "/Proveedores/Editar"
+
+<PageTitle>Editar Proveedor</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h3 class="card-title">Editar Proveedor</h3>
+        </div>
+
+        <div class="card-body">
+            @* id *@
+            <div class="mb-3">
+                <label class="form-label"><strong>Id</strong></label>
+                <input type="number" class="form-control" value="1" readonly />
+            </div>
+
+            @*Nombre*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Nombre</strong></label>
+                <input type="text" class="form-control" placeholder="Clima Eventos RD"/>
+            </div>
+
+            @*RNC*@
+            <div class="mb-3">
+                <label class="form-label"><strong>RNC</strong></label>
+                <input type="text" class="form-control" placeholder="132-45678-9" />
+            </div>
+
+            @*Direccion*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Direccion</strong></label>
+                <input type="text" class="form-control" placeholder="Calle Principal #123" />
+            </div>
+
+            @*Categoria*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Categoria</strong></label>
+                <Select class="form-select">
+                    <option value="" selected disabled>Elija una opci&oacute;n</option>
+                    <option value="Refrigeracion" selected>Refrigeraci&oacute;n</option>
+                    <option value="Decoracion">Decoraci&oacute;n</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Fotografia">Fotograf&iacute;a</option>
+                </Select>
+            </div>
+
+            @*Contacto*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Contacto</strong></label>
+                <input type="text" class="form-control" placeholder="809-555-1201" />
+            </div>
+
+            @*Servicio*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Servicio</strong></label>
+                <input type="text" class="form-control" placeholder="Alquiler de Aires Acondicionados" />
+            </div>
+        </div>
+
+        @* Footer*@
+        <div class="card-footer text-center">
+            <a href="/Proveedores" class="btn btn-secondary me-2">
+                <span class="bi bi-arrow-left"></span> Volver
+            </a>
+            <a href="/Proveedores" class="btn btn-primary">
+                <span class="bi bi-floppy"></span> Guardar
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}
