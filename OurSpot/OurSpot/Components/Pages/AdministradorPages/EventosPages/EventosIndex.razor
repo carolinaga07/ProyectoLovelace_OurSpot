@@ -1,13 +1,12 @@
 ﻿@page "/eventos"
 
-
 <PageTitle>Eventos</PageTitle>
 
 <div class="container">
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">Eventos</h5>
-            <a href="/eventos/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Eventos </a>
+            <a href="/eventos/create" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Evento </a>
         </div>
 
         <div class="card-body">
@@ -37,23 +36,21 @@
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="FiltroCategoria">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
-                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
-                        <option value="Decoracion">Decoraci&oacute;n</option>
-                        <option value="Catering">Catering</option>
-                        <option value="Entretenimiento">Entretenimiento</option>
-                        <option value="Seguridad">Seguridad</option>
-                        <option value="Fotografia">Fotograf&iacute;a</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Social">Social</option>
+                        <option value="Empresarial">Empresarial</option>
+                        <option value="Deportivo">Deportivo</option>
                     </InputSelect>
                 </div>
 
-                @*Esatdo*@
+                @*Estado*@
                 <div class="col-4">
                     <InputSelect class="form-select" @bind-Value="FiltroEstado">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Pendiente">Pendiente</option>
-                        <option value="Activa">Activa</option>
-                        <option value="Cancelada">Cancelada</option>
-                        <option value="Realizada">Realizada</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Realizado">Realizado</option>
                     </InputSelect>
                 </div>
 
@@ -71,23 +68,23 @@
                 <thead class="table  table-striped text-black">
                     <tr>
                         <th>Evento</th>
-                        <th>Servicio</th>
-                        <th>Proveedor</th>
+                        <th>Categoria</th>
                         <th>Fecha</th>
-                        <th>Costo</th>
+                        <th>Lugar</th>
+                        <th>Tipo</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var contratacion in listaContrataciones)
+                    @foreach (var evento in listaEventos)
                     {
                         <tr>
-                            <td> @contratacion.Evento</td>
-                            <td> @contratacion.Servicio</td>
-                            <td> @contratacion.Proveedor</td>
-                            <td> @contratacion.Fecha</td>
-                            <td> @contratacion.Costo</td>
-                            <td> @contratacion.Estado</td>
+                            <td> @evento.Nombre</td>
+                            <td> @evento.Categoria</td>
+                            <td> @evento.Fecha</td>
+                            <td> @evento.Lugar</td>
+                            <td> @evento.Tipo</td>
+                            <td> @evento.Estado</td>
 
                         </tr>
                     }
@@ -100,7 +97,7 @@
 </div>
 
 @code {
-    private List<Contrataciones>? listaContrataciones;
+    private List<Evento>? listaEventos;
 
     private string FiltroCategoria { get; set; } = string.Empty;
     private string FiltroEstado { get; set; } = string.Empty;
@@ -108,33 +105,33 @@
 
     protected override void OnInitialized()
     {
-        listaContrataciones = new List<Contrataciones>
+        listaEventos = new List<Evento>
         {
-            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion", 30000, "Pendiente"),
-            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Catering", 15000, "Cancelada"),
-            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Entretenimiento", 8000, "Pendiente")
+               new Evento(1, "Boda de los Perez", "Social", new DateOnly(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"),
+               new Evento(2, "Feria Municipal de Artesanos", "Cultural", new DateOnly(2026, 10, 18), "Parque Central", "Publico", "Activo"),
+               new Evento(3, "Conferencia Empresarial Santa Barbara", "Empresarial", new DateOnly(2027, 9, 10), "Hotel Barcelo", "Privado", "Pendiente")
 
         };
     }
 
-    public class Contrataciones
+    public class Evento
     {
         public int Id { get; set; }
-        public string Evento { get; set; }
-        public string Proveedor { get; set; }
+        public string Nombre { get; set; }
+        public string Categoria { get; set; }
         public DateOnly Fecha { get; set; }
-        public string Servicio { get; set; }
-        public decimal Costo { get; set; }
+        public string Lugar { get; set; }
+        public string Tipo { get; set; }
         public string Estado { get; set; }
 
-        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado)
+        public Evento(int id, string nombre, string categoria, DateOnly fecha, string lugar, string tipo, string estado)
         {
             Id = id;
-            Evento = evento;
-            Proveedor = proveedor;
+            Nombre = nombre;
+            Categoria = categoria;
             Fecha = fecha;
-            Servicio = servicio;
-            Costo = costo;
+            Lugar = lugar;
+            Tipo = tipo;
             Estado = estado;
         }
     }
