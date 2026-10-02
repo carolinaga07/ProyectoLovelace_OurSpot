@@ -1,0 +1,43 @@
+﻿@page "/Servicios/Entretenimiento/Eliminar"
+
+<PageTitle>Eliminar Servicio de Entretenimiento</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        @* Header *@
+        <div class="card-header text-center">
+            <h5><strong>Datos del Servicio</strong></h5>
+        </div>
+
+        @* Body *@
+        <div class="card-body">
+            <div class="text-center text-danger">
+                <h5><strong>¿Desea eliminar este servicio de entretenimiento?</strong></h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+                <li class="list-group-item"><strong>id: </strong>@Id</li>
+                <li class="list-group-item"><strong>Nombre: </strong>Payaso Bobby</li>
+                <li class="list-group-item"><strong>Descripcion: </strong>El mejor show infantil, ¡con el payaso más gracioso!</li>
+                <li class="list-group-item"><strong>Costo: </strong>$1,000.00</li>`
+                <li class="list-group-item"><strong>Estado: </strong>Activo</li>
+                <li class="list-group-item"><strong>Proveedor: </strong>Risas Compartidas SRL</li>
+            </ul>
+        </div>
+
+        @* Footer *@
+        <div class="card-footer text-center">
+            <a href="/Servicios/Entretenimiento" class="btn btn-secondary me-2">
+                <span class="bi bi-arrow-left"></span> Volver
+            </a>
+            <a href="/Servicios/Entretenimiento" class="btn btn-danger">
+                <span class="bi bi-trash"></span> Eliminar
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}

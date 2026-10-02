@@ -1,4 +1,4 @@
-﻿@page "/Servicios/Refrigeracion/Crear"
+﻿@page "/Servicios/Refrigerador/Crear"
 
 <PageTitle>Crear Servicio de Refrigeración</PageTitle>
 
@@ -24,7 +24,7 @@
             @* Descripcion *@
             <div class="mb-3">
                 <label class="form-label"><strong>Descripcion</strong></label>
-                <textarea class="form-control" rows="3" placeholder="Descripción detallada del servicio..."></textarea>
+                <textarea class="form-control" rows="3" placeholder="Descripción detallada del servicio."></textarea>
             </div>
 
             @* Costo *@
@@ -36,18 +36,28 @@
             @* Estado *@
             <div class="mb-3">
                 <label class="form-label"><strong>Estado</strong></label>
-                <select class="form-select">
-                    <option selected disabled>Seleccione un estado</option>
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                    <option value="Pendiente">Pendiente</option>
-                </select>
+                <input type="text" class="form-control" value="Activo" readonly />
             </div>
 
             @* Proveedor *@
             <div class="mb-3">
                 <label class="form-label"><strong>Proveedor</strong></label>
                 <input type="text" class="form-control" placeholder="Ej. RefriServicios SRL" />
+            </div>
+
+            @*Tipo de Servicio*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Estado</strong></label>
+                <select class="form-select">
+                    <option selected disabled>Seleccione un estado</option>
+                    <option value="Refrigeraci&oacute;n">Refrigeraci&oacute;n</option>
+                    <option value="Decoraci&oacute;n">Decoraci&oacute;n</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Fotograf&iacute;a">Entretenimiento</option>
+
+                </select>
             </div>
         </div>
 
@@ -62,3 +72,7 @@
         </div>
     </div>
 </div>
+
+@code{
+    Servicio servicio = new Servicio();
+}

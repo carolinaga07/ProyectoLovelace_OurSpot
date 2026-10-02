@@ -1,0 +1,43 @@
+﻿@page "/Servicios/Fotografia/Eliminar"
+
+<PageTitle>Eliminar Servicio de Fotograf&iacute;a</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        @* Header *@
+        <div class="card-header text-center">
+            <h5><strong>Datos del Servicio</strong></h5>
+        </div>
+
+        @* Body *@
+        <div class="card-body">
+            <div class="text-center text-danger">
+                <h5><strong>¿Desea eliminar este servicio de fotograf&iacute;a?</strong></h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+                <li class="list-group-item"><strong>id: </strong>@Id</li>
+                <li class="list-group-item"><strong>Nombre: </strong>Enfoque Creativo</li>
+                <li class="list-group-item"><strong>Descripcion: </strong>Cobertura fotográfica profesional para eventos.</li>
+                <li class="list-group-item"><strong>Costo: </strong>$3,200.00</li>`
+                <li class="list-group-item"><strong>Estado: </strong>Activo</li>
+                <li class="list-group-item"><strong>Proveedor: </strong>Enfoque Studio SRL</li>
+            </ul>
+        </div>
+
+        @* Footer *@
+        <div class="card-footer text-center">
+            <a href="/Servicios/Fotografia" class="btn btn-secondary me-2">
+                <span class="bi bi-arrow-left"></span> Volver
+            </a>
+            <a href="/Servicios/Fotografia" class="btn btn-danger">
+                <span class="bi bi-trash"></span> Eliminar
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}
