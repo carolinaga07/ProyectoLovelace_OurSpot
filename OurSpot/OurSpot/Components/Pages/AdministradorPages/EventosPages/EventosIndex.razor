@@ -1,121 +1,141 @@
 ﻿@page "/eventos"
-@inject EventosService EventoService
-@inject ToastService toastService
+
 
 <PageTitle>Eventos</PageTitle>
+
 <div class="container">
     <div class="card shadow-lg">
-        <div class="card-header d-flex justify-content-between align-content-center mb-4">
-            <h5 class="card-title">Eventos</h5>
-            <a href="/eventos/create" class="btn btn-primary"><span class="bi bi-plus-lg"></span> Nuevo Evento</a>
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Eventos</h5>
+            <a href="/eventos/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Eventos </a>
         </div>
 
         <div class="card-body">
-            <div class="row align-items-center">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
                 <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="Filtro">
-                        <option value="" selected disabled>Elija una opcion</option>
-                        <option value="Categoria">Categoria</option>
-                        <option value="Estado">Estado</option>
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
                     </InputSelect>
                 </div>
+
+                @*Esatdo*@
                 <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Realizada">Realizada</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
                     <div class="input-group">
-                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar Evento" />
-                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search"></button>
                     </div>
                 </div>
 
-                <QuickGrid Items="ListaEventos.AsQueryable()" Class="table table-hover">
-                    <PropertyColumn Property="e => e.Nombre" Title="Nombre" Sortable="true" />
-                    <PropertyColumn Property="e => e.Categoria" Title="Categoria" Sortable="true" />
-                    <PropertyColumn Property="e => e.Fecha" Title="Fecha" Sortable="true" />
-                    <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
-                    <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
-                    <TemplateColumn Title="Opciones">
-                        <a href="/eventos/edit/@contexto.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
-                        <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"
-                        @onclick="() => MostrarModal(context)"></button>
-                    </TemplateColumn>
-                </QuickGrid>
             </div>
+
+            <table class="table table-hover">
+                <thead class="table  table-striped text-black">
+                    <tr>
+                        <th>Evento</th>
+                        <th>Servicio</th>
+                        <th>Proveedor</th>
+                        <th>Fecha</th>
+                        <th>Costo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contratacion in listaContrataciones)
+                    {
+                        <tr>
+                            <td> @contratacion.Evento</td>
+                            <td> @contratacion.Servicio</td>
+                            <td> @contratacion.Proveedor</td>
+                            <td> @contratacion.Fecha</td>
+                            <td> @contratacion.Costo</td>
+                            <td> @contratacion.Estado</td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-        <div class="card-footer">
-            <label>Cantidad: @ListaEventos.Count()</label>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="modalEliminar" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminacion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                @if (EventoAEliminar != null)
-                {
-                    <p>Eliminar el evento <strong>@EventoAEliminar.Nombre</strong>?</p>
-                }
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="ConfirmarEliminar">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 @code {
-    public List<Evento> ListaEventos { get; set; } = new();
-    public string Filtro { get; set; } = string.Empty;
-    public string ValorFiltro { get; set; } = string.Empty;
-    public Evento? EventoAEliminar { get; set; }
+    private List<Contrataciones>? listaContrataciones;
 
-    protected override async Task OnInitializedAsync()
+    private string FiltroCategoria { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
     {
-        ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
+        listaContrataciones = new List<Contrataciones>
+        {
+            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion", 30000, "Pendiente"),
+            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Catering", 15000, "Cancelada"),
+            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Entretenimiento", 8000, "Pendiente")
+
+        };
     }
 
-    private async Task Buscar()
+    public class Contrataciones
     {
-        if (ValorFiltro.Trim() == "")
-        {
-            ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
-            return;
-        }
+        public int Id { get; set; }
+        public string Evento { get; set; }
+        public string Proveedor { get; set; }
+        public DateOnly Fecha { get; set; }
+        public string Servicio { get; set; }
+        public decimal Costo { get; set; }
+        public string Estado { get; set; }
 
-        if (Filtro == "Categoria")
+        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado)
         {
-            ListaEventos = await EventoService.GetList(e => e.Categoria.ToLower().Contains(ValorFiltro.ToLower()));
+            Id = id;
+            Evento = evento;
+            Proveedor = proveedor;
+            Fecha = fecha;
+            Servicio = servicio;
+            Costo = costo;
+            Estado = estado;
         }
-        else if (Filtro == "Estado")
-        {
-            ListaEventos = await EventoService.GetList(e => e.Estado.ToLower().Contains(ValorFiltro.ToLower()));
-        }
-    }
-
-    private void MostrarModal(Evento evento)
-    {
-        EventoAEliminar = evento;
-    }
-
-    private async Task ConfirmarEliminar()
-    {
-        if (EventoAEliminar == null) return;
-
-        bool eliminado = await EventoService.Eliminar(EventoAEliminar.EventoId);
-        if (eliminado)
-        {
-            toastService.ShowSuccess("Evento eliminado correctamente.");
-            ListaEventos = await EventoService.GetList(e => e.EventoId > 0);
-        }
-        else
-        {
-            toastService.ShowError("No se pudo eliminar el evento");
-        }
-        EventoAEliminar = null;
     }
 }
