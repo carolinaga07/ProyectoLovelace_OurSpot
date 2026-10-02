@@ -1,0 +1,100 @@
+﻿@page "/lugares/create"
+@rendermode InteractiveServer
+
+<PageTitle>Crear lugar</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>Nuevo Lugar</h2>
+        </div>
+
+        <div class="form-body">
+
+            <div class="campo">
+                <label>Id</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="4"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Ubicación</label>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Ej. Centro Cultural La Nave" />
+            </div>
+
+            <div class="campo">
+                <label>Categoría</label>
+
+                <select class="form-select">
+                    <option selected disabled>
+                        Seleccione una categoría
+                    </option>
+
+                    <option>Centro cultural</option>
+                    <option>Salón de eventos</option>
+                    <option>Auditorio</option>
+                    <option>Espacio abierto</option>
+                    <option>Restaurante</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Capacidad</label>
+
+                <input type="number"
+                       class="form-control"
+                       placeholder="Ej. 150" />
+            </div>
+
+            <div class="campo">
+                <label>Descripción</label>
+
+                <textarea class="form-control descripcion"
+                          placeholder="Descripción del lugar"></textarea>
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+
+                <select class="form-select">
+                    <option selected disabled>
+                        Seleccione el estado
+                    </option>
+
+                    <option>Disponible</option>
+                    <option>No disponible</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-footer">
+
+            <a href="/lugares"
+               class="btn-cancelar">
+
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="btn-guardar">
+
+                <i class="bi bi-floppy"></i>
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
