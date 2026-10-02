@@ -1,4 +1,5 @@
 ﻿@page "/Proveedores"
+@rendermode InteractiveServer
 
 
 <PageTitle>Proveedores</PageTitle>
@@ -77,8 +78,8 @@
                             <td>@proveedor.Contacto</td>
                             <td>@proveedor.Servicio</td>
                             <td>
-                                <a href="/Proveedores/Editar/@proveedor.Id" class="btn btn-outline-primary bi bi-pencil-square"></a>
-                                <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"></button>
+                                <a href="/Proveedores/Editar" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="MostrarModal"> </button>
                             </td>
                         </tr>
                     }
@@ -91,6 +92,32 @@
     </div>
 </div>
 
+@if (mostrarModal)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"> </button>
+                </div>
+
+                <div class="modal-body">
+                    <p>¿Eliminar el proveedor?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal"> Cancelar </button>
+                    <button type="button" class="btn btn-danger" @onclick="CerrarModal"> Eliminar </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+}
 
 
 @code {
@@ -99,16 +126,29 @@
     private string FiltroCategoria { get; set; } = string.Empty;
     private string FiltroBusqueda { get; set; } = string.Empty;
 
+    private bool mostrarModal = false;
+
     protected override void OnInitialized()
     {
         listaProveedores = new List<Proveedores>
         {
-            new Proveedores(1, "Clima Eventos Rd", "132-45678-9", "Calle Principal #123", "Refrigeracion", "809-555-1201", "Alquiler de Air"),
+            new Proveedores(1, "Clima Eventos Rd", "132-45678-9", "Calle Principal #123", "Refrigeracion", "809-555-1201", "Alquiler de Aires Acondicionados"),
             new Proveedores(2, "DecoArte Eventos", "131-78945-2", "Avenida Central #456", "Decoracion", "809-645-2345", "Decoracion de bodas"),
             new Proveedores(3, "Sonido & Fiesta RD", "130-34567-4", "Boulevard del Sol #789", "Entretenimiento", "809-123-4567", "Dj, sonido e iluminacion")
 
         };
     }
+
+    private void MostrarModal()
+    {
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
 
     public class Proveedores
     {
