@@ -1,0 +1,608 @@
+﻿@page "/reportes"
+@rendermode InteractiveServer
+
+<PageTitle>Reporte general</PageTitle>
+
+<div class="reporte-page">
+
+    @* Encabezado *@
+    <div class="reporte-header">
+
+        <h1>Reporte general</h1>
+
+        <div class="reporte-controles">
+
+            <div class="anio-control">
+                <span>Año:</span>
+
+                <button type="button">
+                    2026
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+
+            <button type="button" class="exportar">
+                <i class="bi bi-download"></i>
+                Exportar reporte
+            </button>
+
+        </div>
+
+    </div>
+
+
+    @* Tarjetas *@
+    <div class="resumen-grid">
+
+        <div class="resumen-card">
+            <div class="resumen-titulo">
+                <i class="bi bi-check-circle"></i>
+                <span>Eventos realizados</span>
+            </div>
+
+            <strong>97</strong>
+
+            <button type="button">
+                Ver más detalles
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+
+
+        <div class="resumen-card">
+            <div class="resumen-titulo">
+                <i class="bi bi-calendar-event"></i>
+                <span>Eventos próximos</span>
+            </div>
+
+            <strong>22</strong>
+
+            <button type="button">
+                Ver más detalles
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+
+
+        <div class="resumen-card">
+            <div class="resumen-titulo">
+                <i class="bi bi-x-circle"></i>
+                <span>Eventos cancelados</span>
+            </div>
+
+            <strong>7</strong>
+
+            <button type="button">
+                Ver más detalles
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+
+
+        <div class="resumen-card">
+            <div class="resumen-titulo">
+                <i class="bi bi-people"></i>
+                <span>Eventos públicos</span>
+            </div>
+
+            <strong>52</strong>
+
+            <button type="button">
+                Ver más detalles
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+
+
+        <div class="resumen-card">
+            <div class="resumen-titulo">
+                <i class="bi bi-lock"></i>
+                <span>Eventos privados</span>
+            </div>
+
+            <strong>17</strong>
+
+            <button type="button">
+                Ver más detalles
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+
+
+    @* Gráficas superiores *@
+    <div class="graficas-superiores">
+
+        @* Eventos del mes *@
+        <section class="reporte-panel eventos-mes">
+
+            <h2>Eventos del mes</h2>
+
+            <div class="grafica-barras">
+
+                <div class="eje-y">
+                    <span>20</span>
+                    <span>15</span>
+                    <span>10</span>
+                    <span>5</span>
+                    <span>0</span>
+                </div>
+
+                <div class="area-grafica">
+
+                    <div class="lineas">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <div class="columnas">
+
+                        @* Enero *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 65%;"
+                                      title="13 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 5%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Ene</span>
+                        </div>
+
+
+                        @* Febrero *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 45%;"
+                                      title="9 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 5%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Feb</span>
+                        </div>
+
+
+                        @* Marzo *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 50%;"
+                                      title="10 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 0%;"
+                                      title="0 cancelados"></span>
+                            </div>
+
+                            <span>Mar</span>
+                        </div>
+
+
+                        @* Abril *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 65%;"
+                                      title="13 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 5%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Abr</span>
+                        </div>
+
+
+                        @* Mayo *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 45%;"
+                                      title="9 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 3%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>May</span>
+                        </div>
+
+
+                        @* Junio *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 60%;"
+                                      title="12 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 0%;"
+                                      title="0 cancelados"></span>
+                            </div>
+
+                            <span>Jun</span>
+                        </div>
+
+
+                        @* Julio *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 55%;"
+                                      title="11 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 3%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Jul</span>
+                        </div>
+
+
+                        @* Agosto *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 45%;"
+                                      title="9 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 5%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Ago</span>
+                        </div>
+
+
+                        @* Septiembre *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 65%;"
+                                      title="13 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 0%;"
+                                      title="0 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 5%;"
+                                      title="1 cancelado"></span>
+                            </div>
+
+                            <span>Sep</span>
+                        </div>
+
+
+                        @* Octubre *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 0%;"
+                                      title="0 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 30%;"
+                                      title="8 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 0%;"
+                                      title="0 cancelados"></span>
+                            </div>
+
+                            <span>Oct</span>
+                        </div>
+
+
+                        @* Noviembre *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 0%;"
+                                      title="0 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 35%;"
+                                      title="7 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 0%;"
+                                      title="0 cancelados"></span>
+                            </div>
+
+                            <span>Nov</span>
+                        </div>
+
+
+                        @* Diciembre *@
+                        <div class="grupo-mes">
+                            <div class="barras">
+                                <span class="barra realizados"
+                                      style="height: 0%;"
+                                      title="0 realizados"></span>
+
+                                <span class="barra proximos"
+                                      style="height: 40%;"
+                                      title="7 próximos"></span>
+
+                                <span class="barra cancelados"
+                                      style="height: 0%;"
+                                      title="0 cancelados"></span>
+                            </div>
+
+                            <span>Dic</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="leyenda">
+
+                <div>
+                    <span class="leyenda-color realizados"></span>
+                    Realizados
+                </div>
+
+                <div>
+                    <span class="leyenda-color proximos"></span>
+                    Próximos
+                </div>
+
+                <div>
+                    <span class="leyenda-color cancelados"></span>
+                    Cancelados
+                </div>
+
+            </div>
+
+        </section>
+
+
+        @* Eventos por tipo *@
+        <section class="reporte-panel eventos-tipo">
+
+            <h2>Eventos por tipo</h2>
+
+            <div class="tipo-contenido">
+
+                <div class="grafica-dona">
+
+                    <span class="porcentaje-dona porcentaje-publico">
+                        75%
+                    </span>
+
+                    <span class="porcentaje-dona porcentaje-privado">
+                        25%
+                    </span>
+
+                    <div class="dona-centro"></div>
+
+                </div>
+
+
+                <div class="tipo-datos">
+
+                    <div>
+                        <span class="tipo-color publico"></span>
+                        <span>Públicos</span>
+                        <strong>52</strong>
+                    </div>
+
+                    <div>
+                        <span class="tipo-color privado"></span>
+                        <span>Privados</span>
+                        <strong>17</strong>
+                    </div>
+
+                    <p>
+                        Total <strong>69</strong>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    @* Parte inferior *@
+    <div class="graficas-inferiores">
+
+        @* Categorías *@
+        <section class="reporte-panel categorias">
+
+            <h2>Categorías de servicio más solicitadas</h2>
+
+            <div class="categorias-contenido">
+
+                <div class="grafica-pastel">
+
+                    <span class="porcentaje-pastel p1">20%</span>
+                    <span class="porcentaje-pastel p2">15%</span>
+                    <span class="porcentaje-pastel p3">10%</span>
+                    <span class="porcentaje-pastel p4">13%</span>
+                    <span class="porcentaje-pastel p5">9%</span>
+                    <span class="porcentaje-pastel p6">11%</span>
+                    <span class="porcentaje-pastel p7">8%</span>
+                    <span class="porcentaje-pastel p8">8%</span>
+                    <span class="porcentaje-pastel p9">6%</span>
+
+                </div>
+
+
+                <div class="categorias-lista">
+
+                    <span>
+                        <i class="categoria-color seguridad"></i>
+                        Seguridad
+                    </span>
+
+                    <span>
+                        <i class="categoria-color alimentos"></i>
+                        Alimentos
+                    </span>
+
+                    <span>
+                        <i class="categoria-color accesorios"></i>
+                        Accesorios
+                    </span>
+
+                    <span>
+                        <i class="categoria-color objetos"></i>
+                        Objetos de uso único
+                    </span>
+
+                    <span>
+                        <i class="categoria-color refrigerado"></i>
+                        Refrigerado
+                    </span>
+
+                    <span>
+                        <i class="categoria-color entretenimiento"></i>
+                        Entretenimiento
+                    </span>
+
+                    <span>
+                        <i class="categoria-color renta"></i>
+                        Renta
+                    </span>
+
+                    <span>
+                        <i class="categoria-color decoraciones"></i>
+                        Decoraciones
+                    </span>
+
+                    <span>
+                        <i class="categoria-color otros"></i>
+                        Otros
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        @* Proveedores *@
+        <section class="reporte-panel proveedores">
+
+            <h2>Proveedores más destacados</h2>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Proveedor</th>
+                            <th>Servicio vendido</th>
+                            <th>Eventos</th>
+                            <th>Calificación</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>1</td>
+                            <td>AudioMax</td>
+                            <td>Sonido</td>
+                            <td>18</td>
+                            <td>4.9</td>
+                        </tr>
+
+                        <tr>
+                            <td>2</td>
+                            <td>Elegance Eventos</td>
+                            <td>Decoración</td>
+                            <td>15</td>
+                            <td>4.8</td>
+                        </tr>
+
+                        <tr>
+                            <td>3</td>
+                            <td>Dulce Encanto</td>
+                            <td>Repostería</td>
+                            <td>13</td>
+                            <td>4.7</td>
+                        </tr>
+
+                        <tr>
+                            <td>4</td>
+                            <td>Studio 56</td>
+                            <td>Fotografía</td>
+                            <td>11</td>
+                            <td>4.6</td>
+                        </tr>
+
+                        <tr>
+                            <td>5</td>
+                            <td>Carlos Music</td>
+                            <td>Entretenimiento</td>
+                            <td>10</td>
+                            <td>4.5</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>

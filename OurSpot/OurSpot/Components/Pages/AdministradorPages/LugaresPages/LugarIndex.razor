@@ -1,0 +1,536 @@
+﻿@page "/lugares"
+@rendermode InteractiveServer
+
+<PageTitle>Lugares</PageTitle>
+
+<div class="lugares-page">
+
+    @if (!mostrarDetalle)
+    {
+        @* Encabezado *@
+        <div class="lugares-header">
+
+            <h1>Lugares</h1>
+
+            <a href="/lugares/create" class="btn-crear">
+                <i class="bi bi-plus-square"></i>
+                Crear
+            </a>
+
+        </div>
+
+
+        @* Filtros *@
+        <div class="filtros">
+
+            <div class="campo-filtro">
+
+                <label>Filtrar por sector</label>
+
+                <select>
+                    <option>Elija una opción</option>
+                    <option>Centro</option>
+                    <option>Urbanización Piña</option>
+                    <option>Vista al Valle</option>
+                    <option>Los Jardines</option>
+                </select>
+
+            </div>
+
+
+            <div class="campo-filtro">
+
+                <label>Estado</label>
+
+                <select>
+                    <option>Elija una opción</option>
+                    <option>Disponible</option>
+                    <option>No disponible</option>
+                </select>
+
+            </div>
+
+
+            <div class="campo-filtro campo-busqueda">
+
+                <label>Búsqueda</label>
+
+                <div class="busqueda">
+
+                    <input type="text"
+                           placeholder="Buscar" />
+
+                    <button type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        @* Tabla *@
+        <div class="tabla-contenedor">
+
+            <table class="tabla-lugares">
+
+                <thead>
+
+                    <tr>
+                        <th>Id</th>
+                        <th>Ubicación</th>
+                        <th>Categoría</th>
+                        <th>Capacidad</th>
+                        <th>Estado</th>
+                        <th>Opciones</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @* Lugar 1 *@
+                    <tr class="fila-lugar"
+                        @onclick='() => VerDetalle(
+                                                    1,
+                                                    "Centro Cultural La Nave",
+                                                    "Centro cultural",
+                                                    150,
+                                                    "Espacio destinado a talleres, exposiciones, actividades culturales y realización de eventos.",
+                                                    "Disponible")'>
+
+<td>1</td>
+
+<td>
+                            Centro Cultural La Nave
+                        </td>
+
+                        <td>
+                            Centro cultural
+                        </td>
+
+                        <td>
+                            150
+                        </td>
+
+                        <td>
+
+                            <span class="estado disponible">
+                                Disponible
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="opciones">
+
+                                <a href="/lugares/edit"
+                                   class="btn-editar"
+                                   title="Editar"
+                                   @onclick:stopPropagation="true">
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </a>
+
+
+                                <button type="button"
+                                        class="btn-eliminar"
+                                        title="Eliminar"
+                                        @onclick:stopPropagation="true"
+                                        @onclick='() => MostrarEliminar(
+                                                                                1,
+                                                                                "Centro Cultural La Nave",
+                                                                                "Centro cultural",
+                                                                                150,
+                                                                                "Espacio destinado a talleres, exposiciones, actividades culturales y realización de eventos.",
+                                                                                "Disponible")'>
+
+<i class="bi bi-trash"></i>
+
+</button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    @* Lugar 2 *@
+                    <tr class="fila-lugar"
+                        @onclick='() => VerDetalle(
+                                                    2,
+                                                    "Salón Las Caobas",
+                                                    "Salón de eventos",
+                                                    250,
+                                                    "Salón destinado a celebraciones, reuniones, bodas y actividades privadas.",
+                                                    "Disponible")'>
+
+<td>2</td>
+
+<td>
+                            Salón Las Caobas
+                        </td>
+
+                        <td>
+                            Salón de eventos
+                        </td>
+
+                        <td>
+                            250
+                        </td>
+
+                        <td>
+
+                            <span class="estado disponible">
+                                Disponible
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="opciones">
+
+                                <a href="/lugares/edit"
+                                   class="btn-editar"
+                                   title="Editar"
+                                   @onclick:stopPropagation="true">
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </a>
+
+
+                                <button type="button"
+                                        class="btn-eliminar"
+                                        title="Eliminar"
+                                        @onclick:stopPropagation="true"
+                                        @onclick='() => MostrarEliminar(
+                                                                                2,
+                                                                                "Salón Las Caobas",
+                                                                                "Salón de eventos",
+                                                                                250,
+                                                                                "Salón destinado a celebraciones, reuniones, bodas y actividades privadas.",
+                                                                                "Disponible")'>
+
+<i class="bi bi-trash"></i>
+
+</button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    @* Lugar 3 *@
+                    <tr class="fila-lugar"
+                        @onclick='() => VerDetalle(
+                                                    3,
+                                                    "Auditorio UCNE",
+                                                    "Auditorio",
+                                                    300,
+                                                    "Auditorio preparado para conferencias, presentaciones y actividades académicas.",
+                                                    "No disponible")'>
+
+<td>3</td>
+
+<td>
+                            Auditorio UCNE
+                        </td>
+
+                        <td>
+                            Auditorio
+                        </td>
+
+                        <td>
+                            300
+                        </td>
+
+                        <td>
+
+                            <span class="estado no-disponible">
+                                No disponible
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="opciones">
+
+                                <a href="/lugares/edit"
+                                   class="btn-editar"
+                                   title="Editar"
+                                   @onclick:stopPropagation="true">
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </a>
+
+
+                                <button type="button"
+                                        class="btn-eliminar"
+                                        title="Eliminar"
+                                        @onclick:stopPropagation="true"
+                                        @onclick='() => MostrarEliminar(
+                                                                                3,
+                                                                                "Auditorio UCNE",
+                                                                                "Auditorio",
+                                                                                300,
+                                                                                "Auditorio preparado para conferencias, presentaciones y actividades académicas.",
+                                                                                "No disponible")'>
+
+<i class="bi bi-trash"></i>
+
+</button>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        @* Detalle del lugar *@
+        <div class="detalle-vista">
+
+            <div class="detalle-header">
+                <div>
+                    <h1>Detalle del lugar</h1>
+                    <p>
+                        Información del lugar seleccionado
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="cerrar-vista"
+                        @onclick="CerrarDetalle">
+
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="detalle-formulario">
+
+                <div class="detalle-campo">
+                    <label>Id</label>
+
+                    <div class="dato">
+                        @detalleId
+                    </div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Ubicación</label>
+
+                    <div class="dato">
+                        @detalleUbicacion
+                    </div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Categoría</label>
+
+                    <div class="dato">
+                        @detalleCategoria
+                    </div>
+                </div>
+
+                <div class="detalle-campo">
+
+                    <label>Capacidad</label>
+
+                    <div class="dato">
+                        @detalleCapacidad personas
+                    </div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Estado</label>
+
+                    <div class="dato">
+                        <span class="estado @(detalleEstado == "Disponible" ? "disponible" : "no-disponible")">
+                            @detalleEstado
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detalle-campo descripcion-campo">
+                    <label>Descripción</label>
+
+                    <div class="dato descripcion-dato">
+                        @detalleDescripcion
+                    </div>
+
+                </div>
+
+                <div class="detalle-acciones">
+
+                    <button type="button"
+                            class="btn-direccion">
+
+                        <i class="bi bi-geo-alt"></i>
+                        Ver dirección
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* Modal para eliminar *@
+@if (mostrarEliminar)
+{
+    <div class="modal-fondo">
+        <div class="modal-eliminar">
+
+            @* Encabezado *@
+            <div class="modal-header-lugar">
+                <h2>Datos del Lugar</h2>
+            </div>
+
+            @* Información *@
+            <div class="modal-body-lugar">
+
+                <h3>
+                    ¿Desea eliminar este lugar?
+                </h3>
+
+                <div class="datos-eliminar">
+                    <p>
+                        <strong>Id:</strong>
+                        @eliminarId
+                    </p>
+
+                    <p>
+                        <strong>Ubicación:</strong>
+                        @eliminarUbicacion
+                    </p>
+
+                    <p>
+                        <strong>Categoría:</strong>
+                        @eliminarCategoria
+                    </p>
+
+                    <p>
+                        <strong>Capacidad:</strong>
+                        @eliminarCapacidad personas
+                    </p>
+
+                    <p>
+                        <strong>Descripción:</strong>
+                        @eliminarDescripcion
+                    </p>
+
+                    <p>
+                        <strong>Estado:</strong>
+                        @eliminarEstado
+                    </p>
+                </div>
+            </div>
+
+            @* Botones *@
+            <div class="modal-footer-lugar">
+
+                <button type="button"
+                        class="btn-volver"
+                        @onclick="CerrarEliminar">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+                </button>
+
+                <button type="button"
+                        class="btn-confirmar-eliminar"
+                        @onclick="CerrarEliminar">
+                    <i class="bi bi-trash"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    // Detalle
+    private bool mostrarDetalle = false;
+
+    private int detalleId;
+    private string detalleUbicacion = "";
+    private string detalleCategoria = "";
+    private int detalleCapacidad;
+    private string detalleDescripcion = "";
+    private string detalleEstado = "";
+
+    // Eliminar
+    private bool mostrarEliminar = false;
+
+    private int eliminarId;
+    private string eliminarUbicacion = "";
+    private string eliminarCategoria = "";
+    private int eliminarCapacidad;
+    private string eliminarDescripcion = "";
+    private string eliminarEstado = "";
+
+    // Mostrar detalle
+    private void VerDetalle(
+        int id,
+        string ubicacion,
+        string categoria,
+        int capacidad,
+        string descripcion,
+        string estado)
+    {
+        detalleId = id;
+        detalleUbicacion = ubicacion;
+        detalleCategoria = categoria;
+        detalleCapacidad = capacidad;
+        detalleDescripcion = descripcion;
+        detalleEstado = estado;
+
+        mostrarDetalle = true;
+    }
+
+    // Cerrar detalle
+    private void CerrarDetalle()
+    {
+        mostrarDetalle = false;
+    }
+
+    // Mostrar eliminar
+    private void MostrarEliminar(
+        int id,
+        string ubicacion,
+        string categoria,
+        int capacidad,
+        string descripcion,
+        string estado)
+    {
+        eliminarId = id;
+        eliminarUbicacion = ubicacion;
+        eliminarCategoria = categoria;
+        eliminarCapacidad = capacidad;
+        eliminarDescripcion = descripcion;
+        eliminarEstado = estado;
+
+        mostrarEliminar = true;
+    }
+
+    // Cerrar eliminar
+    private void CerrarEliminar()
+    {
+        mostrarEliminar = false;
+    }
+}
