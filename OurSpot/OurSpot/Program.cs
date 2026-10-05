@@ -1,5 +1,7 @@
-using OurSpot.Components;
 using Microsoft.EntityFrameworkCore;
+using OurSpot.Components;
+using OurSpot.Components.Pages.AdministradorPages.EventosPages.Services;
+using OurSpot.Context;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
+builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 
+builder.Services.AddScoped<EventosService>();
 
 builder.Services.AddBlazorBootstrap();
 
