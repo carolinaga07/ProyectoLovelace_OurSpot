@@ -1,73 +1,52 @@
-<<<<<<< HEAD
-﻿@* @page "/GestionEstudiantes/Crear"
-@inject EstudiantesService estudiantesService
-=======
-﻿@page "/eventos/Crear"
+Aquí tienes el contenido de EventosCreate.razor completamente limpio de las marcas de conflicto de Git.
+
+Copia y reemplaza todo el contenido de tu archivo EventosCreate.razor por este código:
+
+Razor CSHTML
+@page "/eventos/Crear"
 @inject EventosService eventoService
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Evento</PageTitle>
+
 <EditForm Model="evento" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center">
                 <h5 class="card-title">Crear Evento</h5>
             </div>
-
             <div class="card-body">
-<<<<<<< HEAD
-                @*EstudianteId
-=======
                 @*Nombre*@
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombre</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Nombre"></InputText>
                     <ValidationMessage For="(() => evento.Nombre)" />
                 </div>
 
-<<<<<<< HEAD
-                @*Nombres
-=======
                 @*Categoria*@
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
                 <div class="mb-3">
                     <label class="form-label"><strong>Categoria</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Categoria"></InputText>
                     <ValidationMessage For="(() => evento.Categoria)" />
                 </div>
 
-<<<<<<< HEAD
-                @*Direccion
-=======
                 @*Fecha*@
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
                 <div class="mb-3">
                     <label class="form-label"><strong>Fecha</strong></label>
                     <InputDate class="form-control" @bind-Value="evento.Fecha"></InputDate>
                     <ValidationMessage For="(() => evento.Fecha)" />
                 </div>
 
-<<<<<<< HEAD
-                @*Nombres
-=======
                 @*Lugar*@
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
                 <div class="mb-3">
                     <label class="form-label"><strong>Lugar</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Lugar"></InputText>
                     <ValidationMessage For="(() => evento.Lugar)" />
                 </div>
 
-<<<<<<< HEAD
-                @*FechaNacimiento
-=======
                 @*Tipo*@
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
                 <div class="mb-3">
                     <label class="form-label"><strong>Tipo</strong></label>
                     <InputSelect class="form-select" @bind-Value="evento.Tipo">
@@ -78,14 +57,13 @@
                 </div>
             </div>
 
-            @*footer
+            @*footer*@
             <div class="card-footer text-center mt-2">
                 <a href="/eventos" class="btn btn-secondary"><span class="bi bi-arrow-left"></span>Volver</a>
                 <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
             </div>
         </div>
     </div>
-
 </EditForm>
 
 @code {
@@ -94,7 +72,6 @@
     public async Task Guardar()
     {
         var creado = await eventoService.Guardar(evento);
-
         if (creado)
         {
             toastService.ShowSuccess("¡Evento guardado exitosamente!");
@@ -105,9 +82,4 @@
             toastService.ShowError("No se pudo guardar el evento correctamente...");
         }
     }
-<<<<<<< HEAD
-
-} *@
-=======
 }
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3

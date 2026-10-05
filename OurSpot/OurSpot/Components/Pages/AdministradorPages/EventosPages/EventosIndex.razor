@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-﻿@*@page "/eventos"
-@inject EventoService EventoService
-=======
-﻿@page "/eventos"
+@page "/eventos"
 @inject EventosService EventoService
->>>>>>> 90ec1da8b596f99c22002b15100ba5506ae691d3
 @inject ToastService toastService
 
 <PageTitle>Eventos</PageTitle>
@@ -38,7 +33,7 @@
                     <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
                     <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
                     <TemplateColumn Title="Opciones">
-                        <a href="/eventos/edit/@contexto.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                        <a href="/eventos/edit/@context.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                         <button type="button" class="btn btn-outline-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"
                         @onclick="() => MostrarModal(context)"></button>
                     </TemplateColumn>
@@ -71,7 +66,6 @@
         </div>
     </div>
 </div>
-
 
 @code {
     public List<Evento> ListaEventos { get; set; } = new();
@@ -124,4 +118,3 @@
         EventoAEliminar = null;
     }
 }
-*@
