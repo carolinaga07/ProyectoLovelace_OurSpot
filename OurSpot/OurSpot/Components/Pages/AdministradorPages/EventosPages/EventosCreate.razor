@@ -1,18 +1,17 @@
-﻿@page "/eventos/create"
+@page "/eventos/Crear"
 @inject EventosService eventoService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Evento</PageTitle>
+
 <EditForm Model="evento" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center">
                 <h5 class="card-title">Crear Evento</h5>
             </div>
-
             <div class="card-body">
                 @*Nombre*@
                 <div class="mb-3">
@@ -60,7 +59,6 @@
             </div>
         </div>
     </div>
-
 </EditForm>
 
 @code {
@@ -69,7 +67,6 @@
     public async Task Guardar()
     {
         var creado = await eventoService.Guardar(evento);
-
         if (creado)
         {
             toastService.ShowSuccess("¡Evento guardado exitosamente!");

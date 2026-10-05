@@ -19,6 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+
+    <None Include="Components\Pages\AdministradorPages\EventosPages\FOTOGRAFIA\EditarFotografia.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+
     <PackageReference Include="Aplicada1.Core" Version="1.1.0" />
     <PackageReference Include="Blazor.Bootstrap" Version="4.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.12" />
