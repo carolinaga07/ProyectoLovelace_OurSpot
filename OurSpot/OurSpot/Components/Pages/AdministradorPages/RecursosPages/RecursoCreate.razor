@@ -1,15 +1,15 @@
 ﻿
-@page "/personal/create"
+@page "/recursos/create"
 @rendermode InteractiveServer
 
-<PageTitle>Crear Personal</PageTitle>
+<PageTitle>Crear Recurso</PageTitle>
 
 <div class="container mt-4">
 
     <div class="card shadow-lg">
 
         <div class="card-header text-center">
-            <h3 class="card-title">Agregar Personal</h3>
+            <h3 class="card-title">Agregar Recurso</h3>
         </div>
 
         <div class="card-body">
@@ -22,7 +22,7 @@
 
                 <input type="number"
                        class="form-control"
-                       value="8"
+                       value="6"
                        readonly />
             </div>
 
@@ -34,39 +34,59 @@
 
                 <input type="text"
                        class="form-control"
-                       placeholder="Ej. María Pérez" />
+                       placeholder="Ej. Sillas plegables" />
             </div>
 
-            @* Correo *@
+            @* Categoría *@
             <div class="mb-3">
                 <label class="form-label">
-                    <strong>Correo electrónico</strong>
-                </label>
-
-                <input type="email"
-                       class="form-control"
-                       placeholder="Ej. maria@gmail.com" />
-            </div>
-
-            @* Cargo *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Cargo</strong>
+                    <strong>Categoría</strong>
                 </label>
 
                 <select class="form-select">
 
                     <option value="" selected disabled>
-                        Seleccione un cargo
+                        Seleccione una categoría
                     </option>
 
-                    <option value="Administrador">
-                        Administrador
+                    <option value="Mobiliario">Mobiliario</option>
+                    <option value="Sonido">Sonido</option>
+                    <option value="Iluminación">Iluminación</option>
+                    <option value="Audiovisual">Audiovisual</option>
+                    <option value="Decoración">Decoración</option>
+                    <option value="Otros">Otros</option>
+
+                </select>
+            </div>
+
+            @* Cantidad *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Cantidad</strong>
+                </label>
+
+                <input type="number"
+                       min="1"
+                       class="form-control"
+                       placeholder="Ej. 150" />
+            </div>
+
+            @* Proveedor *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Proveedor</strong>
+                </label>
+
+                <select class="form-select">
+
+                    <option value="" selected disabled>
+                        Seleccione un proveedor
                     </option>
 
-                    <option value="Empleado">
-                        Empleado
-                    </option>
+                    <option>Eventos del Cibao</option>
+                    <option>TecnoEventos</option>
+                    <option>AudioPro RD</option>
+                    <option>Ilumina RD</option>
 
                 </select>
             </div>
@@ -83,8 +103,9 @@
                         Seleccione un estado
                     </option>
 
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="En uso">En uso</option>
+                    <option value="No disponible">No disponible</option>
 
                 </select>
             </div>
@@ -94,14 +115,14 @@
         @* Footer *@
         <div class="card-footer text-center">
 
-            <a href="/personal"
+            <a href="/recursos"
                class="btn btn-secondary me-2">
 
                 <span class="bi bi-arrow-left"></span>
                 Volver
             </a>
 
-            <a href="/personal"
+            <a href="/recursos"
                class="btn btn-primary">
 
                 <span class="bi bi-floppy"></span>

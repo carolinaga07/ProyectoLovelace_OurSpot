@@ -1,8 +1,8 @@
 ﻿
-@page "/personal"
+@page "/recursos"
 @rendermode InteractiveServer
 
-<PageTitle>Personal</PageTitle>
+<PageTitle>Recursos</PageTitle>
 
 <style>
     .grid {
@@ -43,12 +43,17 @@
         font-size: 12px;
     }
 
-    .activo {
+    .disponible {
         background-color: #dce9df;
         color: #416849;
     }
 
-    .inactivo {
+    .en-uso {
+        background-color: #fff1d6;
+        color: #8b6508;
+    }
+
+    .no-disponible {
         background-color: #eadede;
         color: #8a4d4d;
     }
@@ -62,27 +67,27 @@
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
 
             <h5 class="card-title align-content-center mt-2">
-                Personal
+                Recursos
             </h5>
 
-            <a href="/personal/create"
+            <a href="/recursos/create"
                class="btn btn-primary"
                style="background-color:#2D5056">
 
                 <span class="bi bi-plus-square-dotted"></span>
-                Nuevo Personal
+                Nuevo Recurso
             </a>
 
         </div>
 
         <div class="card-body">
 
-            @* Labels de filtros *@
+            @* Labels *@
             <div class="row">
 
                 <div class="col-3">
                     <label class="col-form-label">
-                        <strong>Cargo</strong>
+                        <strong>Categoría</strong>
                     </label>
                 </div>
 
@@ -103,23 +108,19 @@
             @* Filtros *@
             <div class="row align-items-center mb-3">
 
-                @* Cargo *@
+                @* Categoría *@
                 <div class="col-3">
 
                     <select class="form-select"
-                            @bind="FiltroCargo">
+                            @bind="FiltroCategoria">
 
-                        <option value="">
-                            Todos los cargos
-                        </option>
-
-                        <option value="Administrador">
-                            Administrador
-                        </option>
-
-                        <option value="Empleado">
-                            Empleado
-                        </option>
+                        <option value="">Todas las categorías</option>
+                        <option value="Mobiliario">Mobiliario</option>
+                        <option value="Sonido">Sonido</option>
+                        <option value="Iluminación">Iluminación</option>
+                        <option value="Audiovisual">Audiovisual</option>
+                        <option value="Decoración">Decoración</option>
+                        <option value="Otros">Otros</option>
 
                     </select>
 
@@ -131,12 +132,10 @@
                     <select class="form-select"
                             @bind="FiltroEstado">
 
-                        <option value="">
-                            Todos los estados
-                        </option>
-
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
+                        <option value="">Todos los estados</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="En uso">En uso</option>
+                        <option value="No disponible">No disponible</option>
 
                     </select>
 
@@ -150,7 +149,7 @@
                         <input class="form-control"
                                @bind="FiltroBusqueda"
                                @bind:event="oninput"
-                               placeholder="Buscar nombre, correo o Id" />
+                               placeholder="Buscar recurso, proveedor o Id" />
 
                         <button type="button"
                                 class="btn btn-outline-primary bi bi-search"
@@ -173,8 +172,9 @@
                         <tr>
                             <th>Id</th>
                             <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Cargo</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Proveedor</th>
                             <th>Estado</th>
                             <th class="text-center">Opciones</th>
                         </tr>
@@ -183,32 +183,30 @@
 
                     <tbody>
 
-                        @foreach (var persona in PersonalFiltrado)
+                        @foreach (var recurso in RecursosFiltrados)
                         {
                             <tr>
 
-                                <td>@persona.Id</td>
-
-                                <td>@persona.Nombre</td>
-
-                                <td>@persona.Correo</td>
-
-                                <td>@persona.Cargo</td>
+                                <td>@recurso.Id</td>
+                                <td>@recurso.Nombre</td>
+                                <td>@recurso.Categoria</td>
+                                <td>@recurso.Cantidad</td>
+                                <td>@recurso.Proveedor</td>
 
                                 <td>
-                                    <span class="estado @(persona.Estado == "Activo" ? "activo" : "inactivo")">
-                                        @persona.Estado
+                                    <span class="estado @ObtenerClaseEstado(recurso.Estado)">
+                                        @recurso.Estado
                                     </span>
                                 </td>
 
                                 <td class="text-center">
 
-                                    <a href="@($"/personal/edit/{persona.Id}")"
+                                    <a href="@($"/recursos/edit/{recurso.Id}")"
                                        class="btn btn-outline-primary bi bi-pencil-square"
                                        title="Editar">
                                     </a>
 
-                                    <a href="@($"/personal/eliminar/{persona.Id}")"
+                                    <a href="@($"/recursos/eliminar/{recurso.Id}")"
                                        class="btn btn-outline-danger bi bi-trash"
                                        title="Eliminar">
                                     </a>
@@ -218,13 +216,13 @@
                             </tr>
                         }
 
-                        @if (!PersonalFiltrado.Any())
+                        @if (!RecursosFiltrados.Any())
                         {
                             <tr>
-                                <td colspan="6"
+                                <td colspan="7"
                                     class="text-center text-muted py-4">
 
-                                    No se encontraron registros de personal con los filtros seleccionados.
+                                    No se encontraron recursos con los filtros seleccionados.
 
                                 </td>
                             </tr>
@@ -246,112 +244,106 @@
 
 @code {
 
-    // Filtros
-    private string FiltroCargo { get; set; } = string.Empty;
+    private string FiltroCategoria { get; set; } = string.Empty;
     private string FiltroEstado { get; set; } = string.Empty;
     private string FiltroBusqueda { get; set; } = string.Empty;
 
-    // Datos de ejemplo
-    private List<PersonalItem> listaPersonal = new()
+    private List<Recurso> listaRecursos = new()
     {
-        new PersonalItem
+        new Recurso
         {
             Id = 1,
-            Nombre = "Sharlot Adrian Lopez",
-            Correo = "sharlot@gmail.com",
-            Cargo = "Administrador",
-            Estado = "Activo"
+            Nombre = "Sillas plegables",
+            Categoria = "Mobiliario",
+            Cantidad = 150,
+            Proveedor = "Eventos del Cibao",
+            Estado = "Disponible"
         },
 
-        new PersonalItem
+        new Recurso
         {
             Id = 2,
-            Nombre = "Franshelina Camilo Cabrera",
-            Correo = "franshelina@gmail.com",
-            Cargo = "Administrador",
-            Estado = "Activo"
+            Nombre = "Proyector Epson",
+            Categoria = "Audiovisual",
+            Cantidad = 2,
+            Proveedor = "TecnoEventos",
+            Estado = "En uso"
         },
 
-        new PersonalItem
+        new Recurso
         {
             Id = 3,
-            Nombre = "Carolina Garcia Almanzar",
-            Correo = "carolina@gmail.com",
-            Cargo = "Administrador",
-            Estado = "Activo"
+            Nombre = "Bocinas JBL",
+            Categoria = "Sonido",
+            Cantidad = 4,
+            Proveedor = "AudioPro RD",
+            Estado = "Disponible"
         },
 
-        new PersonalItem
+        new Recurso
         {
             Id = 4,
-            Nombre = "Dharianny Sime María",
-            Correo = "dharianny@gmail.com",
-            Cargo = "Administrador",
-            Estado = "Activo"
+            Nombre = "Mesas redondas",
+            Categoria = "Mobiliario",
+            Cantidad = 20,
+            Proveedor = "Eventos del Cibao",
+            Estado = "Disponible"
         },
 
-        new PersonalItem
+        new Recurso
         {
             Id = 5,
-            Nombre = "Jazmine Arleny Minaya Peralta",
-            Correo = "jazmine@gmail.com",
-            Cargo = "Administrador",
-            Estado = "Activo"
-        },
-
-        new PersonalItem
-        {
-            Id = 6,
-            Nombre = "Carlos Martínez",
-            Correo = "carlos@gmail.com",
-            Cargo = "Empleado",
-            Estado = "Activo"
-        },
-
-        new PersonalItem
-        {
-            Id = 7,
-            Nombre = "Laura Rodríguez",
-            Correo = "laura@gmail.com",
-            Cargo = "Empleado",
-            Estado = "Inactivo"
+            Nombre = "Luces LED",
+            Categoria = "Iluminación",
+            Cantidad = 8,
+            Proveedor = "Ilumina RD",
+            Estado = "No disponible"
         }
     };
 
-    // Filtros por cargo, estado y búsqueda
-    private IEnumerable<PersonalItem> PersonalFiltrado =>
-        listaPersonal.Where(persona =>
+    private IEnumerable<Recurso> RecursosFiltrados =>
+        listaRecursos.Where(recurso =>
 
-            (string.IsNullOrEmpty(FiltroCargo) ||
-             persona.Cargo == FiltroCargo)
+            (string.IsNullOrEmpty(FiltroCategoria) ||
+             recurso.Categoria == FiltroCategoria)
 
             &&
 
             (string.IsNullOrEmpty(FiltroEstado) ||
-             persona.Estado == FiltroEstado)
+             recurso.Estado == FiltroEstado)
 
             &&
 
             (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
-             persona.Nombre.Contains(
+             recurso.Nombre.Contains(
                  FiltroBusqueda,
                  StringComparison.OrdinalIgnoreCase
              ) ||
-             persona.Correo.Contains(
+             recurso.Proveedor.Contains(
                  FiltroBusqueda,
                  StringComparison.OrdinalIgnoreCase
              ) ||
-             persona.Id.ToString().Contains(FiltroBusqueda.Trim()))
+             recurso.Id.ToString().Contains(FiltroBusqueda.Trim()))
 
         );
 
-    // Modelo de ejemplo
-    private class PersonalItem
+    private string ObtenerClaseEstado(string estado)
+    {
+        return estado switch
+        {
+            "Disponible" => "disponible",
+            "En uso" => "en-uso",
+            _ => "no-disponible"
+        };
+    }
+
+    private class Recurso
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = "";
-        public string Correo { get; set; } = "";
-        public string Cargo { get; set; } = "";
+        public string Categoria { get; set; } = "";
+        public int Cantidad { get; set; }
+        public string Proveedor { get; set; } = "";
         public string Estado { get; set; } = "";
     }
 }
