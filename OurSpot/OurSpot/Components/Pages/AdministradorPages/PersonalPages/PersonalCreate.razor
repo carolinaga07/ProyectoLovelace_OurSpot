@@ -1,0 +1,119 @@
+﻿
+@page "/personal/create"
+@rendermode InteractiveServer
+
+<PageTitle>Crear personal</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>Nuevo Personal</h2>
+        </div>
+
+        <div class="form-body">
+
+            <div class="campo">
+                <label>Id</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="8"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Nombre</label>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Ej. María Pérez"
+                       required />
+            </div>
+
+            <div class="campo">
+                <label>Correo electrónico</label>
+
+                <input type="email"
+                       class="form-control"
+                       placeholder="Ej. maria@gmail.com"
+                       required />
+            </div>
+
+            <div class="campo">
+                <label>Contraseña</label>
+
+                <input type="password"
+                       class="form-control"
+                       placeholder="Ingrese una contraseña"
+                       autocomplete="new-password"
+                       required />
+            </div>
+
+            <div class="campo">
+                <label>Teléfono</label>
+
+                <input type="tel"
+                       class="form-control"
+                       placeholder="Ej. 809-555-1234" />
+            </div>
+
+            <div class="campo">
+                <label>Cargo</label>
+
+                <select class="form-select" required>
+                    <option value="" selected disabled>
+                        Seleccione un cargo
+                    </option>
+
+                    <option value="Administrador">Administrador</option>
+                    <option value="Empleado">Empleado</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Fecha de ingreso</label>
+
+                <input type="date"
+                       class="form-control"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+
+                <select class="form-select" required>
+                    <option value="" selected disabled>
+                        Seleccione el estado
+                    </option>
+
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-footer">
+
+            <a href="/personal"
+               class="btn-cancelar">
+
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="btn-guardar">
+
+                <i class="bi bi-floppy"></i>
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
