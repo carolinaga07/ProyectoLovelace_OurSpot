@@ -1,0 +1,105 @@
+﻿@page "/clientes/edit"
+@rendermode InteractiveServer
+
+<PageTitle>Editar cliente</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>Editar Cliente</h2>
+        </div>
+
+        <div class="form-body">
+
+            <div class="campo">
+                <label>Id</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="1"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Nombre</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="Ana Pérez" />
+            </div>
+
+            <div class="campo">
+                <label>Correo electrónico</label>
+
+                <input type="email"
+                       class="form-control"
+                       value="ana@gmail.com" />
+            </div>
+
+            <div class="campo">
+                <label>Teléfono</label>
+
+                <input type="tel"
+                       class="form-control"
+                       value="809-555-0101" />
+            </div>
+
+            <div class="campo">
+                <label>Fecha de nacimiento</label>
+
+                <input type="date"
+                       class="form-control"
+                       value="2002-03-15" />
+            </div>
+
+            <div class="campo">
+                <label>Dirección</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="Urbanización Piña, San Francisco de Macorís" />
+            </div>
+
+            <div class="campo">
+                <label>Fecha de registro</label>
+
+                <input type="date"
+                       class="form-control"
+                       value="2026-09-02"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+
+                <select class="form-select">
+                    <option selected>Activo</option>
+                    <option>Bloqueado</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-footer">
+
+            <a href="/clientes"
+               class="btn-cancelar">
+
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="btn-guardar">
+
+                <i class="bi bi-floppy"></i>
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
