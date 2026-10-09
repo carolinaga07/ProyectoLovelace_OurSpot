@@ -1,0 +1,152 @@
+﻿
+@page "/personal/edit/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Editar personal</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>Editar Personal</h2>
+        </div>
+
+        <div class="form-body">
+
+            <div class="campo">
+                <label>Id</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="@Id"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Nombre</label>
+
+                <input type="text"
+                       class="form-control"
+                       @bind="nombre"
+                       placeholder="Ingrese el nombre completo" />
+            </div>
+
+            <div class="campo">
+                <label>Correo electrónico</label>
+
+                <input type="email"
+                       class="form-control"
+                       @bind="correo"
+                       placeholder="Ej. usuario@gmail.com" />
+            </div>
+
+            <div class="campo">
+                <label>Teléfono</label>
+
+                <input type="tel"
+                       class="form-control"
+                       @bind="telefono"
+                       placeholder="Ej. 809-555-1234" />
+            </div>
+
+            <div class="campo">
+                <label>Cargo</label>
+
+                <select class="form-select" @bind="cargo">
+                    <option value="Administrador">Administrador</option>
+                    <option value="Empleado">Empleado</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Fecha de ingreso</label>
+
+                <input type="date"
+                       class="form-control"
+                       value="@fechaIngreso"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+
+                <select class="form-select" @bind="estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-footer">
+
+            <a href="/personal"
+               class="btn-cancelar">
+
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="btn-guardar">
+
+                <i class="bi bi-floppy"></i>
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string correo = "";
+    private string telefono = "";
+    private string cargo = "Empleado";
+    private string fechaIngreso = "";
+    private string estado = "Activo";
+
+    protected override void OnParametersSet()
+    {
+        // Datos de ejemplo según el Id seleccionado
+
+        var personal = new[]
+        {
+            new { Id = 1, Nombre = "Sharlot Adrian Lopez", Correo = "sharlot@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
+            new { Id = 2, Nombre = "Franshelina Camilo Cabrera", Correo = "franshelina@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
+            new { Id = 3, Nombre = "Carolina Garcia Almanzar", Correo = "carolina@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
+            new { Id = 4, Nombre = "Dharianny Sime María", Correo = "dharianny@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
+            new { Id = 5, Nombre = "Jazmine Arleny Minaya Peralta", Correo = "jazmine@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
+            new { Id = 6, Nombre = "Carlos Martínez", Correo = "carlos@gmail.com", Cargo = "Empleado", Fecha = "2026-09-15", Estado = "Activo" },
+            new { Id = 7, Nombre = "Laura Rodríguez", Correo = "laura@gmail.com", Cargo = "Empleado", Fecha = "2026-09-20", Estado = "Inactivo" }
+        };
+
+        var seleccionado = personal.FirstOrDefault(p => p.Id == Id);
+
+        if (seleccionado is not null)
+        {
+            nombre = seleccionado.Nombre;
+            correo = seleccionado.Correo;
+            telefono = "No registrado";
+            cargo = seleccionado.Cargo;
+            fechaIngreso = seleccionado.Fecha;
+            estado = seleccionado.Estado;
+        }
+        else
+        {
+            nombre = "";
+            correo = "";
+            telefono = "";
+            cargo = "Empleado";
+            fechaIngreso = "";
+            estado = "Activo";
+        }
+    }
+}
