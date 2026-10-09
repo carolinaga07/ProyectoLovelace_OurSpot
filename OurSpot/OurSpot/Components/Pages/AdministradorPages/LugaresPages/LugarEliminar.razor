@@ -1,0 +1,117 @@
+﻿
+@page "/lugares/eliminar/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Lugar</PageTitle>
+
+<div class="container mt-4">
+
+    <div class="card shadow-lg">
+
+        @* Header *@
+        <div class="card-header text-center">
+            <h5><strong>Datos del Lugar</strong></h5>
+        </div>
+
+        @* Body *@
+        <div class="card-body">
+
+            <div class="text-center text-danger">
+                <h5>
+                    <strong>¿Desea eliminar este lugar?</strong>
+                </h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+
+                <li class="list-group-item">
+                    <strong>Id:</strong> @Id
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Ubicación:</strong> @ubicacion
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Categoría:</strong> @categoria
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Capacidad:</strong> @capacidad
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Estado:</strong> @estado
+                </li>
+
+            </ul>
+
+        </div>
+
+        @* Footer *@
+        <div class="card-footer text-center">
+
+            <a href="/lugares"
+               class="btn btn-secondary me-2">
+
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+
+            <a href="/lugares"
+               class="btn btn-danger">
+
+                <span class="bi bi-trash"></span>
+                Eliminar
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string ubicacion = "";
+    private string categoria = "";
+    private int capacidad;
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                ubicacion = "Centro Cultural La Nave";
+                categoria = "Centro cultural";
+                capacidad = 150;
+                estado = "Disponible";
+                break;
+
+            case 2:
+                ubicacion = "Salón Las Caobas";
+                categoria = "Salón de eventos";
+                capacidad = 250;
+                estado = "Disponible";
+                break;
+
+            case 3:
+                ubicacion = "Auditorio UCNE";
+                categoria = "Auditorio";
+                capacidad = 300;
+                estado = "No disponible";
+                break;
+
+            default:
+                ubicacion = "";
+                categoria = "";
+                capacidad = 0;
+                estado = "";
+                break;
+        }
+    }
+}

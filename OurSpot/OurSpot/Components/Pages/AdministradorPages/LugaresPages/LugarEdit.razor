@@ -1,91 +1,151 @@
-﻿@page "/lugares/edit"
+﻿
+@page "/lugares/edit/{Id:int}"
 @rendermode InteractiveServer
 
-<PageTitle>Editar lugar</PageTitle>
+<PageTitle>Editar Lugar</PageTitle>
 
-<div class="form-page">
+<div class="container mt-4">
 
-    <div class="form-card">
+    <div class="card shadow-lg">
 
-        <div class="form-header">
-            <h2>Editar Lugar</h2>
+        <div class="card-header text-center">
+            <h3 class="card-title">Editar Lugar</h3>
         </div>
 
-        <div class="form-body">
+        <div class="card-body">
 
-            <div class="campo">
-                <label>Id</label>
-
-                <input type="text"
-                       class="form-control"
-                       value="1"
-                       readonly />
-            </div>
-
-            <div class="campo">
-                <label>Ubicación</label>
-
-                <input type="text"
-                       class="form-control"
-                       value="Centro Cultural La Nave" />
-            </div>
-
-            <div class="campo">
-                <label>Categoría</label>
-
-                <select class="form-select">
-                    <option selected>Centro cultural</option>
-                    <option>Salón de eventos</option>
-                    <option>Auditorio</option>
-                    <option>Espacio abierto</option>
-                    <option>Restaurante</option>
-                    <option>Otro</option>
-                </select>
-            </div>
-
-            <div class="campo">
-                <label>Capacidad</label>
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
 
                 <input type="number"
                        class="form-control"
-                       value="150" />
+                       value="@Id"
+                       readonly />
             </div>
 
-            <div class="campo">
-                <label>Descripción</label>
+            @* Ubicación *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Ubicación</strong>
+                </label>
 
-                <textarea class="form-control descripcion">Espacio destinado a talleres, exposiciones, actividades culturales y realización de eventos.</textarea>
+                <input type="text"
+                       class="form-control"
+                       @bind="ubicacion" />
             </div>
 
-            <div class="campo">
-                <label>Estado</label>
+            @* Categoría *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Categoría</strong>
+                </label>
 
-                <select class="form-select">
-                    <option selected>Disponible</option>
-                    <option>No disponible</option>
+                <select class="form-select" @bind="categoria">
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Objetos de uso único">Objetos de uso único</option>
+                    <option value="Refrigerado">Refrigerado</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Renta">Renta</option>
+                    <option value="Decoraciones">Decoraciones</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+
+            @* Capacidad *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Capacidad</strong>
+                </label>
+
+                <input type="number"
+                       min="1"
+                       class="form-control"
+                       @bind="capacidad" />
+            </div>
+
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
+
+                <select class="form-select" @bind="estado">
+                    <option value="Disponible">Disponible</option>
+                    <option value="No disponible">No disponible</option>
                 </select>
             </div>
 
         </div>
 
-        <div class="form-footer">
+        @* Footer *@
+        <div class="card-footer text-center">
 
             <a href="/lugares"
-               class="btn-cancelar">
+               class="btn btn-secondary me-2">
 
-                <i class="bi bi-arrow-left"></i>
-                Cancelar
+                <span class="bi bi-arrow-left"></span>
+                Volver
             </a>
 
-            <button type="button"
-                    class="btn-guardar">
+            <a href="/lugares"
+               class="btn btn-primary">
 
-                <i class="bi bi-floppy"></i>
+                <span class="bi bi-floppy"></span>
                 Guardar
-            </button>
+            </a>
 
         </div>
 
     </div>
 
 </div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string ubicacion = "";
+    private string categoria = "";
+    private int capacidad;
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                ubicacion = "Centro Cultural La Nave";
+                categoria = "Centro cultural";
+                capacidad = 150;
+                estado = "Disponible";
+                break;
+
+            case 2:
+                ubicacion = "Salón Las Caobas";
+                categoria = "Salón de eventos";
+                capacidad = 250;
+                estado = "Disponible";
+                break;
+
+            case 3:
+                ubicacion = "Auditorio UCNE";
+                categoria = "Auditorio";
+                capacidad = 300;
+                estado = "No disponible";
+                break;
+
+            default:
+                ubicacion = "";
+                categoria = "";
+                capacidad = 0;
+                estado = "Disponible";
+                break;
+        }
+    }
+}
