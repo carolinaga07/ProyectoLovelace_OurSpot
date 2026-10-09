@@ -1,0 +1,142 @@
+﻿
+@page "/personal/eliminar/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Personal</PageTitle>
+
+<div class="container mt-4">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header text-center">
+            <h5><strong>Datos del Personal</strong></h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="text-center text-danger">
+                <h5>
+                    <strong>¿Desea eliminar este integrante del personal?</strong>
+                </h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+
+                <li class="list-group-item">
+                    <strong>Id:</strong> @Id
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Nombre:</strong> @nombre
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Correo:</strong> @correo
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Cargo:</strong> @cargo
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Estado:</strong> @estado
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div class="card-footer text-center">
+
+            <a href="/personal"
+               class="btn btn-secondary me-2">
+
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+
+            <a href="/personal"
+               class="btn btn-danger">
+
+                <span class="bi bi-trash"></span>
+                Eliminar
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string correo = "";
+    private string cargo = "";
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                nombre = "Sharlot Adrian Lopez";
+                correo = "sharlot@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 2:
+                nombre = "Franshelina Camilo Cabrera";
+                correo = "franshelina@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 3:
+                nombre = "Carolina Garcia Almanzar";
+                correo = "carolina@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 4:
+                nombre = "Dharianny Sime María";
+                correo = "dharianny@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 5:
+                nombre = "Jazmine Arleny Minaya Peralta";
+                correo = "jazmine@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 6:
+                nombre = "Carlos Martínez";
+                correo = "carlos@gmail.com";
+                cargo = "Empleado";
+                estado = "Activo";
+                break;
+
+            case 7:
+                nombre = "Laura Rodríguez";
+                correo = "laura@gmail.com";
+                cargo = "Empleado";
+                estado = "Inactivo";
+                break;
+
+            default:
+                nombre = "";
+                correo = "";
+                cargo = "";
+                estado = "";
+                break;
+        }
+    }
+}
