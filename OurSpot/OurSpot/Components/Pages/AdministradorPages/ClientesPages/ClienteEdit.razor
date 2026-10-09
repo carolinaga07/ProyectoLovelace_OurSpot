@@ -1,105 +1,142 @@
-﻿@page "/clientes/edit"
+﻿
+@page "/clientes/edit/{Id:int}"
 @rendermode InteractiveServer
 
-<PageTitle>Editar cliente</PageTitle>
+<PageTitle>Editar Cliente</PageTitle>
 
-<div class="form-page">
+<div class="container mt-4">
 
-    <div class="form-card">
+    <div class="card shadow-lg">
 
-        <div class="form-header">
-            <h2>Editar Cliente</h2>
+        <div class="card-header text-center">
+            <h3 class="card-title">Editar Cliente</h3>
         </div>
 
-        <div class="form-body">
+        <div class="card-body">
 
-            <div class="campo">
-                <label>Id</label>
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
 
-                <input type="text"
+                <input type="number"
                        class="form-control"
-                       value="1"
+                       value="@Id"
                        readonly />
             </div>
 
-            <div class="campo">
-                <label>Nombre</label>
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Nombre</strong>
+                </label>
 
                 <input type="text"
                        class="form-control"
-                       value="Ana Pérez" />
+                       @bind="nombre" />
             </div>
 
-            <div class="campo">
-                <label>Correo electrónico</label>
+            @* Correo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Correo electrónico</strong>
+                </label>
 
                 <input type="email"
                        class="form-control"
-                       value="ana@gmail.com" />
+                       @bind="correo" />
             </div>
 
-            <div class="campo">
-                <label>Teléfono</label>
+            @* Teléfono *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Teléfono</strong>
+                </label>
 
                 <input type="tel"
                        class="form-control"
-                       value="809-555-0101" />
+                       @bind="telefono" />
             </div>
 
-            <div class="campo">
-                <label>Fecha de nacimiento</label>
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
 
-                <input type="date"
-                       class="form-control"
-                       value="2002-03-15" />
-            </div>
-
-            <div class="campo">
-                <label>Dirección</label>
-
-                <input type="text"
-                       class="form-control"
-                       value="Urbanización Piña, San Francisco de Macorís" />
-            </div>
-
-            <div class="campo">
-                <label>Fecha de registro</label>
-
-                <input type="date"
-                       class="form-control"
-                       value="2026-09-02"
-                       readonly />
-            </div>
-
-            <div class="campo">
-                <label>Estado</label>
-
-                <select class="form-select">
-                    <option selected>Activo</option>
-                    <option>Bloqueado</option>
+                <select class="form-select" @bind="estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Bloqueado">Bloqueado</option>
                 </select>
             </div>
 
         </div>
 
-        <div class="form-footer">
+        @* Footer *@
+        <div class="card-footer text-center">
 
             <a href="/clientes"
-               class="btn-cancelar">
+               class="btn btn-secondary me-2">
 
-                <i class="bi bi-arrow-left"></i>
-                Cancelar
+                <span class="bi bi-arrow-left"></span>
+                Volver
             </a>
 
-            <button type="button"
-                    class="btn-guardar">
+            <a href="/clientes"
+               class="btn btn-primary">
 
-                <i class="bi bi-floppy"></i>
+                <span class="bi bi-floppy"></span>
                 Guardar
-            </button>
+            </a>
 
         </div>
 
     </div>
 
 </div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string correo = "";
+    private string telefono = "";
+    private string estado = "Activo";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                nombre = "Ana Pérez";
+                correo = "ana@gmail.com";
+                telefono = "809-555-0101";
+                estado = "Activo";
+                break;
+
+            case 2:
+                nombre = "Luis García";
+                correo = "luis@gmail.com";
+                telefono = "829-555-0102";
+                estado = "Bloqueado";
+                break;
+
+            case 3:
+                nombre = "María Rodríguez";
+                correo = "maria@gmail.com";
+                telefono = "849-555-0103";
+                estado = "Activo";
+                break;
+
+            default:
+                nombre = "";
+                correo = "";
+                telefono = "";
+                estado = "Activo";
+                break;
+        }
+    }
+}

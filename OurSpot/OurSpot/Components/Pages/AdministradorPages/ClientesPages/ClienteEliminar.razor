@@ -1,0 +1,114 @@
+﻿
+@page "/clientes/eliminar/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Cliente</PageTitle>
+
+<div class="container mt-4">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header text-center">
+            <h5><strong>Datos del Cliente</strong></h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="text-center text-danger">
+                <h5>
+                    <strong>¿Desea eliminar este cliente?</strong>
+                </h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+
+                <li class="list-group-item">
+                    <strong>Id:</strong> @Id
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Nombre:</strong> @nombre
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Correo:</strong> @correo
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Teléfono:</strong> @telefono
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Estado:</strong> @estado
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div class="card-footer text-center">
+
+            <a href="/clientes"
+               class="btn btn-secondary me-2">
+
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+
+            <a href="/clientes"
+               class="btn btn-danger">
+
+                <span class="bi bi-trash"></span>
+                Eliminar
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string correo = "";
+    private string telefono = "";
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                nombre = "Ana Pérez";
+                correo = "ana@gmail.com";
+                telefono = "809-555-0101";
+                estado = "Activo";
+                break;
+
+            case 2:
+                nombre = "Luis García";
+                correo = "luis@gmail.com";
+                telefono = "829-555-0102";
+                estado = "Bloqueado";
+                break;
+
+            case 3:
+                nombre = "María Rodríguez";
+                correo = "maria@gmail.com";
+                telefono = "849-555-0103";
+                estado = "Activo";
+                break;
+
+            default:
+                nombre = "";
+                correo = "";
+                telefono = "";
+                estado = "";
+                break;
+        }
+    }
+}

@@ -1,110 +1,98 @@
-﻿@page "/clientes/create"
+﻿
+@page "/clientes/create"
 @rendermode InteractiveServer
 
-<PageTitle>Crear cliente</PageTitle>
+<PageTitle>Crear Cliente</PageTitle>
 
-<div class="form-page">
+<div class="container mt-4">
 
-    <div class="form-card">
+    <div class="card shadow-lg">
 
-        <div class="form-header">
-            <h2>Nuevo Cliente</h2>
+        <div class="card-header text-center">
+            <h3 class="card-title">Agregar Cliente</h3>
         </div>
 
-        <div class="form-body">
+        <div class="card-body">
 
-            <div class="campo">
-                <label>Id</label>
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
 
-                <input type="text"
+                <input type="number"
                        class="form-control"
                        value="4"
                        readonly />
             </div>
 
-            <div class="campo">
-                <label>Nombre</label>
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Nombre</strong>
+                </label>
 
                 <input type="text"
                        class="form-control"
                        placeholder="Ej. Ana Pérez" />
             </div>
 
-            <div class="campo">
-                <label>Correo electrónico</label>
+            @* Correo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Correo electrónico</strong>
+                </label>
 
                 <input type="email"
                        class="form-control"
                        placeholder="Ej. ana@gmail.com" />
             </div>
 
-            <div class="campo">
-                <label>Contraseña</label>
-
-                <input type="password"
-                       class="form-control"
-                       placeholder="Ingrese una contraseña"
-                       autocomplete="new-password" />
-            </div>
-
-            <div class="campo">
-                <label>Teléfono</label>
+            @* Teléfono *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Teléfono</strong>
+                </label>
 
                 <input type="tel"
                        class="form-control"
                        placeholder="Ej. 809-555-0101" />
             </div>
 
-            <div class="campo">
-                <label>Fecha de nacimiento</label>
-
-                <input type="date"
-                       class="form-control" />
-            </div>
-
-            <div class="campo">
-                <label>Dirección</label>
-
-                <input type="text"
-                       class="form-control"
-                       placeholder="Ej. Urbanización Piña, San Francisco de Macorís" />
-            </div>
-
-            <div class="campo">
-                <label>Fecha de registro</label>
-
-                <input type="date"
-                       class="form-control"
-                       value="@DateTime.Today.ToString("yyyy-MM-dd")"
-                       readonly />
-            </div>
-
-            <div class="campo">
-                <label>Estado</label>
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
 
                 <select class="form-select">
-                    <option selected>Activo</option>
-                    <option>Bloqueado</option>
+                    <option value="" selected disabled>
+                        Seleccione un estado
+                    </option>
+
+                    <option value="Activo">Activo</option>
+                    <option value="Bloqueado">Bloqueado</option>
                 </select>
             </div>
 
         </div>
 
-        <div class="form-footer">
+        @* Footer *@
+        <div class="card-footer text-center">
 
             <a href="/clientes"
-               class="btn-cancelar">
+               class="btn btn-secondary me-2">
 
-                <i class="bi bi-arrow-left"></i>
-                Cancelar
+                <span class="bi bi-arrow-left"></span>
+                Volver
             </a>
 
-            <button type="button"
-                    class="btn-guardar">
+            <a href="/clientes"
+               class="btn btn-primary">
 
-                <i class="bi bi-floppy"></i>
+                <span class="bi bi-floppy"></span>
                 Guardar
-            </button>
+            </a>
 
         </div>
 
