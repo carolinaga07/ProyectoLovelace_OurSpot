@@ -1,7 +1,7 @@
 ﻿using Aplicada1.Core;
 using Microsoft.EntityFrameworkCore;
+using OurSpot.Components.Models;
 using OurSpot.Context;
-using OurSpot.Models;
 using System.Linq.Expressions;
 
 namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
@@ -11,6 +11,12 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
         public class EventosService(IDbContextFactory<Contexto> contextFactory)
             : IService<Evento, int>
         {
+            private static List<Evento> eventosTemp = new()
+            {
+                 new Evento(1, "Boda de los Perez", "Social", new DateTime(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"),
+                 new Evento(2, "Conferencia Tech", "Corporativo", new DateTime(2026, 11, 15), "Hotel Jaragua", "Público", "Confirmado")
+            };
+
             public async Task<bool> Guardar(Evento eventos)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
@@ -82,6 +88,12 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
                 Expression<Func<Evento, bool>> criterio)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
+
+                if (!await contexto.Eventos.AnyAsync())
+                {
+                    contexto.Eventos.AddRange(eventosTemp);
+                    await contexto.SaveChangesAsync();
+                }
 
                 return await contexto.Eventos
                     .Where(criterio)

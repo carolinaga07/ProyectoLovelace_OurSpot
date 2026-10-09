@@ -10,12 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
-builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
+/*var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
+builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr)); */
 
+//builder.Services.AddScoped<EventosService>();
+
+builder.Services.AddDbContextFactory<Contexto>(o => o.UseInMemoryDatabase("OurSpotTempDb"));
 builder.Services.AddScoped<EventosService>();
 
 builder.Services.AddBlazorBootstrap();
+
 
 var app = builder.Build();
 

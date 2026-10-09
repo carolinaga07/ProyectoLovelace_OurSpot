@@ -1,5 +1,4 @@
-﻿```razor
-@page "/eventos/edit/{EventoId:int}"
+﻿@page "/eventos/edit/{EventoId:int}"
 @rendermode InteractiveServer
 
 @inject EventosService eventosService
@@ -78,8 +77,11 @@
                         <strong>Tipo</strong>
                     </label>
 
-                    <InputText class="form-control"
-                               @bind-Value="Evento.Tipo" />
+                    <InputSelect class="form-select" @bind-Value="Evento.Tipo">
+                        <option value="" selected disabled>Elija una opcion</option>
+                        <option value="Publico">Publico</option>
+                        <option value="Privado">Privado</option>
+                    </InputSelect>
 
                     <ValidationMessage For="() => Evento.Tipo" />
                 </div>
@@ -109,24 +111,35 @@
 
             <!-- BOTONES -->
             <div class="card-footer text-center mt-2">
-
-                <a href="/eventos" class="btn btn-secondary me-2">
-                    <span class="bi bi-arrow-left"></span>
-                    Volver
-                </a>
-
-                <button type="submit" class="btn btn-primary">
-                    <span class="bi bi-floppy"></span>
-                    Guardar
-                </button>
-
+                <a href="/eventos" class="btn btn-secondary me-2"><span class="bi bi-arrow-left"></span> Volver </a>
+                <button type="submit" class="btn btn-primary"><span class="bi bi-floppy"></span> Guardar </button>
+                <button type ="button" class ="btn btn-danger bi bi-trash" @onclick = "MostrarModal">Eliminar</button>
             </div>
-
         </div>
     </div>
 
 </EditForm>
 
+    @if (mostrarModal)
+    {
+     <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header text-black">
+                        <h5 class="modal-title">Confirmar Eliminaci&oacute;n</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CerrarModal"></button>
+                    </div>  
+                    <div class="modal-body">
+                        <p>¿Desea eliminar el evento <strong>@Evento.Nombre</strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
 @code {
 
@@ -135,19 +148,17 @@
 
     private Evento Evento { get; set; } = new();
 
+    private bool mostrarModal = false;
+
 
     protected override async Task OnInitializedAsync()
     {
-        var eventoEncontrado =
-            await eventosService.Buscar(EventoId);
+       var eventoEncontrado = await eventosService.Buscar(EventoId);
 
         if (eventoEncontrado == null)
         {
-            toastService.ShowError(
-                "El evento no existe.");
-
+            toastService.ShowError("El evento no existe.");
             Navigation.NavigateTo("/eventos");
-
             return;
         }
 
@@ -157,13 +168,11 @@
 
     private async Task Modificar()
     {
-        bool modificado =
-            await eventosService.Guardar(Evento);
+        bool modificado = await eventosService.Guardar(Evento);
 
         if (modificado)
         {
-            toastService.ShowSuccess(
-                "Se ha modificado correctamente el evento.");
+            toastService.ShowSuccess("Se ha modificado correctamente el evento.");
 
             Navigation.NavigateTo("/eventos");
         }
@@ -173,5 +182,32 @@
                 "No se ha podido modificar el evento satisfactoriamente.");
         }
     }
+
+    public async Task Eliminar()
+    {
+        CerrarModal();
+        var eliminado = await eventosService.Eliminar(Evento.EventoId);
+
+        if (eliminado)
+        {
+            toastService.ShowSuccess("¡Evento eliminado correctamente!");
+            Navigation.NavigateTo("/eventos");
+        }
+        else
+        {
+            toastService.ShowError("No se ha podido modificar el evento satisfactoriamente.");
+        }
+    }
+
+    private async Task MostrarModal()
+    {
+        mostrarModal = true;
+    }
+
+    private async Task CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
 }
 
