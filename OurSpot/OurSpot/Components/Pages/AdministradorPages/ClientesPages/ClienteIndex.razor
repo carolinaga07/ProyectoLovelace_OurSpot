@@ -1,0 +1,632 @@
+﻿@page "/clientes"
+@rendermode InteractiveServer
+
+<PageTitle>Clientes</PageTitle>
+
+<div class="clientes-page">
+
+    @if (!mostrarDetalle)
+    {
+        @* Encabezado *@
+        <div class="clientes-header">
+
+            <h1>Clientes</h1>
+
+            <a href="/clientes/create" class="btn-crear">
+                <i class="bi bi-plus-square"></i>
+                Crear
+            </a>
+
+        </div>
+
+        @* Filtros *@
+        <div class="filtros">
+
+            <div class="campo-filtro">
+
+                <label>Estado</label>
+
+                <select @bind="filtroEstado">
+                    <option value="">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Bloqueado">Bloqueado</option>
+                </select>
+
+            </div>
+
+            <div class="campo-filtro campo-busqueda">
+
+                <label>Búsqueda</label>
+
+                <div class="busqueda">
+
+                    <input type="text"
+                           placeholder="Buscar por nombre o Id"
+                           @bind="busqueda"
+                           @bind:event="oninput" />
+
+                    <button type="button" title="Buscar">
+                        <i class="bi bi-search"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @* Tabla *@
+        <div class="tabla-contenedor">
+
+            <table class="tabla-clientes">
+
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var cliente in ClientesFiltrados)
+                    {
+                        <tr class="fila-cliente"
+                            @onclick="() => VerDetalle(cliente)">
+
+                            <td>@cliente.Id</td>
+
+                            <td>@cliente.Nombre</td>
+
+                            <td>@cliente.Correo</td>
+
+                            <td>@cliente.Telefono</td>
+
+                            <td>
+                                <span class="estado @(cliente.Estado == "Activo" ? "activo" : "bloqueado")">
+                                    @cliente.Estado
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="opciones">
+
+                                    <a href="/clientes/edit"
+                                       class="btn-editar"
+                                       title="Editar"
+                                       @onclick:stopPropagation="true">
+
+                                        <i class="bi bi-pencil-square"></i>
+
+                                    </a>
+
+                                    <button type="button"
+                                            class="btn-bloquear"
+                                            title="@(cliente.Estado == "Activo" ? "Bloquear" : "Activar")"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="() => MostrarCambioEstado(cliente)">
+
+                                        <i class="bi @(cliente.Estado == "Activo" ? "bi-lock" : "bi-unlock")"></i>
+
+                                    </button>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+
+                    @if (!ClientesFiltrados.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="sin-resultados">
+                                No se encontraron clientes.
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    else if (clienteSeleccionado is not null)
+    {
+        @* Detalle del cliente *@
+        <div class="detalle-vista">
+
+            <div class="detalle-header">
+
+                <div>
+                    <h1>Detalle del cliente</h1>
+                    <p>Información del cliente seleccionado</p>
+                </div>
+
+                <button type="button"
+                        class="cerrar-vista"
+                        @onclick="CerrarDetalle">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+            <div class="detalle-formulario">
+
+                <div class="detalle-campo">
+                    <label>Id</label>
+                    <div class="dato">@clienteSeleccionado.Id</div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Nombre</label>
+                    <div class="dato">@clienteSeleccionado.Nombre</div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Correo</label>
+                    <div class="dato">@clienteSeleccionado.Correo</div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Teléfono</label>
+                    <div class="dato">@clienteSeleccionado.Telefono</div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Fecha de nacimiento</label>
+                    <div class="dato">
+                        @clienteSeleccionado.FechaNacimiento.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Fecha de registro</label>
+                    <div class="dato">
+                        @clienteSeleccionado.FechaRegistro.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <div class="detalle-campo descripcion-campo">
+                    <label>Dirección</label>
+                    <div class="dato">@clienteSeleccionado.Direccion</div>
+                </div>
+
+                <div class="detalle-campo">
+                    <label>Estado</label>
+
+                    <div class="dato">
+                        <span class="estado @(clienteSeleccionado.Estado == "Activo" ? "activo" : "bloqueado")">
+                            @clienteSeleccionado.Estado
+                        </span>
+                    </div>
+                </div>
+
+                @* Resumen de reservas *@
+                <div class="detalle-seccion">
+
+                    <h3>Resumen de reservas</h3>
+
+                    <div class="resumen-reservas">
+
+                        <div class="resumen-tarjeta">
+                            <strong>@clienteSeleccionado.Reservas.Count</strong>
+                            <span>Reservas realizadas</span>
+                        </div>
+
+                        <div class="resumen-tarjeta">
+                            <strong>@clienteSeleccionado.Reservas.Count(r => r.Estado == "Confirmada")</strong>
+                            <span>Confirmadas</span>
+                        </div>
+
+                        <div class="resumen-tarjeta">
+                            <strong>@clienteSeleccionado.Reservas.Count(r => r.Estado == "Cancelada")</strong>
+                            <span>Canceladas</span>
+                        </div>
+
+                        <div class="resumen-tarjeta">
+                            <strong>@clienteSeleccionado.Reservas.Count(r => r.Estado == "Completada")</strong>
+                            <span>Completadas</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @* Reservas del cliente *@
+                <div class="detalle-seccion">
+
+                    <h3>Reservas realizadas</h3>
+
+                    <div class="tabla-contenedor">
+
+                        <table class="tabla-clientes">
+
+                            <thead>
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Fecha</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var reserva in clienteSeleccionado.Reservas)
+                                {
+                                    <tr>
+                                        <td>@reserva.Evento</td>
+                                        <td>@reserva.Fecha.ToString("dd/MM/yyyy")</td>
+                                        <td>@reserva.Cantidad</td>
+                                        <td>@reserva.Estado</td>
+                                    </tr>
+                                }
+
+                                @if (!clienteSeleccionado.Reservas.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="sin-resultados">
+                                            No hay reservas registradas.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                @* Historial reciente *@
+                <div class="detalle-seccion">
+
+                    <h3>Historial reciente</h3>
+
+                    <div class="historial-lista">
+
+                        @foreach (var actividad in clienteSeleccionado.Historial.OrderByDescending(h => h.Fecha))
+                        {
+                            <div class="historial-item">
+
+                                <span class="historial-fecha">
+                                    @actividad.Fecha.ToString("dd/MM/yyyy")
+                                </span>
+
+                                <span>@actividad.Descripcion</span>
+
+                            </div>
+                        }
+
+                        @if (!clienteSeleccionado.Historial.Any())
+                        {
+                            <p>No hay actividad reciente.</p>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="detalle-acciones">
+
+                    <button type="button"
+                            class="btn-direccion"
+                            @onclick="() => MostrarCambioEstado(clienteSeleccionado)">
+
+                        <i class="bi @(clienteSeleccionado.Estado == "Activo" ? "bi-lock" : "bi-unlock")"></i>
+
+                        @(clienteSeleccionado.Estado == "Activo" ? "Bloquear cuenta" : "Activar cuenta")
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@* Modal para bloquear o activar *@
+@if (mostrarCambioEstado && clienteCambioEstado is not null)
+{
+    <div class="modal-fondo">
+
+        <div class="modal-eliminar">
+
+            <div class="modal-header-lugar">
+                <h2>Datos del Cliente</h2>
+            </div>
+
+            <div class="modal-body-lugar">
+
+                <h3>
+                    ¿Desea @(clienteCambioEstado.Estado == "Activo" ? "bloquear" : "activar")
+                    esta cuenta?
+                </h3>
+
+                <div class="datos-eliminar">
+
+                    <p><strong>Id:</strong> @clienteCambioEstado.Id</p>
+
+                    <p><strong>Nombre:</strong> @clienteCambioEstado.Nombre</p>
+
+                    <p><strong>Correo:</strong> @clienteCambioEstado.Correo</p>
+
+                    <p><strong>Estado actual:</strong> @clienteCambioEstado.Estado</p>
+
+                    @if (clienteCambioEstado.Estado == "Activo")
+                    {
+                        <div class="campo-motivo">
+                            <label>Motivo del bloqueo</label>
+
+                            <textarea class="form-control"
+                                      @bind="motivoBloqueo"
+                                      placeholder="Indique el motivo del bloqueo">
+                            </textarea>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer-lugar">
+
+                <button type="button"
+                        class="btn-volver"
+                        @onclick="CerrarCambioEstado">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+
+                </button>
+
+                <button type="button"
+                        class="btn-confirmar-eliminar"
+                        @onclick="ConfirmarCambioEstado"
+                        disabled="@(clienteCambioEstado.Estado == "Activo" && string.IsNullOrWhiteSpace(motivoBloqueo))">
+
+                    <i class="bi @(clienteCambioEstado.Estado == "Activo" ? "bi-lock" : "bi-unlock")"></i>
+
+                    @(clienteCambioEstado.Estado == "Activo" ? "Bloquear" : "Activar")
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    // Datos de ejemplo
+    private List<Cliente> clientes = new()
+    {
+        new Cliente
+        {
+            Id = 1,
+            Nombre = "Ana Pérez",
+            Correo = "ana@gmail.com",
+            Telefono = "809-555-0101",
+            FechaNacimiento = new DateTime(2002, 3, 15),
+            Direccion = "Urbanización Piña, SFM",
+            FechaRegistro = new DateTime(2026, 9, 2),
+            Estado = "Activo",
+            Reservas = new()
+            {
+                new Reserva
+                {
+                    Evento = "SFM Fashion Night",
+                    Fecha = new DateTime(2026, 9, 25),
+                    Cantidad = 2,
+                    Estado = "Confirmada"
+                },
+                new Reserva
+                {
+                    Evento = "Taller de Pintura",
+                    Fecha = new DateTime(2026, 9, 24),
+                    Cantidad = 1,
+                    Estado = "Completada"
+                }
+            },
+            Historial = new()
+            {
+                new Actividad
+                {
+                    Fecha = new DateTime(2026, 9, 25),
+                    Descripcion = "Reservó entradas para SFM Fashion Night."
+                },
+                new Actividad
+                {
+                    Fecha = new DateTime(2026, 9, 2),
+                    Descripcion = "Cuenta registrada."
+                }
+            }
+        },
+
+        new Cliente
+        {
+            Id = 2,
+            Nombre = "Luis García",
+            Correo = "luis@gmail.com",
+            Telefono = "829-555-0102",
+            FechaNacimiento = new DateTime(1999, 7, 10),
+            Direccion = "Vista al Valle, SFM",
+            FechaRegistro = new DateTime(2026, 9, 5),
+            Estado = "Bloqueado",
+            Reservas = new()
+            {
+                new Reserva
+                {
+                    Evento = "Taller de Pintura",
+                    Fecha = new DateTime(2026, 9, 24),
+                    Cantidad = 1,
+                    Estado = "Cancelada"
+                }
+            },
+            Historial = new()
+            {
+                new Actividad
+                {
+                    Fecha = new DateTime(2026, 9, 28),
+                    Descripcion = "Cuenta bloqueada."
+                },
+                new Actividad
+                {
+                    Fecha = new DateTime(2026, 9, 24),
+                    Descripcion = "Canceló una reserva."
+                }
+            }
+        },
+
+        new Cliente
+        {
+            Id = 3,
+            Nombre = "María Rodríguez",
+            Correo = "maria@gmail.com",
+            Telefono = "849-555-0103",
+            FechaNacimiento = new DateTime(2001, 11, 20),
+            Direccion = "Los Jardines, SFM",
+            FechaRegistro = new DateTime(2026, 9, 10),
+            Estado = "Activo",
+            Reservas = new()
+            {
+                new Reserva
+                {
+                    Evento = "SFM Fashion Night",
+                    Fecha = new DateTime(2026, 9, 25),
+                    Cantidad = 3,
+                    Estado = "Completada"
+                }
+            },
+            Historial = new()
+            {
+                new Actividad
+                {
+                    Fecha = new DateTime(2026, 9, 25),
+                    Descripcion = "Asistió a SFM Fashion Night."
+                }
+            }
+        }
+    };
+
+    // Filtros
+    private string filtroEstado = "";
+    private string busqueda = "";
+
+    private IEnumerable<Cliente> ClientesFiltrados =>
+        clientes.Where(c =>
+            (string.IsNullOrEmpty(filtroEstado) || c.Estado == filtroEstado)
+            &&
+            (string.IsNullOrWhiteSpace(busqueda)
+                || c.Nombre.Contains(busqueda, StringComparison.OrdinalIgnoreCase)
+                || c.Id.ToString().Contains(busqueda.Trim())));
+
+    // Detalle
+    private bool mostrarDetalle = false;
+    private Cliente? clienteSeleccionado;
+
+    private void VerDetalle(Cliente cliente)
+    {
+        clienteSeleccionado = cliente;
+        mostrarDetalle = true;
+    }
+
+    private void CerrarDetalle()
+    {
+        mostrarDetalle = false;
+        clienteSeleccionado = null;
+    }
+
+    // Bloquear / Activar
+    private bool mostrarCambioEstado = false;
+    private Cliente? clienteCambioEstado;
+    private string motivoBloqueo = "";
+
+    private void MostrarCambioEstado(Cliente cliente)
+    {
+        clienteCambioEstado = cliente;
+        motivoBloqueo = "";
+        mostrarCambioEstado = true;
+    }
+
+    private void CerrarCambioEstado()
+    {
+        mostrarCambioEstado = false;
+        clienteCambioEstado = null;
+        motivoBloqueo = "";
+    }
+
+    private void ConfirmarCambioEstado()
+    {
+        if (clienteCambioEstado is null)
+            return;
+
+        if (clienteCambioEstado.Estado == "Activo")
+        {
+            if (string.IsNullOrWhiteSpace(motivoBloqueo))
+                return;
+
+            clienteCambioEstado.Estado = "Bloqueado";
+
+            clienteCambioEstado.Historial.Add(new Actividad
+            {
+                Fecha = DateTime.Now,
+                Descripcion = $"Cuenta bloqueada. Motivo: {motivoBloqueo.Trim()}"
+            });
+        }
+        else
+        {
+            clienteCambioEstado.Estado = "Activo";
+
+            clienteCambioEstado.Historial.Add(new Actividad
+            {
+                Fecha = DateTime.Now,
+                Descripcion = "Cuenta activada por el administrador."
+            });
+        }
+
+        CerrarCambioEstado();
+    }
+
+    // Clases temporales para el prototipo
+    private class Cliente
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Correo { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public DateTime FechaNacimiento { get; set; }
+        public string Direccion { get; set; } = "";
+        public DateTime FechaRegistro { get; set; }
+        public string Estado { get; set; } = "Activo";
+        public List<Reserva> Reservas { get; set; } = new();
+        public List<Actividad> Historial { get; set; } = new();
+    }
+
+    private class Reserva
+    {
+        public string Evento { get; set; } = "";
+        public DateTime Fecha { get; set; }
+        public int Cantidad { get; set; }
+        public string Estado { get; set; } = "";
+    }
+
+    private class Actividad
+    {
+        public DateTime Fecha { get; set; }
+        public string Descripcion { get; set; } = "";
+    }
+}

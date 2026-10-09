@@ -1,0 +1,113 @@
+﻿@page "/clientes/create"
+@rendermode InteractiveServer
+
+<PageTitle>Crear cliente</PageTitle>
+
+<div class="form-page">
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>Nuevo Cliente</h2>
+        </div>
+
+        <div class="form-body">
+
+            <div class="campo">
+                <label>Id</label>
+
+                <input type="text"
+                       class="form-control"
+                       value="4"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Nombre</label>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Ej. Ana Pérez" />
+            </div>
+
+            <div class="campo">
+                <label>Correo electrónico</label>
+
+                <input type="email"
+                       class="form-control"
+                       placeholder="Ej. ana@gmail.com" />
+            </div>
+
+            <div class="campo">
+                <label>Contraseña</label>
+
+                <input type="password"
+                       class="form-control"
+                       placeholder="Ingrese una contraseña"
+                       autocomplete="new-password" />
+            </div>
+
+            <div class="campo">
+                <label>Teléfono</label>
+
+                <input type="tel"
+                       class="form-control"
+                       placeholder="Ej. 809-555-0101" />
+            </div>
+
+            <div class="campo">
+                <label>Fecha de nacimiento</label>
+
+                <input type="date"
+                       class="form-control" />
+            </div>
+
+            <div class="campo">
+                <label>Dirección</label>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Ej. Urbanización Piña, San Francisco de Macorís" />
+            </div>
+
+            <div class="campo">
+                <label>Fecha de registro</label>
+
+                <input type="date"
+                       class="form-control"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       readonly />
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+
+                <select class="form-select">
+                    <option selected>Activo</option>
+                    <option>Bloqueado</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-footer">
+
+            <a href="/clientes"
+               class="btn-cancelar">
+
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="btn-guardar">
+
+                <i class="bi bi-floppy"></i>
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
