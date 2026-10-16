@@ -65,6 +65,10 @@
 @code {
     public Evento evento { get; set; } = new Evento();
 
+    protected override async Task OnInitializedAsync()
+    {
+        evento.Fecha = DateTime.Today;
+    }
     public async Task Guardar()
     {
         var creado = await eventoService.Guardar(evento);
