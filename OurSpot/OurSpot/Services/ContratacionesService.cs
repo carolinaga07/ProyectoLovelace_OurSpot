@@ -62,7 +62,8 @@ namespace OurSpot.Services
             await using var contexto = await contextFactory.CreateDbContextAsync();
             return await contexto.Contrataciones
                 .Where(c => c.Id == idContratacion)
-                .ExecuteDeleteAsync() > 0;
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(c => c.Eliminado, true)) > 0;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/Contrataciones"
+@rendermode InteractiveServer
 @inject ContratacionesService contratationesService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
@@ -91,21 +92,18 @@
 </div>
 
 
+```csharp
 @code {
-    private string FiltroCategoria { get; set; } = string.Empty;
-    private string FiltroEstado { get; set; } = string.Empty;
-    private string FiltroBusqueda { get; set; } = string.Empty;
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
 
-    public IQueryable<Contrataciones> itemsQueryable = Enumerable.Empty<Contrataciones>().AsQueryable();
+    public IQueryable<Contrataciones> itemsQueryable =
+        Enumerable.Empty<Contrataciones>().AsQueryable();
 
     public Contrataciones Contratacion { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
-    {
-        await CargarContrataciones();
-    }
-
-    private async Task CargarContrataciones()
     {
         var items = await contratationesService.GetList(c => c.Eliminado == false);
         itemsQueryable = items.AsQueryable();
@@ -113,32 +111,30 @@
 
     private async Task Buscar()
     {
-        var items = await contratationesService.GetList(c => c.Eliminado == false);
-
-        var consulta = items.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(FiltroCategoria))
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCategoria == "" &&
+            FiltroEstado == "")
         {
-            consulta = consulta.Where(c => c.Servicio == FiltroCategoria);
+            var items = await contratationesService.GetList(c => c.Eliminado == false);
+            itemsQueryable = items.AsQueryable();
         }
-
-        if (!string.IsNullOrWhiteSpace(FiltroEstado))
+        else
         {
-            consulta = consulta.Where(c => c.Estado == FiltroEstado);
-        }
+            var busqueda = FiltroBusqueda.Trim().ToLower();
 
-        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
-        {
-            string busqueda = FiltroBusqueda.Trim().ToLower();
-
-            consulta = consulta.Where(c =>
-                (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
-                (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
-                (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+            var items = await contratationesService.GetList(c =>
+                c.Eliminado == false &&
+                (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
+                (FiltroEstado == "" || c.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
+                    (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
+                    (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+                )
             );
-        }
 
-        itemsQueryable = consulta;
+            itemsQueryable = items.AsQueryable();
+        }
     }
 
     private async Task Eliminar()
