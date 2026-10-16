@@ -1,0 +1,152 @@
+﻿@page "/Contrataciones"
+@rendermode InteractiveServer
+@inject ContratacionesService contratationesService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Contrataciones</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Contrataciones</h5>
+            <a href="/Contrataciones/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nueva Contrataci&oacute;n</a>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
+                    </InputSelect>
+                </div>
+
+                @*Esatdo*@
+                <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Realizada">Realizada</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="c => c.Evento" Title="Evento" Sortable="true" />
+                    <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
+                    <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
+                    <PropertyColumn Property="c => c.Fecha" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="c => c.Estado" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <a href="@($"/Contrataciones/Editar/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+            <label><strong>Total: $</strong>@itemsQueryable?.Sum(c => c.Costo).ToString("N2")</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Contrataciones> itemsQueryable =
+        Enumerable.Empty<Contrataciones>().AsQueryable();
+
+    public Contrataciones Contratacion { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCategoria == "" &&
+            FiltroEstado == "")
+        {
+            var items = await contratationesService.GetList(c => c.Eliminado == false);
+            itemsQueryable = items.AsQueryable();
+        }
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await contratationesService.GetList(c =>
+                c.Eliminado == false &&
+                (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
+                (FiltroEstado == "" || c.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
+                    (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
+                    (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+                )
+            );
+
+            itemsQueryable = items.AsQueryable();
+        }
+    }
+
+    private async Task Eliminar()
+    {
+        bool eliminado = await contratationesService.Eliminar(Contratacion.Id);
+
+        if (eliminado)
+        {
+            await Buscar();
+            toastService.ShowSuccess("Contratación eliminada exitosamente");
+        }
+        else
+        {
+            toastService.ShowError("Error al eliminar la contratación");
+        }
+    }
+}
