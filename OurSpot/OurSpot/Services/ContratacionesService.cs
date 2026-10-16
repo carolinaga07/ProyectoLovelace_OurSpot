@@ -6,17 +6,17 @@ using System.Linq.Expressions;
 
 namespace OurSpot.Services
 {
-    public class ContratacionesService(IDbContextFactory<Contexto> contextFactory) : IService<ContratacionesService, int>
+    public class ContratacionesService(IDbContextFactory<Contexto> contextFactory) : IService<Contrataciones, int>
     {
-        public async Task<bool> Guardar(Autores autor)
+        public async Task<bool> Guardar(Contrataciones contratacion)
         {
-            if (!await Existe(autor.IdAutor))
+            if (!await Existe(contratacion.Id))
             {
-                return await Insertar(autor);
+                return await Insertar(contratacion);
             }
             else
             {
-                return await Modificar(autor);
+                return await Modificar(contratacion);
             }
         }
 

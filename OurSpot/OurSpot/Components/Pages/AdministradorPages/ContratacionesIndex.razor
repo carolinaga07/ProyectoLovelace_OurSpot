@@ -1,5 +1,7 @@
 ﻿@page "/Contrataciones"
-
+@inject ContratacionesService contratationesService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
 
 <PageTitle>Contrataciones</PageTitle>
 
@@ -61,82 +63,96 @@
                 <div class="col-5">
                     <div class="input-group">
                         <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
-                        <button type="button" class="btn btn-outline-primary bi bi-search"></button>
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                     </div>
                 </div>
 
-                </div>
+            </div>
 
-            <table class="table table-hover">
-                <thead class="table  table-striped text-black">
-                    <tr>
-                        <th>Evento</th>
-                        <th>Servicio</th>
-                        <th>Proveedor</th>
-                        <th>Fecha</th> 
-                        <th>Costo</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var contratacion in listaContrataciones)
-                    {
-                        <tr>
-                            <td> @contratacion.Evento</td>
-                            <td> @contratacion.Servicio</td>
-                            <td> @contratacion.Proveedor</td>
-                            <td> @contratacion.Fecha</td>
-                            <td> @contratacion.Costo</td>
-                            <td> @contratacion.Estado</td>
-
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="c => c.Evento" Title="Evento" Sortable="true" />
+                    <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
+                    <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
+                    <PropertyColumn Property="c => c.Fecha" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="c => c.Estado" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <a href="@($"/Contrataciones/Editar/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
         </div>
         <div class="card-footer d-flex justify-content-between align-center mb-4">
-            
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+            <label><strong>Total: </strong>@itemsQueryable?.Sum(c => c.Costo).ToString("N2")</label>
         </div>
     </div>
 </div>
 
-@code {
-    private List<Contrataciones>? listaContrataciones;
 
+@code {
     private string FiltroCategoria { get; set; } = string.Empty;
-    private string FiltroEstado{ get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
     private string FiltroBusqueda { get; set; } = string.Empty;
 
-    protected override void OnInitialized()
-    {
-        listaContrataciones = new List<Contrataciones>
-        {
-            new Contrataciones(1, "Boda de los Perez", "Decoraciones Elegance", new DateOnly(2026, 12, 2), "Decoracion", 30000, "Pendiente"),
-            new Contrataciones(3, "Fiesta de Cumpleaños de los Lopez", "Catering Delicias", new DateOnly(2026, 11, 15), "Catering", 15000, "Cancelada"),
-            new Contrataciones(4, "Conferencia Empresarial Santa Barbara", "AudioVisual Pro", new DateOnly(2027, 9, 10), "Entretenimiento", 8000, "Pendiente")
+    public IQueryable<Contrataciones> itemsQueryable = Enumerable.Empty<Contrataciones>().AsQueryable();
 
-        };
+    public Contrataciones Contratacion { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarContrataciones();
     }
 
-    public class Contrataciones
+    private async Task CargarContrataciones()
     {
-        public int Id { get; set; }
-        public string Evento { get; set; }
-        public string Proveedor { get; set; }
-        public DateOnly Fecha { get; set; }
-        public string Servicio { get; set; }
-        public decimal Costo { get; set; }
-        public string Estado { get; set; }
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+    }
 
-        public Contrataciones(int id, string evento, string proveedor, DateOnly fecha, string servicio, decimal costo, string estado)
+    private async Task Buscar()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+
+        var consulta = items.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(FiltroCategoria))
         {
-            Id = id;
-            Evento = evento;
-            Proveedor = proveedor;
-            Fecha = fecha;
-            Servicio = servicio;
-            Costo = costo;
-            Estado = estado;
+            consulta = consulta.Where(c => c.Servicio == FiltroCategoria);
+        }
+
+        if (!string.IsNullOrWhiteSpace(FiltroEstado))
+        {
+            consulta = consulta.Where(c => c.Estado == FiltroEstado);
+        }
+
+        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
+        {
+            string busqueda = FiltroBusqueda.Trim().ToLower();
+
+            consulta = consulta.Where(c =>
+                (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
+                (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
+                (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+            );
+        }
+
+        itemsQueryable = consulta;
+    }
+
+    private async Task Eliminar()
+    {
+        bool eliminado = await contratationesService.Eliminar(Contratacion.Id);
+
+        if (eliminado)
+        {
+            await Buscar();
+            toastService.ShowSuccess("Contratación eliminada exitosamente");
+        }
+        else
+        {
+            toastService.ShowError("Error al eliminar la contratación");
         }
     }
 }
