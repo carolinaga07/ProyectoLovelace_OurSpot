@@ -60,10 +60,15 @@ namespace OurSpot.Services
         public async Task<bool> Eliminar(int idContratacion)
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
-            return await contexto.Contrataciones
-                .Where(c => c.Id == idContratacion)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(c => c.Eliminado, true)) > 0;
+
+            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.Id == idContratacion && !c.Eliminado);
+
+            if (contratacion == null)
+                return false;
+
+            contratacion.Eliminado = true;
+
+            return await contexto.SaveChangesAsync() > 0;
         }
     }
 }
