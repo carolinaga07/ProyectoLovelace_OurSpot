@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
 namespace OurSpot.Components.Models
 {
     public class Evento
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int EventoId { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
@@ -23,6 +26,7 @@ namespace OurSpot.Components.Models
 
         public string Estado { get; set; } = "Pendiente";
 
+        public bool Eliminado { get; set; } = false;
 
         //1, "Boda de los Perez", "Social", new DateOnly(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"
         public Evento()

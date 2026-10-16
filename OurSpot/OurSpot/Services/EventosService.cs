@@ -11,12 +11,6 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
         public class EventosService(IDbContextFactory<Contexto> contextFactory)
             : IService<Evento, int>
         {
-            private static List<Evento> eventosTemp = new()
-            {
-                 new Evento(1, "Boda de los Perez", "Social", new DateTime(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"),
-                 new Evento(2, "Conferencia Tech", "Corporativo", new DateTime(2026, 11, 15), "Hotel Jaragua", "Público", "Confirmado")
-            };
-
             public async Task<bool> Guardar(Evento eventos)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
@@ -68,32 +62,23 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
                     .FirstOrDefaultAsync(e => e.EventoId == eventoId);
             }
 
-            public async Task<bool> Eliminar(int eventoId)
+            public async Task<bool> Eliminar(int id)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
 
-                var evento = await contexto.Eventos.FindAsync(eventoId);
+                var evento = await contexto.Eventos.FirstOrDefaultAsync(e => e.EventoId == id && !e.Eliminado);
 
                 if (evento == null)
-                {
                     return false;
-                }
 
-                contexto.Eventos.Remove(evento);
+                evento.Eliminado = true;
 
                 return await contexto.SaveChangesAsync() > 0;
             }
 
-            public async Task<List<Evento>> GetList(
-                Expression<Func<Evento, bool>> criterio)
+            public async Task<List<Evento>> GetList(Expression<Func<Evento, bool>> criterio)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
-
-                if (!await contexto.Eventos.AnyAsync())
-                {
-                    contexto.Eventos.AddRange(eventosTemp);
-                    await contexto.SaveChangesAsync();
-                }
 
                 return await contexto.Eventos
                     .Where(criterio)

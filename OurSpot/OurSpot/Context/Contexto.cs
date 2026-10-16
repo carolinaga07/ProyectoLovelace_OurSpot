@@ -10,11 +10,16 @@ namespace OurSpot.Context
 
         }
 
+         public DbSet<Evento> Eventos { get; set; } 
+
         public DbSet<Evento> Eventos{ get; set; }
         public DbSet<Contrataciones> Contrataciones { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
         }
     }
 }

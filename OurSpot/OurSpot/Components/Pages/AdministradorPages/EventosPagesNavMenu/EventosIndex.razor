@@ -106,7 +106,7 @@
 </div>
 
 @code {
-    private List<Evento>? listaEventos;
+    private List<Evento>? listaEventos = new();
 
     private string FiltroCategoria { get; set; } = string.Empty;
     private string FiltroEstado { get; set; } = string.Empty;
@@ -114,6 +114,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        listaEventos = await eventoService.GetList(e => e.EventoId > 0);
+        listaEventos = await eventoService.GetList(e => e.EventoId > 0) ?? new();
     }
 }
