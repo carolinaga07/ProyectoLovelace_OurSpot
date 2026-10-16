@@ -85,7 +85,7 @@
         </div>
         <div class="card-footer d-flex justify-content-between align-center mb-4">
             <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
-            <label><strong>Total: </strong>@itemsQueryable?.Sum(c => c.Costo).ToString("N2")</label>
+            <label><strong>Total: $</strong>@itemsQueryable?.Sum(c => c.Costo).ToString("N2")</label>
         </div>
     </div>
 </div>
