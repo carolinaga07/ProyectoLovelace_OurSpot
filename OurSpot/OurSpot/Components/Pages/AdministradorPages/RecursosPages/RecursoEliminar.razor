@@ -1,0 +1,139 @@
+﻿
+@page "/recursos/eliminar/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Recurso</PageTitle>
+
+<div class="container mt-4">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header text-center">
+            <h5><strong>Datos del Recurso</strong></h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="text-center text-danger">
+                <h5>
+                    <strong>¿Desea eliminar este recurso?</strong>
+                </h5>
+            </div>
+
+            <ul class="list-group list-group-flush mt-4">
+
+                <li class="list-group-item">
+                    <strong>Id:</strong> @Id
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Nombre:</strong> @nombre
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Categoría:</strong> @categoria
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Cantidad:</strong> @cantidad
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Proveedor:</strong> @proveedor
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Estado:</strong> @estado
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div class="card-footer text-center">
+
+            <a href="/recursos"
+               class="btn btn-secondary me-2">
+
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+
+            <a href="/recursos"
+               class="btn btn-danger">
+
+                <span class="bi bi-trash"></span>
+                Eliminar
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string categoria = "";
+    private int cantidad;
+    private string proveedor = "";
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                nombre = "Sillas plegables";
+                categoria = "Mobiliario";
+                cantidad = 150;
+                proveedor = "Eventos del Cibao";
+                estado = "Disponible";
+                break;
+
+            case 2:
+                nombre = "Proyector Epson";
+                categoria = "Audiovisual";
+                cantidad = 2;
+                proveedor = "TecnoEventos";
+                estado = "En uso";
+                break;
+
+            case 3:
+                nombre = "Bocinas JBL";
+                categoria = "Sonido";
+                cantidad = 4;
+                proveedor = "AudioPro RD";
+                estado = "Disponible";
+                break;
+
+            case 4:
+                nombre = "Mesas redondas";
+                categoria = "Mobiliario";
+                cantidad = 20;
+                proveedor = "Eventos del Cibao";
+                estado = "Disponible";
+                break;
+
+            case 5:
+                nombre = "Luces LED";
+                categoria = "Iluminación";
+                cantidad = 8;
+                proveedor = "Ilumina RD";
+                estado = "No disponible";
+                break;
+
+            default:
+                nombre = "";
+                categoria = "";
+                cantidad = 0;
+                proveedor = "";
+                estado = "";
+                break;
+        }
+    }
+}

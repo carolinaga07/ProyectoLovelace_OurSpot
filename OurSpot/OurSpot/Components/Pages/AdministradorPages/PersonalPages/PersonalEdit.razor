@@ -2,98 +2,103 @@
 @page "/personal/edit/{Id:int}"
 @rendermode InteractiveServer
 
-<PageTitle>Editar personal</PageTitle>
+<PageTitle>Editar Personal</PageTitle>
 
-<div class="form-page">
+<div class="container mt-4">
 
-    <div class="form-card">
+    <div class="card shadow-lg">
 
-        <div class="form-header">
-            <h2>Editar Personal</h2>
+        <div class="card-header text-center">
+            <h3 class="card-title">Editar Personal</h3>
         </div>
 
-        <div class="form-body">
+        <div class="card-body">
 
-            <div class="campo">
-                <label>Id</label>
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
 
-                <input type="text"
+                <input type="number"
                        class="form-control"
                        value="@Id"
                        readonly />
             </div>
 
-            <div class="campo">
-                <label>Nombre</label>
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Nombre</strong>
+                </label>
 
                 <input type="text"
                        class="form-control"
-                       @bind="nombre"
-                       placeholder="Ingrese el nombre completo" />
+                       @bind="nombre" />
             </div>
 
-            <div class="campo">
-                <label>Correo electrónico</label>
+            @* Correo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Correo electrónico</strong>
+                </label>
 
                 <input type="email"
                        class="form-control"
-                       @bind="correo"
-                       placeholder="Ej. usuario@gmail.com" />
+                       @bind="correo" />
             </div>
 
-            <div class="campo">
-                <label>Teléfono</label>
-
-                <input type="tel"
-                       class="form-control"
-                       @bind="telefono"
-                       placeholder="Ej. 809-555-1234" />
-            </div>
-
-            <div class="campo">
-                <label>Cargo</label>
+            @* Cargo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Cargo</strong>
+                </label>
 
                 <select class="form-select" @bind="cargo">
-                    <option value="Administrador">Administrador</option>
-                    <option value="Empleado">Empleado</option>
+
+                    <option value="Administrador">
+                        Administrador
+                    </option>
+
+                    <option value="Empleado">
+                        Empleado
+                    </option>
+
                 </select>
             </div>
 
-            <div class="campo">
-                <label>Fecha de ingreso</label>
-
-                <input type="date"
-                       class="form-control"
-                       value="@fechaIngreso"
-                       readonly />
-            </div>
-
-            <div class="campo">
-                <label>Estado</label>
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
 
                 <select class="form-select" @bind="estado">
+
                     <option value="Activo">Activo</option>
                     <option value="Inactivo">Inactivo</option>
+
                 </select>
             </div>
 
         </div>
 
-        <div class="form-footer">
+        @* Footer *@
+        <div class="card-footer text-center">
 
             <a href="/personal"
-               class="btn-cancelar">
+               class="btn btn-secondary me-2">
 
-                <i class="bi bi-arrow-left"></i>
-                Cancelar
+                <span class="bi bi-arrow-left"></span>
+                Volver
             </a>
 
-            <button type="button"
-                    class="btn-guardar">
+            <a href="/personal"
+               class="btn btn-primary">
 
-                <i class="bi bi-floppy"></i>
+                <span class="bi bi-floppy"></span>
                 Guardar
-            </button>
+            </a>
 
         </div>
 
@@ -108,45 +113,68 @@
 
     private string nombre = "";
     private string correo = "";
-    private string telefono = "";
     private string cargo = "Empleado";
-    private string fechaIngreso = "";
     private string estado = "Activo";
 
     protected override void OnParametersSet()
     {
-        // Datos de ejemplo según el Id seleccionado
-
-        var personal = new[]
+        switch (Id)
         {
-            new { Id = 1, Nombre = "Sharlot Adrian Lopez", Correo = "sharlot@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
-            new { Id = 2, Nombre = "Franshelina Camilo Cabrera", Correo = "franshelina@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
-            new { Id = 3, Nombre = "Carolina Garcia Almanzar", Correo = "carolina@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
-            new { Id = 4, Nombre = "Dharianny Sime María", Correo = "dharianny@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
-            new { Id = 5, Nombre = "Jazmine Arleny Minaya Peralta", Correo = "jazmine@gmail.com", Cargo = "Administrador", Fecha = "2026-09-01", Estado = "Activo" },
-            new { Id = 6, Nombre = "Carlos Martínez", Correo = "carlos@gmail.com", Cargo = "Empleado", Fecha = "2026-09-15", Estado = "Activo" },
-            new { Id = 7, Nombre = "Laura Rodríguez", Correo = "laura@gmail.com", Cargo = "Empleado", Fecha = "2026-09-20", Estado = "Inactivo" }
-        };
+            case 1:
+                nombre = "Sharlot Adrian Lopez";
+                correo = "sharlot@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
 
-        var seleccionado = personal.FirstOrDefault(p => p.Id == Id);
+            case 2:
+                nombre = "Franshelina Camilo Cabrera";
+                correo = "franshelina@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
 
-        if (seleccionado is not null)
-        {
-            nombre = seleccionado.Nombre;
-            correo = seleccionado.Correo;
-            telefono = "No registrado";
-            cargo = seleccionado.Cargo;
-            fechaIngreso = seleccionado.Fecha;
-            estado = seleccionado.Estado;
-        }
-        else
-        {
-            nombre = "";
-            correo = "";
-            telefono = "";
-            cargo = "Empleado";
-            fechaIngreso = "";
-            estado = "Activo";
+            case 3:
+                nombre = "Carolina Garcia Almanzar";
+                correo = "carolina@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 4:
+                nombre = "Dharianny Sime María";
+                correo = "dharianny@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 5:
+                nombre = "Jazmine Arleny Minaya Peralta";
+                correo = "jazmine@gmail.com";
+                cargo = "Administrador";
+                estado = "Activo";
+                break;
+
+            case 6:
+                nombre = "Carlos Martínez";
+                correo = "carlos@gmail.com";
+                cargo = "Empleado";
+                estado = "Activo";
+                break;
+
+            case 7:
+                nombre = "Laura Rodríguez";
+                correo = "laura@gmail.com";
+                cargo = "Empleado";
+                estado = "Inactivo";
+                break;
+
+            default:
+                nombre = "";
+                correo = "";
+                cargo = "Empleado";
+                estado = "Activo";
+                break;
         }
     }
 }

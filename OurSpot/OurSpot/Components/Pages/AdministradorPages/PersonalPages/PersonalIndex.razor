@@ -4,448 +4,346 @@
 
 <PageTitle>Personal</PageTitle>
 
-<div class="personal-page">
+<style>
+    .grid {
+        max-height: 30rem;
+        overflow-y: auto;
+    }
 
-    @if (!mostrarDetalle)
-    {
+    .grid table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grid th, .grid td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .grid thead {
+        position: sticky;
+        top: 0;
+        background-color: #eee;
+        z-index: 1;
+    }
+
+    .grid tr:nth-child(even) {
+        background: rgba(255,255,255,0.4);
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .activo {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .inactivo {
+        background-color: #eadede;
+        color: #8a4d4d;
+    }
+</style>
+
+<div class="container">
+
+    <div class="card shadow-lg">
+
         @* Encabezado *@
-        <div class="personal-header">
-            <h1>Personal</h1>
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
 
-            <a href="/personal/create" class="btn-crear">
-                <i class="bi bi-plus-square"></i>
-                Crear
+            <h5 class="card-title align-content-center mt-2">
+                Personal
+            </h5>
+
+            <a href="/personal/create"
+               class="btn btn-primary"
+               style="background-color:#2D5056">
+
+                <span class="bi bi-plus-square-dotted"></span>
+                Nuevo Personal
             </a>
+
         </div>
 
-        @* Filtros *@
-        <div class="filtros">
+        <div class="card-body">
 
-            <div class="campo-filtro">
-                <label>Cargo</label>
+            @* Labels de filtros *@
+            <div class="row">
 
-                <select @bind="filtroCargo">
-                    <option value="">Todos</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Empleado">Empleado</option>
-                </select>
-            </div>
-
-            <div class="campo-filtro">
-                <label>Estado</label>
-
-                <select @bind="filtroEstado">
-                    <option value="">Todos</option>
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                </select>
-            </div>
-
-            <div class="campo-filtro campo-busqueda">
-                <label>Búsqueda</label>
-
-                <div class="busqueda">
-                    <input type="text"
-                           placeholder="Buscar nombre o correo"
-                           @bind="busqueda"
-                           @bind:event="oninput" />
-
-                    <button type="button" title="Buscar">
-                        <i class="bi bi-search"></i>
-                    </button>
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Cargo</strong>
+                    </label>
                 </div>
+
+                <div class="col-4">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
+                </div>
+
+                <div class="col-5">
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
+                </div>
+
             </div>
 
-        </div>
+            @* Filtros *@
+            <div class="row align-items-center mb-3">
 
-        @* Tabla *@
-        <div class="tabla-contenedor">
+                @* Cargo *@
+                <div class="col-3">
 
-            <table class="tabla-personal">
+                    <select class="form-select"
+                            @bind="FiltroCargo">
 
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Cargo</th>
-                        <th>Estado</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
+                        <option value="">
+                            Todos los cargos
+                        </option>
 
-                <tbody>
+                        <option value="Administrador">
+                            Administrador
+                        </option>
 
-                    @foreach (var persona in PersonalFiltrado)
-                    {
-                        <tr class="fila-personal"
-                            @onclick="() => VerDetalle(persona)">
+                        <option value="Empleado">
+                            Empleado
+                        </option>
 
-                            <td>@persona.Id</td>
-                            <td>@persona.Nombre</td>
-                            <td>@persona.Correo</td>
-                            <td>@persona.Cargo</td>
+                    </select>
 
-                            <td>
-                                <span class="estado @(persona.Estado == "Activo" ? "activo" : "inactivo")">
-                                    @persona.Estado
-                                </span>
-                            </td>
+                </div>
 
-                            <td>
-                                <div class="opciones">
+                @* Estado *@
+                <div class="col-4">
+
+                    <select class="form-select"
+                            @bind="FiltroEstado">
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+
+                    </select>
+
+                </div>
+
+                @* Búsqueda *@
+                <div class="col-5">
+
+                    <div class="input-group">
+
+                        <input class="form-control"
+                               @bind="FiltroBusqueda"
+                               @bind:event="oninput"
+                               placeholder="Buscar nombre, correo o Id" />
+
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar">
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            @* Tabla *@
+            <div class="grid">
+
+                <table class="table table-hover">
+
+                    <thead class="table-light text-black">
+
+                        <tr>
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Cargo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var persona in PersonalFiltrado)
+                        {
+                            <tr>
+
+                                <td>@persona.Id</td>
+
+                                <td>@persona.Nombre</td>
+
+                                <td>@persona.Correo</td>
+
+                                <td>@persona.Cargo</td>
+
+                                <td>
+                                    <span class="estado @(persona.Estado == "Activo" ? "activo" : "inactivo")">
+                                        @persona.Estado
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
 
                                     <a href="@($"/personal/edit/{persona.Id}")"
-                                       class="btn-editar"
-                                       title="Editar"
-                                       @onclick:stopPropagation="true">
-
-                                        <i class="bi bi-pencil-square"></i>
+                                       class="btn btn-outline-primary bi bi-pencil-square"
+                                       title="Editar">
                                     </a>
 
-                                    <button type="button"
-                                            class="btn-estado"
-                                            title="@(persona.Estado == "Activo" ? "Desactivar" : "Activar")"
-                                            @onclick:stopPropagation="true"
-                                            @onclick="() => MostrarConfirmacion(persona)">
+                                    <a href="@($"/personal/eliminar/{persona.Id}")"
+                                       class="btn btn-outline-danger bi bi-trash"
+                                       title="Eliminar">
+                                    </a>
 
-                                        <i class="bi @(persona.Estado == "Activo" ? "bi-person-x" : "bi-person-check")"></i>
-                                    </button>
+                                </td>
 
-                                </div>
-                            </td>
+                            </tr>
+                        }
 
-                        </tr>
-                    }
+                        @if (!PersonalFiltrado.Any())
+                        {
+                            <tr>
+                                <td colspan="6"
+                                    class="text-center text-muted py-4">
 
-                    @if (!PersonalFiltrado.Any())
-                    {
-                        <tr>
-                            <td colspan="6" class="sin-resultados">
-                                No se encontraron registros de personal.
-                            </td>
-                        </tr>
-                    }
+                                    No se encontraron registros de personal con los filtros seleccionados.
 
-                </tbody>
-            </table>
-        </div>
-    }
-    else if (personalSeleccionado is not null)
-    {
-        @* Detalle del personal *@
-        <div class="detalle-vista">
+                                </td>
+                            </tr>
+                        }
 
-            <div class="detalle-header">
+                    </tbody>
 
-                <div>
-                    <h1>Detalle del personal</h1>
-                    <p>Información del integrante seleccionado</p>
-                </div>
-
-                <button type="button"
-                        class="cerrar-vista"
-                        @onclick="CerrarDetalle">
-
-                    <i class="bi bi-x-lg"></i>
-                </button>
-
-            </div>
-
-            <div class="detalle-formulario">
-
-                <div class="detalle-campo">
-                    <label>Id</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.Id
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Nombre</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.Nombre
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Correo electrónico</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.Correo
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Teléfono</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.Telefono
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Cargo</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.Cargo
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Fecha de ingreso</label>
-
-                    <div class="dato">
-                        @personalSeleccionado.FechaIngreso.ToString("dd/MM/yyyy")
-                    </div>
-                </div>
-
-                <div class="detalle-campo">
-                    <label>Estado</label>
-
-                    <div class="dato">
-                        <span class="estado @(personalSeleccionado.Estado == "Activo" ? "activo" : "inactivo")">
-                            @personalSeleccionado.Estado
-                        </span>
-                    </div>
-                </div>
-
-                <div class="detalle-acciones">
-
-                    <a href="@($"/personal/edit/{personalSeleccionado.Id}")"
-                       class="btn-detalle-editar">
-
-                        <i class="bi bi-pencil-square"></i>
-                        Editar personal
-                    </a>
-
-                </div>
+                </table>
 
             </div>
 
         </div>
-    }
+
+        <div class="card-footer"></div>
+
+    </div>
 
 </div>
-
-@* Modal de confirmación *@
-@if (mostrarModal && personalConfirmacion is not null)
-{
-    <div class="modal-fondo">
-
-        <div class="modal-personal">
-
-            <div class="modal-header-personal">
-                <h2>Datos del Personal</h2>
-            </div>
-
-            <div class="modal-body-personal">
-
-                <h3>
-                    ¿Desea @(personalConfirmacion.Estado == "Activo" ? "desactivar" : "activar") este usuario?
-                </h3>
-
-                <div class="datos-confirmacion">
-
-                    <p>
-                        <strong>Id:</strong>
-                        @personalConfirmacion.Id
-                    </p>
-
-                    <p>
-                        <strong>Nombre:</strong>
-                        @personalConfirmacion.Nombre
-                    </p>
-
-                    <p>
-                        <strong>Correo:</strong>
-                        @personalConfirmacion.Correo
-                    </p>
-
-                    <p>
-                        <strong>Cargo:</strong>
-                        @personalConfirmacion.Cargo
-                    </p>
-
-                    <p>
-                        <strong>Estado actual:</strong>
-                        @personalConfirmacion.Estado
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="modal-footer-personal">
-
-                <button type="button"
-                        class="btn-volver"
-                        @onclick="CerrarModal">
-
-                    <i class="bi bi-arrow-left"></i>
-                    Volver
-                </button>
-
-                <button type="button"
-                        class="btn-confirmar"
-                        @onclick="CambiarEstado">
-
-                    <i class="bi bi-check-circle"></i>
-                    Confirmar
-                </button>
-
-            </div>
-
-        </div>
-    </div>
-}
 
 @code {
 
     // Filtros
-    private string filtroCargo = "";
-    private string filtroEstado = "";
-    private string busqueda = "";
-
-    // Detalle y modal
-    private bool mostrarDetalle = false;
-    private bool mostrarModal = false;
-
-    private PersonalItem? personalSeleccionado;
-    private PersonalItem? personalConfirmacion;
+    private string FiltroCargo { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
 
     // Datos de ejemplo
     private List<PersonalItem> listaPersonal = new()
     {
-        new()
+        new PersonalItem
         {
             Id = 1,
             Nombre = "Sharlot Adrian Lopez",
             Correo = "sharlot@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Administrador",
-            FechaIngreso = new DateTime(2026, 9, 1),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 2,
             Nombre = "Franshelina Camilo Cabrera",
             Correo = "franshelina@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Administrador",
-            FechaIngreso = new DateTime(2026, 9, 1),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 3,
             Nombre = "Carolina Garcia Almanzar",
             Correo = "carolina@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Administrador",
-            FechaIngreso = new DateTime(2026, 9, 1),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 4,
             Nombre = "Dharianny Sime María",
             Correo = "dharianny@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Administrador",
-            FechaIngreso = new DateTime(2026, 9, 1),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 5,
             Nombre = "Jazmine Arleny Minaya Peralta",
             Correo = "jazmine@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Administrador",
-            FechaIngreso = new DateTime(2026, 9, 1),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 6,
             Nombre = "Carlos Martínez",
             Correo = "carlos@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Empleado",
-            FechaIngreso = new DateTime(2026, 9, 15),
             Estado = "Activo"
         },
-        new()
+
+        new PersonalItem
         {
             Id = 7,
             Nombre = "Laura Rodríguez",
             Correo = "laura@gmail.com",
-            Telefono = "No registrado",
             Cargo = "Empleado",
-            FechaIngreso = new DateTime(2026, 9, 20),
             Estado = "Inactivo"
         }
     };
 
-    // Aplicar filtros
+    // Filtros por cargo, estado y búsqueda
     private IEnumerable<PersonalItem> PersonalFiltrado =>
-        listaPersonal.Where(p =>
-            (string.IsNullOrEmpty(filtroCargo) ||
-             p.Cargo == filtroCargo) &&
+        listaPersonal.Where(persona =>
 
-            (string.IsNullOrEmpty(filtroEstado) ||
-             p.Estado == filtroEstado) &&
+            (string.IsNullOrEmpty(FiltroCargo) ||
+             persona.Cargo == FiltroCargo)
 
-            (string.IsNullOrWhiteSpace(busqueda) ||
-             p.Nombre.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ||
-             p.Correo.Contains(busqueda, StringComparison.OrdinalIgnoreCase))
+            &&
+
+            (string.IsNullOrEmpty(FiltroEstado) ||
+             persona.Estado == FiltroEstado)
+
+            &&
+
+            (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
+             persona.Nombre.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             persona.Correo.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             persona.Id.ToString().Contains(FiltroBusqueda.Trim()))
+
         );
-
-    // Mostrar detalle
-    private void VerDetalle(PersonalItem persona)
-    {
-        personalSeleccionado = persona;
-        mostrarDetalle = true;
-    }
-
-    // Cerrar detalle
-    private void CerrarDetalle()
-    {
-        mostrarDetalle = false;
-        personalSeleccionado = null;
-    }
-
-    // Mostrar confirmación
-    private void MostrarConfirmacion(PersonalItem persona)
-    {
-        personalConfirmacion = persona;
-        mostrarModal = true;
-    }
-
-    // Cerrar modal
-    private void CerrarModal()
-    {
-        mostrarModal = false;
-        personalConfirmacion = null;
-    }
-
-    // Activar o desactivar
-    private void CambiarEstado()
-    {
-        if (personalConfirmacion is not null)
-        {
-            personalConfirmacion.Estado =
-                personalConfirmacion.Estado == "Activo"
-                    ? "Inactivo"
-                    : "Activo";
-        }
-
-        CerrarModal();
-    }
 
     // Modelo de ejemplo
     private class PersonalItem
@@ -453,9 +351,7 @@
         public int Id { get; set; }
         public string Nombre { get; set; } = "";
         public string Correo { get; set; } = "";
-        public string Telefono { get; set; } = "";
         public string Cargo { get; set; } = "";
-        public DateTime FechaIngreso { get; set; }
         public string Estado { get; set; } = "";
     }
 }

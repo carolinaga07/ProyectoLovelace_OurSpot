@@ -1,0 +1,349 @@
+﻿
+@page "/recursos"
+@rendermode InteractiveServer
+
+<PageTitle>Recursos</PageTitle>
+
+<style>
+    .grid {
+        max-height: 30rem;
+        overflow-y: auto;
+    }
+
+    .grid table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grid th, .grid td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .grid thead {
+        position: sticky;
+        top: 0;
+        background-color: #eee;
+        z-index: 1;
+    }
+
+    .grid tr:nth-child(even) {
+        background: rgba(255,255,255,0.4);
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .disponible {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .en-uso {
+        background-color: #fff1d6;
+        color: #8b6508;
+    }
+
+    .no-disponible {
+        background-color: #eadede;
+        color: #8a4d4d;
+    }
+</style>
+
+<div class="container">
+
+    <div class="card shadow-lg">
+
+        @* Encabezado *@
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+
+            <h5 class="card-title align-content-center mt-2">
+                Recursos
+            </h5>
+
+            <a href="/recursos/create"
+               class="btn btn-primary"
+               style="background-color:#2D5056">
+
+                <span class="bi bi-plus-square-dotted"></span>
+                Nuevo Recurso
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            @* Labels *@
+            <div class="row">
+
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Categoría</strong>
+                    </label>
+                </div>
+
+                <div class="col-4">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
+                </div>
+
+                <div class="col-5">
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
+                </div>
+
+            </div>
+
+            @* Filtros *@
+            <div class="row align-items-center mb-3">
+
+                @* Categoría *@
+                <div class="col-3">
+
+                    <select class="form-select"
+                            @bind="FiltroCategoria">
+
+                        <option value="">Todas las categorías</option>
+                        <option value="Mobiliario">Mobiliario</option>
+                        <option value="Sonido">Sonido</option>
+                        <option value="Iluminación">Iluminación</option>
+                        <option value="Audiovisual">Audiovisual</option>
+                        <option value="Decoración">Decoración</option>
+                        <option value="Otros">Otros</option>
+
+                    </select>
+
+                </div>
+
+                @* Estado *@
+                <div class="col-4">
+
+                    <select class="form-select"
+                            @bind="FiltroEstado">
+
+                        <option value="">Todos los estados</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="En uso">En uso</option>
+                        <option value="No disponible">No disponible</option>
+
+                    </select>
+
+                </div>
+
+                @* Búsqueda *@
+                <div class="col-5">
+
+                    <div class="input-group">
+
+                        <input class="form-control"
+                               @bind="FiltroBusqueda"
+                               @bind:event="oninput"
+                               placeholder="Buscar recurso, proveedor o Id" />
+
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar">
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            @* Tabla *@
+            <div class="grid">
+
+                <table class="table table-hover">
+
+                    <thead class="table-light text-black">
+
+                        <tr>
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Proveedor</th>
+                            <th>Estado</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var recurso in RecursosFiltrados)
+                        {
+                            <tr>
+
+                                <td>@recurso.Id</td>
+                                <td>@recurso.Nombre</td>
+                                <td>@recurso.Categoria</td>
+                                <td>@recurso.Cantidad</td>
+                                <td>@recurso.Proveedor</td>
+
+                                <td>
+                                    <span class="estado @ObtenerClaseEstado(recurso.Estado)">
+                                        @recurso.Estado
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+
+                                    <a href="@($"/recursos/edit/{recurso.Id}")"
+                                       class="btn btn-outline-primary bi bi-pencil-square"
+                                       title="Editar">
+                                    </a>
+
+                                    <a href="@($"/recursos/eliminar/{recurso.Id}")"
+                                       class="btn btn-outline-danger bi bi-trash"
+                                       title="Eliminar">
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                        @if (!RecursosFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-4">
+
+                                    No se encontraron recursos con los filtros seleccionados.
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="card-footer"></div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private string FiltroCategoria { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    private List<Recurso> listaRecursos = new()
+    {
+        new Recurso
+        {
+            Id = 1,
+            Nombre = "Sillas plegables",
+            Categoria = "Mobiliario",
+            Cantidad = 150,
+            Proveedor = "Eventos del Cibao",
+            Estado = "Disponible"
+        },
+
+        new Recurso
+        {
+            Id = 2,
+            Nombre = "Proyector Epson",
+            Categoria = "Audiovisual",
+            Cantidad = 2,
+            Proveedor = "TecnoEventos",
+            Estado = "En uso"
+        },
+
+        new Recurso
+        {
+            Id = 3,
+            Nombre = "Bocinas JBL",
+            Categoria = "Sonido",
+            Cantidad = 4,
+            Proveedor = "AudioPro RD",
+            Estado = "Disponible"
+        },
+
+        new Recurso
+        {
+            Id = 4,
+            Nombre = "Mesas redondas",
+            Categoria = "Mobiliario",
+            Cantidad = 20,
+            Proveedor = "Eventos del Cibao",
+            Estado = "Disponible"
+        },
+
+        new Recurso
+        {
+            Id = 5,
+            Nombre = "Luces LED",
+            Categoria = "Iluminación",
+            Cantidad = 8,
+            Proveedor = "Ilumina RD",
+            Estado = "No disponible"
+        }
+    };
+
+    private IEnumerable<Recurso> RecursosFiltrados =>
+        listaRecursos.Where(recurso =>
+
+            (string.IsNullOrEmpty(FiltroCategoria) ||
+             recurso.Categoria == FiltroCategoria)
+
+            &&
+
+            (string.IsNullOrEmpty(FiltroEstado) ||
+             recurso.Estado == FiltroEstado)
+
+            &&
+
+            (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
+             recurso.Nombre.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             recurso.Proveedor.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             recurso.Id.ToString().Contains(FiltroBusqueda.Trim()))
+
+        );
+
+    private string ObtenerClaseEstado(string estado)
+    {
+        return estado switch
+        {
+            "Disponible" => "disponible",
+            "En uso" => "en-uso",
+            _ => "no-disponible"
+        };
+    }
+
+    private class Recurso
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Categoria { get; set; } = "";
+        public int Cantidad { get; set; }
+        public string Proveedor { get; set; } = "";
+        public string Estado { get; set; } = "";
+    }
+}

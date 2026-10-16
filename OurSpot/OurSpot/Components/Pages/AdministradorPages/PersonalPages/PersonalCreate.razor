@@ -2,115 +2,111 @@
 @page "/personal/create"
 @rendermode InteractiveServer
 
-<PageTitle>Crear personal</PageTitle>
+<PageTitle>Crear Personal</PageTitle>
 
-<div class="form-page">
+<div class="container mt-4">
 
-    <div class="form-card">
+    <div class="card shadow-lg">
 
-        <div class="form-header">
-            <h2>Nuevo Personal</h2>
+        <div class="card-header text-center">
+            <h3 class="card-title">Agregar Personal</h3>
         </div>
 
-        <div class="form-body">
+        <div class="card-body">
 
-            <div class="campo">
-                <label>Id</label>
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
 
-                <input type="text"
+                <input type="number"
                        class="form-control"
                        value="8"
                        readonly />
             </div>
 
-            <div class="campo">
-                <label>Nombre</label>
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Nombre</strong>
+                </label>
 
                 <input type="text"
                        class="form-control"
-                       placeholder="Ej. María Pérez"
-                       required />
+                       placeholder="Ej. María Pérez" />
             </div>
 
-            <div class="campo">
-                <label>Correo electrónico</label>
+            @* Correo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Correo electrónico</strong>
+                </label>
 
                 <input type="email"
                        class="form-control"
-                       placeholder="Ej. maria@gmail.com"
-                       required />
+                       placeholder="Ej. maria@gmail.com" />
             </div>
 
-            <div class="campo">
-                <label>Contraseña</label>
+            @* Cargo *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Cargo</strong>
+                </label>
 
-                <input type="password"
-                       class="form-control"
-                       placeholder="Ingrese una contraseña"
-                       autocomplete="new-password"
-                       required />
-            </div>
+                <select class="form-select">
 
-            <div class="campo">
-                <label>Teléfono</label>
-
-                <input type="tel"
-                       class="form-control"
-                       placeholder="Ej. 809-555-1234" />
-            </div>
-
-            <div class="campo">
-                <label>Cargo</label>
-
-                <select class="form-select" required>
                     <option value="" selected disabled>
                         Seleccione un cargo
                     </option>
 
-                    <option value="Administrador">Administrador</option>
-                    <option value="Empleado">Empleado</option>
+                    <option value="Administrador">
+                        Administrador
+                    </option>
+
+                    <option value="Empleado">
+                        Empleado
+                    </option>
+
                 </select>
             </div>
 
-            <div class="campo">
-                <label>Fecha de ingreso</label>
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
 
-                <input type="date"
-                       class="form-control"
-                       value="@DateTime.Today.ToString("yyyy-MM-dd")"
-                       readonly />
-            </div>
+                <select class="form-select">
 
-            <div class="campo">
-                <label>Estado</label>
-
-                <select class="form-select" required>
                     <option value="" selected disabled>
-                        Seleccione el estado
+                        Seleccione un estado
                     </option>
 
                     <option value="Activo">Activo</option>
                     <option value="Inactivo">Inactivo</option>
+
                 </select>
             </div>
 
         </div>
 
-        <div class="form-footer">
+        @* Footer *@
+        <div class="card-footer text-center">
 
             <a href="/personal"
-               class="btn-cancelar">
+               class="btn btn-secondary me-2">
 
-                <i class="bi bi-arrow-left"></i>
-                Cancelar
+                <span class="bi bi-arrow-left"></span>
+                Volver
             </a>
 
-            <button type="button"
-                    class="btn-guardar">
+            <a href="/personal"
+               class="btn btn-primary">
 
-                <i class="bi bi-floppy"></i>
+                <span class="bi bi-floppy"></span>
                 Guardar
-            </button>
+            </a>
 
         </div>
 

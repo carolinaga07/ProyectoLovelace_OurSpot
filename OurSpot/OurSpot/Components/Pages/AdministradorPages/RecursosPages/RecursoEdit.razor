@@ -1,0 +1,190 @@
+﻿
+@page "/recursos/edit/{Id:int}"
+@rendermode InteractiveServer
+
+<PageTitle>Editar Recurso</PageTitle>
+
+<div class="container mt-4">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header text-center">
+            <h3 class="card-title">Editar Recurso</h3>
+        </div>
+
+        <div class="card-body">
+
+            @* Id *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Id</strong>
+                </label>
+
+                <input type="number"
+                       class="form-control"
+                       value="@Id"
+                       readonly />
+            </div>
+
+            @* Nombre *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Nombre</strong>
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       @bind="nombre" />
+            </div>
+
+            @* Categoría *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Categoría</strong>
+                </label>
+
+                <select class="form-select" @bind="categoria">
+
+                    <option value="Mobiliario">Mobiliario</option>
+                    <option value="Sonido">Sonido</option>
+                    <option value="Iluminación">Iluminación</option>
+                    <option value="Audiovisual">Audiovisual</option>
+                    <option value="Decoración">Decoración</option>
+                    <option value="Otros">Otros</option>
+
+                </select>
+            </div>
+
+            @* Cantidad *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Cantidad</strong>
+                </label>
+
+                <input type="number"
+                       min="1"
+                       class="form-control"
+                       @bind="cantidad" />
+            </div>
+
+            @* Proveedor *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Proveedor</strong>
+                </label>
+
+                <select class="form-select" @bind="proveedor">
+
+                    <option value="Eventos del Cibao">Eventos del Cibao</option>
+                    <option value="TecnoEventos">TecnoEventos</option>
+                    <option value="AudioPro RD">AudioPro RD</option>
+                    <option value="Ilumina RD">Ilumina RD</option>
+
+                </select>
+            </div>
+
+            @* Estado *@
+            <div class="mb-3">
+                <label class="form-label">
+                    <strong>Estado</strong>
+                </label>
+
+                <select class="form-select" @bind="estado">
+
+                    <option value="Disponible">Disponible</option>
+                    <option value="En uso">En uso</option>
+                    <option value="No disponible">No disponible</option>
+
+                </select>
+            </div>
+
+        </div>
+
+        @* Footer *@
+        <div class="card-footer text-center">
+
+            <a href="/recursos"
+               class="btn btn-secondary me-2">
+
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+
+            <a href="/recursos"
+               class="btn btn-primary">
+
+                <span class="bi bi-floppy"></span>
+                Guardar
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombre = "";
+    private string categoria = "";
+    private int cantidad;
+    private string proveedor = "";
+    private string estado = "";
+
+    protected override void OnParametersSet()
+    {
+        switch (Id)
+        {
+            case 1:
+                nombre = "Sillas plegables";
+                categoria = "Mobiliario";
+                cantidad = 150;
+                proveedor = "Eventos del Cibao";
+                estado = "Disponible";
+                break;
+
+            case 2:
+                nombre = "Proyector Epson";
+                categoria = "Audiovisual";
+                cantidad = 2;
+                proveedor = "TecnoEventos";
+                estado = "En uso";
+                break;
+
+            case 3:
+                nombre = "Bocinas JBL";
+                categoria = "Sonido";
+                cantidad = 4;
+                proveedor = "AudioPro RD";
+                estado = "Disponible";
+                break;
+
+            case 4:
+                nombre = "Mesas redondas";
+                categoria = "Mobiliario";
+                cantidad = 20;
+                proveedor = "Eventos del Cibao";
+                estado = "Disponible";
+                break;
+
+            case 5:
+                nombre = "Luces LED";
+                categoria = "Iluminación";
+                cantidad = 8;
+                proveedor = "Ilumina RD";
+                estado = "No disponible";
+                break;
+
+            default:
+                nombre = "";
+                categoria = "Otros";
+                cantidad = 0;
+                proveedor = "";
+                estado = "Disponible";
+                break;
+        }
+    }
+}
