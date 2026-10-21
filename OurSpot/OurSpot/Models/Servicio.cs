@@ -1,4 +1,4 @@
-﻿namespace OurSpot.Components.Models
+﻿namespace OurSpot.Models
 {
     public class Servicio
     {

@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject EventosService eventosService
+
 
 <div class="container-fluid p-4">
     <div class="d-flex gap-3 mb-4">
@@ -27,65 +29,55 @@
 
     <h2>Eventos Destacados</h2>
     <div class="d-flex gap-3 pb-2" style="overflow-x:auto">
-        <div class="card" style="min-width:220px; flex-shrink:0">
-            <div style="height:180px; background:#8fa8b0"></div>
-            <div class="card-body">
-                <h5 class="card-title">Concierto a las Hermanas Mirabal</h5>
-                <p class="mb-1 small">Ubicacion: Parque de las mariposas, Salcedo.</p>
-                <p class="mb-1 small">Tipo de evento: Publico.</p>
-                <p>Estrellas 1,456 <i class="bi bi-star-fill text-danger"></i></p>
-                <button class="btn btn-outline-dark btn-sm">Leer mas</button>
+        @foreach(var evento in ListaDestacados)
+        {
+            <div class="card" style="min-width:220px; flex-shrink:0">
+                <div style="height:180px; background:#8fa8b0"></div>
+                <div class="card-body">
+                    <h5 class="card-title">@evento.Nombre</h5>
+                    <p class="mb-1 small">Ubicacion: @evento.Lugar</p>
+                    <p class="mb-1 small">Tipo de evento: @evento.Tipo</p>
+                    <p>Estrellas @evento.Estrella.ToString("N0") <i class="bi bi-star-fill text-danger"></i></p>
+                    <a href="/eventos/detalle/@evento.EventoId" class="btn btn-outline-dark btn-sm"> Leer mas</a>
+                </div>
             </div>
-        </div>
-
-        <div class="card" style="min-width:220px; flex-shrink:0">
-            <div style="height:180px; background:#8fa8b0"></div>
-            <div class="card-body">
-                <h5 class="card-title">Boda D&V</h5>
-                <p class="mb-1 small">Ubicacion: Cadaques Caribe, La Romana.</p>
-                <p class="mb-1 small">Tipo de evento: Privado.</p>
-                <p>Estrellas 1,000 <i class="bi bi-star-fill text-danger"></i></p>
-                <button class="btn btn-outline-dark btn-sm">Leer mas</button>
-            </div>
-        </div>
-
-        <div class="card" style="min-width:220px; flex-shrink:0">
-            <div style="height:180px; background:#8fa8b0"></div>
-            <div class="card-body">
-                <h5 class="card-title">Boda D&V</h5>
-                <p class="mb-1 small">Ubicacion: Cadaques Caribe, La Romana.</p>
-                <p class="mb-1 small">Tipo de evento: Privado.</p>
-                <p>Estrellas 1,000 <i class="bi bi-star-fill text-danger"></i></p>
-                <button class="btn btn-outline-dark btn-sm">Leer mas</button>
-            </div>
-        </div>
+        }
     </div>
 
-    <h2>Eventos Proximos a Realizar</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Evento</th>
-                <th>Fecha</th>
-                <th>Lugar</th>
-                <th>Tipo</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Feria Municipal</td>
-                <td>18 de octubre 2027</td>
-                <td>Tenares, Hermanas Mirabal</td>
-                <td>Publico</td>
-                <td><button class="btn btn-dark btn-sm rounded-pill">Ver detalles</button></td>
-            </tr>
-        </tbody>
-    </table>
+    
+    <div class="container mt-4">
+        <div class="card-header">
+            <h2>Eventos Proximos a Realizar</h2>
+        </div>
+       <div class="card-body">
+            <QuickGrid Items="ListaEventos.AsQueryable()" class="table table-hover">
+                <PropertyColumn Property="e => e.Nombre" title="Evento" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Fecha" title="Fecha" Format="dd/MM/yyyy" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Lugar" title="Lugar" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Tipo" title="Tipo" Sortable="true"></PropertyColumn>
+                <TemplateColumn>
+                    <a href="/eventos/detalle/@context.EventoId" class="btn btn-teal btn-sm text-white" style="background-color:#2D5056"> Ver detalles</a>
+                </TemplateColumn>
+            </QuickGrid>
+       </div>
+    </div>
 </div>
 
 
 
 @code {
+    public List<Evento> ListaEventos { get; set; } = new ();
+    public List<Evento> ListaDestacados { get; set; } = new();
+    public Evento evento{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var hoy = DateTime.Today;
+        var eventos = await eventosService.GetList(e => e.Fecha >= hoy && e.Estado != "Cancelado");
+        ListaEventos = eventos.OrderBy(e => e.Fecha).ToList();
+
+        var finalizados = await eventosService.GetList(e => e.Estado == "Realizado");
+        ListaDestacados = finalizados.OrderByDescending(e => e.Estrella).Take(5).ToList();
+    }
 
 }

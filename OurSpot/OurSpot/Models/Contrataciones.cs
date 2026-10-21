@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OurSpot.Components.Models;
+namespace OurSpot.Models;
 
 public class Contrataciones
 {

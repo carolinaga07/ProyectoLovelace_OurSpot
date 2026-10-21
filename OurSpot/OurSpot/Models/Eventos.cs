@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
-namespace OurSpot.Components.Models
+namespace OurSpot.Models
 {
     public class Evento
     {
@@ -27,6 +27,8 @@ namespace OurSpot.Components.Models
         public string Estado { get; set; } = "Pendiente";
 
         public bool Eliminado { get; set; } = false;
+
+        public int Estrella { get; set; }
 
         //1, "Boda de los Perez", "Social", new DateOnly(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"
         public Evento()

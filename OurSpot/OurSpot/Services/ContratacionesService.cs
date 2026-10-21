@@ -1,7 +1,7 @@
 ﻿using Aplicada1.Core;
 using Microsoft.EntityFrameworkCore;
-using OurSpot.Components.Models;
 using OurSpot.Context;
+using OurSpot.Models;
 using System.Linq.Expressions;
 
 namespace OurSpot.Services

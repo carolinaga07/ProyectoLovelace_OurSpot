@@ -22,7 +22,7 @@ namespace OurSpot.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OurSpot.Components.Models.Contrataciones", b =>
+            modelBuilder.Entity("OurSpot.Models.Contrataciones", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,7 +60,7 @@ namespace OurSpot.Migrations
                     b.ToTable("Contrataciones");
                 });
 
-            modelBuilder.Entity("OurSpot.Components.Models.Evento", b =>
+            modelBuilder.Entity("OurSpot.Models.Evento", b =>
                 {
                     b.Property<int>("EventoId")
                         .ValueGeneratedOnAdd()
@@ -78,6 +78,9 @@ namespace OurSpot.Migrations
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Estrella")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
