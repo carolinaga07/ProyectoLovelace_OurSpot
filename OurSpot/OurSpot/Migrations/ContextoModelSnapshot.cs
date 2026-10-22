@@ -66,6 +66,10 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Costo")
                         .HasColumnType("float");
 
@@ -75,13 +79,6 @@ namespace OurSpot.Migrations
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Evento")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("Fecha")
-                        .HasColumnType("date");
 
                     b.Property<string>("Proveedor")
                         .IsRequired()
@@ -136,6 +133,37 @@ namespace OurSpot.Migrations
                     b.HasKey("EventoId");
 
                     b.ToTable("Eventos");
+                });
+
+            modelBuilder.Entity("OurSpot.Components.Models.Lugares", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacidad")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ubicacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lugares");
                 });
 #pragma warning restore 612, 618
         }

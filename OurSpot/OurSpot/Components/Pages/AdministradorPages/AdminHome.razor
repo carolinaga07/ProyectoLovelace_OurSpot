@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject EventosService eventosService
+@inject ContratacionesService contratacionesService
 
 
 <div class="container-fluid p-4">
@@ -7,7 +8,7 @@
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
             <span>Eventos Proximos</span>
-            <span class="fs-1 fw-bold">8</span>
+            <span class="fs-1 fw-bold">@ListaEventos.Count</span>
         </div>
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
@@ -21,7 +22,7 @@
         </div>
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
-            <span>Stock Bajo</span>
+            <span>Lugares Disponibles</span>
             <span class="fs-1 fw-bold">5</span>
         </div>
 
@@ -68,7 +69,11 @@
 @code {
     public List<Evento> ListaEventos { get; set; } = new ();
     public List<Evento> ListaDestacados { get; set; } = new();
-    public Evento evento{ get; set; }
+    public Evento evento { get; set; } = new();
+    public int TotalContrataciones { get; set; }
+    public int TotalProveedores { get; set; }
+    public int TotalLugares{ get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,6 +83,9 @@
 
         var finalizados = await eventosService.GetList(e => e.Estado == "Realizado");
         ListaDestacados = finalizados.OrderByDescending(e => e.Estrella).Take(5).ToList();
+
+        TotalContrataciones = (await contratacionesService.GetList(c => c.Estado == "Activa")).Count;
+
     }
 
 }

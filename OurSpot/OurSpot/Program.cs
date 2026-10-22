@@ -23,8 +23,8 @@ builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 builder.Services.AddScoped<EventosService>();
 builder.Services.AddScoped<ContratacionesService>();
 builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<LugaresService>();
 builder.Services.AddBlazorBootstrap();
-
 
 var app = builder.Build();
 

@@ -1,0 +1,64 @@
+﻿@page "/eventos/detalle/{EventoId:int}"
+@inject EventosService eventosService
+
+<PageTitle>Detalle del Evento</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        @if(evento != null)
+        {
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="position-relative">
+                            <div class="w-100 rounded" style="height:400px; background:@colores[indice]"></div>
+                            <button class="btn btn-light rounded-circle position-absolute top-50 start-0 ms-2 bi bi-chevron-left" @onclick="Anterior"></button>
+                            <button class="btn btn-light rounded-circle position-absolute top-50 end-0 me-2 bi bi-chevron-right" @onclick="Siguiente"></button>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            @for (int i = 0; i < colores.Count; i++)
+                            {
+                                var pos = i;
+                                <div class="rounded @(pos == indice ? "border border-primary border-3" : "")"
+                                     style="width:80px; height:60px; background:@colores[i]; cursor:pointer" @onclick="() => indice = pos"></div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <h3 class="mb-3">@evento.Nombre</h3>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge border text-dark fw-normal">@evento.Tipo</span>
+                            <span class="badge border text-dark fw-normal">@evento.Categoria</span>
+                            <span class="badge border text-dark fw-normal">@evento.Estado</span>
+                        </div>
+                        <p><strong>Fecha:</strong>@evento.Fecha.ToString("dd MMMM yyyy")</p>
+                        <p><strong>Lugar:</strong>@evento.Lugar</p>
+                        <p><strong>Estrellas:</strong>@evento.Estrella.ToString("N0")<i class="bi bi-star-fill text-danger"></i></p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="text-center p-4">Cargando..</p>
+        }
+        <div class="card-footer text-center">
+            <a href="/" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Volver</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+    public Evento evento { get; set; } = new();
+    private int indice;
+    private List<string> colores = new() { "#8fa8b0", "#5b7f8c", "#2c4a52", "#9aaab7", "#8da88f" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        evento = await eventosService.Buscar(EventoId);
+    }
+    private void Anterior() => indice = (indice - 1 + colores.Count) % colores.Count;
+    private void Siguiente() => indice = (indice + 1) % colores.Count;
+
+}

@@ -1,114 +1,92 @@
-﻿
-@page "/lugares/create"
+﻿@page "/Lugares/Create"
 @rendermode InteractiveServer
+
+@inject LugaresService lugaresService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
 
 <PageTitle>Crear Lugar</PageTitle>
 
-<div class="container mt-4">
+<EditForm Model="Lugar" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
 
-    <div class="card shadow-lg">
+    <div class="container mt-4">
+        <div class="card shadow-lg">
 
-        <div class="card-header text-center">
-            <h3 class="card-title">Agregar Lugar</h3>
-        </div>
-
-        <div class="card-body">
-
-            @* Id *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Id</strong>
-                </label>
-
-                <input type="number"
-                       class="form-control"
-                       value="4"
-                       readonly />
+            <div class="card-header text-center">
+                <h3 class="card-title">Nuevo Lugar</h3>
             </div>
 
-            @* Ubicación *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Ubicación</strong>
-                </label>
+            <div class="card-body">
 
-                <input type="text"
-                       class="form-control"
-                       placeholder="Ej. Centro Cultural La Nave" />
+                @* Ubicación *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Ubicación</strong></label>
+                    <InputText class="form-control" @bind-Value="Lugar.Ubicacion" placeholder="Ej. Centro Cultural La Nave" />
+                    <ValidationMessage For="@(() => Lugar.Ubicacion)" />
+                </div>
+               
+                @* Categoría *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Categoría</strong></label>
+                    <InputSelect class="form-select" @bind-Value="Lugar.Categoria">
+                        <option value="" disabled>Seleccione una categoría</option>
+                        <option value="Aniversario">Aniversario</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Celebración Religiosa">Celebración Religiosa</option>
+                        <option value="Graduación">Graduación</option>
+                        <option value="Funeral">Funeral</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Lugar.Categoria)" />
+                </div>
+
+               @* Capacidad *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Capacidad</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Lugar.Capacidad" placeholder="Ej. 150" />
+                    <ValidationMessage For="@(() => Lugar.Capacidad)" />
+                </div>
+
+                @* Estado *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Estado</strong></label>
+                    <input type="text" class="form-control" @bind-value="Lugar.Estado" readonly />
+                </div>
             </div>
 
-            @* Categoría *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Categoría</strong>
-                </label>
-
-                <select class="form-select">
-                    <option value="" selected disabled>
-                        Seleccione una categoría
-                    </option>
-
-                    <option value="Seguridad">Seguridad</option>
-                    <option value="Alimentos">Alimentos</option>
-                    <option value="Accesorios">Accesorios</option>
-                    <option value="Objetos de uso único">Objetos de uso único</option>
-                    <option value="Refrigerado">Refrigerado</option>
-                    <option value="Entretenimiento">Entretenimiento</option>
-                    <option value="Renta">Renta</option>
-                    <option value="Decoraciones">Decoraciones</option>
-                    <option value="Otros">Otros</option>
-                </select>
-            </div>
-
-            @* Capacidad *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Capacidad</strong>
-                </label>
-
-                <input type="number"
-                       min="1"
-                       class="form-control"
-                       placeholder="Ej. 150" />
-            </div>
-
-            @* Estado *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Estado</strong>
-                </label>
-
-                <select class="form-select">
-                    <option value="" selected disabled>
-                        Seleccione un estado
-                    </option>
-
-                    <option value="Disponible">Disponible</option>
-                    <option value="No disponible">No disponible</option>
-                </select>
+            @* Footer *@
+            <div class="card-footer text-center">
+                <a href="/Lugares/Index" class="btn btn-secondary me-2" style="background-color:#2D5056"><span class="bi bi-arrow-left"></span> Volver</a>
+                <button type="submit" class="btn btn-primary"> <span class="bi bi-floppy"></span> Guardar </button>
             </div>
 
         </div>
-
-        @* Footer *@
-        <div class="card-footer text-center">
-
-            <a href="/lugares"
-               class="btn btn-secondary me-2">
-
-                <span class="bi bi-arrow-left"></span>
-                Volver
-            </a>
-
-            <a href="/lugares"
-               class="btn btn-primary">
-
-                <span class="bi bi-floppy"></span>
-                Guardar
-            </a>
-
-        </div>
-
     </div>
+</EditForm>
 
-</div>
+@code {
+    public Lugares Lugar = new Lugares();
+
+    private async Task Guardar()
+    {
+        Lugar.Estado = "Disponible";
+
+        bool guardado = await lugaresService.Guardar(Lugar);
+
+        if (guardado)
+        {
+            toastService.ShowSuccess("Lugar Guardado Exitosamente");
+            navigationManager.NavigateTo("/Lugares/Index");
+        }
+        else
+        {
+            if (await lugaresService.Existe(Lugar.Id))
+            {
+                toastService.ShowError("Este lugar ya fue registrado.");
+                return;
+            }
+            toastService.ShowError("Error al Guardar el Lugar");
+        }
+    }
+}

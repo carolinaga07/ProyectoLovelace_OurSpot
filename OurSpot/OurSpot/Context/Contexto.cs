@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OurSpot.Components.Models;
 using OurSpot.Models;
 
@@ -13,16 +13,13 @@ namespace OurSpot.Context
 
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Contrataciones> Contrataciones { get; set; }
+        public DbSet<Lugares> Lugares { get; set; }
 
         public DbSet<Proveedores> Proveedores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
-            modelBuilder.Entity<Contrataciones>().HasQueryFilter(c => !c.Eliminado);
-            //modelBuilder.Entity<Proveedores>().HasQueryFilter(p => !p.Eliminado);
         }
     }
 }
