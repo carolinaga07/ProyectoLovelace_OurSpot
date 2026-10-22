@@ -19,17 +19,17 @@
             <div class="row">
 
                 @*Categoria*@
-                <div class="col-3">
+                <div class="col-2">
                     <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
                 </div>
 
                 @*Estado*@
-                <div class="col-4">
+                <div class="col-3">
                     <label class="col-form-label"><strong>Estado</strong></label>
                 </div>
 
                 @*Busqueda*@
-                <div class="col-5">
+                <div class="col-4">
                     <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             @*Inputs y botones*@
             <div class="row align-items-center mb-3">
                 @*Categoria*@
-                <div class="col-3">
+                <div class="col-2">
                     <InputSelect class="form-select" @bind-Value="FiltroCategoria">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Refrigeracion">Refrigeraci&oacute;n</option>
@@ -50,7 +50,7 @@
                 </div>
 
                 @*Esatdo*@
-                <div class="col-4">
+                <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="FiltroEstado">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Pendiente">Pendiente</option>
@@ -61,11 +61,18 @@
                 </div>
 
                 @*Busqueda*@
-                <div class="col-5">
+                <div class="col-4">
                     <div class="input-group">
                         <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
                         <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                     </div>
+                </div>
+
+                @*Restablecer*@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            @onclick="Restablecer">
+                    </button>
                 </div>
 
             </div>
@@ -148,5 +155,14 @@
         {
             toastService.ShowError("Error al eliminar la contratación");
         }
+    }
+
+    private async Task Restablecer()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+        FiltroCategoria = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
     }
 }
