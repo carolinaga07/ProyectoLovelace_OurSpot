@@ -12,6 +12,7 @@ namespace OurSpot.Context
 
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Contrataciones> Contrataciones { get; set; }
+        public DbSet<Lugares> Lugares { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,6 +20,7 @@ namespace OurSpot.Context
 
             modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
             modelBuilder.Entity<Contrataciones>().HasQueryFilter(c => !c.Eliminado);
+            modelBuilder.Entity<Lugares>().HasQueryFilter(l => !l.Eliminado);
         }
     }
 }
