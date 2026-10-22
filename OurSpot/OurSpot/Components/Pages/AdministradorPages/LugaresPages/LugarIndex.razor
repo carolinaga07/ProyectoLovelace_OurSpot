@@ -1,6 +1,9 @@
-﻿
-@page "/lugares"
+﻿@page "/Lugares/Index"
 @rendermode InteractiveServer
+
+@inject LugaresService lugaresService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
 
 <PageTitle>Lugares</PageTitle>
 
@@ -24,24 +27,12 @@
 </style>
 
 <div class="container">
-
     <div class="card shadow-lg">
 
         @* Encabezado *@
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
-
-            <h5 class="card-title align-content-center mt-2">
-                Lugares
-            </h5>
-
-            <a href="/lugares/create"
-               class="btn btn-primary"
-               style="background-color:#2D5056">
-
-                <span class="bi bi-plus-square-dotted"></span>
-                Nuevo Lugar
-            </a>
-
+            <h5 class="card-title align-content-center mt-2">Lugares</h5>
+            <a href="/lugares/create" class="btn btn-primary" style="background-color:#2D5056"><span class="bi bi-plus-square-dotted"></span>Nuevo Lugar</a>
         </div>
 
         <div class="card-body">
@@ -49,22 +40,19 @@
             @* Labels de filtros *@
             <div class="row">
 
+                @*Categoria*@
                 <div class="col-3">
-                    <label class="col-form-label">
-                        <strong>Categoría</strong>
-                    </label>
+                    <label class="col-form-label"> <strong>Categoría</strong></label>
                 </div>
 
-                <div class="col-4">
-                    <label class="col-form-label">
-                        <strong>Estado</strong>
-                    </label>
+                @*Estado*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Estado</strong></label>
                 </div>
 
+                 @*Busqueda*@
                 <div class="col-5">
-                    <label class="col-form-label">
-                        <strong>Búsqueda</strong>
-                    </label>
+                    <label class="col-form-label"><strong>Búsqueda</strong></label>
                 </div>
 
             </div>
@@ -74,212 +62,116 @@
 
                 @* Categoría *@
                 <div class="col-3">
-
-                    <select class="form-select"
-                            @bind="FiltroCategoria">
-
-                        <option value="">
-                            Todas las categorías
-                        </option>
-
-                        <option value="Seguridad">Seguridad</option>
-                        <option value="Alimentos">Alimentos</option>
-                        <option value="Accesorios">Accesorios</option>
-                        <option value="Objetos de uso único">Objetos de uso único</option>
-                        <option value="Refrigerado">Refrigerado</option>
-                        <option value="Entretenimiento">Entretenimiento</option>
-                        <option value="Renta">Renta</option>
-                        <option value="Decoraciones">Decoraciones</option>
-                        <option value="Otros">Otros</option>
-
-                    </select>
-
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="Aniversario">Aniversario</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Celebración Religiosa">Celebración Religiosa</option>
+                        <option value="Graduación">Graduación</option>
+                        <option value="Funeral">Funeral</option>
+                    </InputSelect>
                 </div>
 
                 @* Estado *@
-                <div class="col-4">
-
-                    <select class="form-select"
-                            @bind="FiltroEstado">
-
-                        <option value="">
-                            Todos los estados
-                        </option>
-
-                        <option value="Disponible">
-                            Disponible
-                        </option>
-
-                        <option value="No disponible">
-                            No disponible
-                        </option>
-
-                    </select>
-
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="No Disponible">No Disponible</option>
+                    </InputSelect>
                 </div>
 
                 @* Búsqueda *@
                 <div class="col-5">
-
                     <div class="input-group">
-
-                        <input class="form-control"
-                               @bind="FiltroBusqueda"
-                               @bind:event="oninput"
-                               placeholder="Buscar ubicación o Id" />
-
-                        <button type="button"
-                                class="btn btn-outline-primary bi bi-search"
-                                title="Buscar">
-                        </button>
-
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar ubicación o Id" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar" title="Buscar"></button>
                     </div>
+                </div>
 
+                @* Restablecer *@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise" @onclick="Restablecer"></button>
                 </div>
 
             </div>
 
-            @* Tabla de lugares *@
-
-            <table class="table table-hover">
-
-                <thead class="text-black">
-
-                    <tr>
-                        <th>Id</th>
-                        <th>Ubicación</th>
-                        <th>Categoría</th>
-                        <th>Capacidad</th>
-                        <th>Estado</th>
-                        <th class="text-center">Opciones</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @foreach (var lugar in LugaresFiltrados)
-                    {
-                        <tr>
-
-                            <td>@lugar.Id</td>
-                            <td>@lugar.Ubicacion</td>
-                            <td>@lugar.Categoria</td>
-                            <td>@lugar.Capacidad</td>
-
-                            <td>
-                                <span class="estado @(lugar.Estado == "Disponible" ? "disponible" : "no-disponible")">
-                                    @lugar.Estado
-                                </span>
-                            </td>
-
-                            <td class="text-center">
-
-                                <a href="@($"/lugares/edit/{lugar.Id}")"
-                                    class="btn btn-outline-primary bi bi-pencil-square"
-                                    title="Editar">
-                                </a>
-
-                                <a href="@($"/lugares/eliminar/{lugar.Id}")"
-                                    class="btn btn-outline-danger bi bi-trash"
-                                    title="Eliminar">
-                                </a>
-
-                            </td>
-
-                        </tr>
-                    }
-
-                    @if (!LugaresFiltrados.Any())
-                    {
-                        <tr>
-                            <td colspan="6"
-                                class="text-center text-muted py-4">
-
-                                No se encontraron lugares con los filtros seleccionados.
-
-                            </td>
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
+            @* Tabla de Lugares *@
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable" Class="table table-hover">
+                    <PropertyColumn Property="l => l.Id" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="l => l.Ubicacion" Title="Ubicación" Sortable="true" />
+                    <PropertyColumn Property="l => l.Categoria" Title="Categoría" Sortable="true" />
+                    <PropertyColumn Property="l => l.Capacidad" Title="Capacidad" Sortable="true" />
+                    <TemplateColumn Title="Estado" Sortable="true" SortBy="estadoSort">
+                        <span class="estado @(context.Estado == "Disponible" ? "disponible" : "no-disponible")">@context.Estado</span>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Opciones">
+                        <a href="@($"/Lugares/Edit/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
 
         </div>
 
+        @* Footer *@
+        <div class="card-footer d-flex justify-content-between align-items-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable.Count()</label>
+        </div>
     </div>
-
 </div>
 
 @code {
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
 
-    // Filtros
-    private string FiltroCategoria { get; set; } = string.Empty;
-    private string FiltroEstado { get; set; } = string.Empty;
-    private string FiltroBusqueda { get; set; } = string.Empty;
+    public IQueryable<Lugares> itemsQueryable =
+        Enumerable.Empty<Lugares>().AsQueryable();
 
-    // Datos de ejemplo
-    private List<Lugar> listaLugares = new()
+    public Lugares Lugar { get; set; } = new();
+
+    private GridSort<Lugares> estadoSort = GridSort<Lugares>.ByAscending(l => l.Estado);
+
+    protected override async Task OnInitializedAsync()
     {
-        new Lugar
-        {
-            Id = 1,
-            Ubicacion = "Centro Cultural La Nave",
-            Categoria = "Entretenimiento",
-            Capacidad = 150,
-            Estado = "Disponible"
-        },
+        var items = await lugaresService.GetList(l => l.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+    }
 
-        new Lugar
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCategoria == "" &&
+            FiltroEstado == "")
         {
-            Id = 2,
-            Ubicacion = "Salón Las Caobas",
-            Categoria = "Renta",
-            Capacidad = 250,
-            Estado = "Disponible"
-        },
-
-        new Lugar
-        {
-            Id = 3,
-            Ubicacion = "Auditorio UCNE",
-            Categoria = "Entretenimiento",
-            Capacidad = 300,
-            Estado = "No disponible"
+            var items = await lugaresService.GetList(l => l.Eliminado == false);
+            itemsQueryable = items.AsQueryable();
         }
-    };
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
 
-    // Filtrado por categoría, estado y búsqueda
-    private IEnumerable<Lugar> LugaresFiltrados =>
-        listaLugares.Where(lugar =>
+            var items = await lugaresService.GetList(l =>
+                l.Eliminado == false &&
+                (FiltroCategoria == "" || l.Categoria == FiltroCategoria) &&
+                (FiltroEstado == "" || l.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (l.Ubicacion != null && l.Ubicacion.ToLower().Contains(busqueda)) ||
+                    l.Id.ToString().Contains(busqueda)
+                )
+            );
 
-            (string.IsNullOrEmpty(FiltroCategoria) ||
-             lugar.Categoria == FiltroCategoria)
+            itemsQueryable = items.AsQueryable();
+        }
+    }
 
-            &&
-
-            (string.IsNullOrEmpty(FiltroEstado) ||
-             lugar.Estado == FiltroEstado)
-
-            &&
-
-            (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
-             lugar.Ubicacion.Contains(
-                 FiltroBusqueda,
-                 StringComparison.OrdinalIgnoreCase
-             ) ||
-             lugar.Id.ToString().Contains(FiltroBusqueda.Trim()))
-
-        );
-
-    // Modelo de ejemplo
-    private class Lugar
+    private async Task Restablecer()
     {
-        public int Id { get; set; }
-        public string Ubicacion { get; set; } = "";
-        public string Categoria { get; set; } = "";
-        public int Capacidad { get; set; }
-        public string Estado { get; set; } = "";
+        itemsQueryable = (await lugaresService.GetList(l => !l.Eliminado)).AsQueryable();
+        FiltroCategoria = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
     }
 }
