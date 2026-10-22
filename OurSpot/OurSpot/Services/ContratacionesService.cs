@@ -70,5 +70,19 @@ namespace OurSpot.Services
 
             return await contexto.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> Recuperar(int idContratacion)
+        {
+            await using var contexto = await contextFactory.CreateDbContextAsync();
+
+            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.Id == idContratacion && c.Eliminado);
+
+            if (contratacion == null)
+                return false;
+
+            contratacion.Eliminado = false;
+
+            return await contexto.SaveChangesAsync() > 0;
+        }
     }
 }
