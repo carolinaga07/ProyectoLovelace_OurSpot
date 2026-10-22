@@ -21,12 +21,14 @@
                 <div class="mb-3">
                     <label class="form-label"><strong>Servicio</strong></label>
                     <input type="text" class="form-control" @bind-value="Contratacion.Servicio" placeholder="Ej. Show del Payaso Bobby" />
+                    <ValidationMessage For="() => Contratacion.Servicio"/>
                 </div>
 
                 @* Proveedor *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Proveedor</strong></label>
                     <input type="text" class="form-control" @bind-value="Contratacion.Proveedor" placeholder="Ej. El Buen Sazon" />
+                    <ValidationMessage For="() => Contratacion.Proveedor" />
                 </div>
 
                 @* Categoria *@
@@ -41,24 +43,14 @@
                         <option value="Seguridad">Seguridad</option>
                         <option value="Fotografia">Fotograf&iacute;a</option>
                     </InputSelect>
+                    <ValidationMessage For="() => Contratacion.Categoria" />
                 </div>
 
                 @* Costo *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Costo</strong></label>
                     <input type="number" step="0.01" class="form-control" @bind-value="Contratacion.Costo" placeholder="0.00" />
-                </div>
-
-                @* Estado *@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Estado</strong></label>
-                    <InputSelect class="form-select" @bind-value="Contratacion.Estado">
-                        <option selected disabled>Seleccione el estado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Activa">Activa</option>
-                        <option value="Cancelada">Cancelada</option>
-                        <option value="Realizada">Realizada</option>
-                    </InputSelect>
+                    <ValidationMessage For="() => Contratacion.Costo" />
                 </div>
             </div>
 

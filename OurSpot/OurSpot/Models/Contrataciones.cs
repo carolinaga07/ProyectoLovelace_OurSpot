@@ -13,7 +13,7 @@ public class Contrataciones
     public double Costo { get; set; }
 
     [Required(ErrorMessage = "Este campo es obligatorio")]
-    public string Estado { get; set; }
+    public string Estado { get; set; } = "Pendiente";
 
     public bool Eliminado { get; set; } = false;
 

@@ -72,6 +72,7 @@
 
             <div class="grid">
                 <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="c => c.Id" Title="Id" Sortable="true" />
                     <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
                     <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
                     <PropertyColumn Property="c => c.Categoria" Title="Categoría" Sortable="true" />
