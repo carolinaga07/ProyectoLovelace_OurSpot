@@ -12,12 +12,13 @@ namespace OurSpot.Context
 
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Contrataciones> Contrataciones { get; set; }
+        public DbSet<Lugares> Lugares { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
+            //modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
             //modelBuilder.Entity<Contrataciones>().HasQueryFilter(c => !c.Eliminado);
         }
     }
