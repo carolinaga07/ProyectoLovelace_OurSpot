@@ -17,10 +17,10 @@
             </div>
 
             <div class="card-body">
-                @* Evento *@
+                @* Servicio *@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Evento</strong></label>
-                    <input type="text" class="form-control" @bind-value="Contratacion.Evento" placeholder="Ej. Feria Municipal Santa Clara" />
+                    <label class="form-label"><strong>Servicio</strong></label>
+                    <input type="text" class="form-control" @bind-value="Contratacion.Servicio" placeholder="Ej. Show del Payaso Bobby" />
                 </div>
 
                 @* Proveedor *@
@@ -29,17 +29,11 @@
                     <input type="text" class="form-control" @bind-value="Contratacion.Proveedor" placeholder="Ej. El Buen Sazon" />
                 </div>
 
-                @* Fecha *@
+                @* Categoria *@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Fecha</strong></label>
-                    <input type="date" class="form-control" @bind-value="Contratacion.Fecha" placeholder="Ej. 18/10/2026" />
-                </div>
-
-                @* Servicio *@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Servicio</strong></label>
-                    <InputSelect class="form-select" @bind-value="Contratacion.Servicio">
-                        <option value="" selected disabled>Seleccione un servicio</option>
+                    <label class="form-label"><strong>Categoría</strong></label>
+                    <InputSelect class="form-select" @bind-value="Contratacion.Categoria">
+                        <option value="" selected disabled>Seleccione una categoría</option>
                         <option value="Refrigeracion">Refrigeraci&oacute;n</option>
                         <option value="Decoracion">Decoraci&oacute;n</option>
                         <option value="Catering">Catering</option>

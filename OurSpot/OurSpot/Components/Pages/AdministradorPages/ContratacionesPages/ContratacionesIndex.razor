@@ -72,10 +72,9 @@
 
             <div class="grid">
                 <QuickGrid Items="@itemsQueryable">
-                    <PropertyColumn Property="c => c.Evento" Title="Evento" Sortable="true" />
                     <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
                     <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
-                    <PropertyColumn Property="c => c.Fecha" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="c => c.Categoria" Title="Categoría" Sortable="true" />
                     <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
                     <PropertyColumn Property="c => c.Estado" Title="Estado" Sortable="true" />
                     <TemplateColumn Title="Opciones">
@@ -125,7 +124,7 @@
                 (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
                 (FiltroEstado == "" || c.Estado == FiltroEstado) &&
                 (busqueda == "" ||
-                    (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
+                    (c.Categoria != null && c.Categoria.ToLower().Contains(busqueda)) ||
                     (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
                     (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
                 )
