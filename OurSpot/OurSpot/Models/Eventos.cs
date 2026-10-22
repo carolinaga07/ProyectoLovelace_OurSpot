@@ -30,6 +30,8 @@ namespace OurSpot.Models
 
         public int Estrella { get; set; }
 
+        [Required(ErrorMessage ="La descripcion es necesaria para el funcionamiento correcto.")]
+        public string Descripcion { get; set; } = string.Empty;
         //1, "Boda de los Perez", "Social", new DateOnly(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"
         public Evento()
         {

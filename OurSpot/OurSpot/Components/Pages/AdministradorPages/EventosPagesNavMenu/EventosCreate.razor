@@ -51,6 +51,13 @@
                         <option value="Privado">Privado</option>
                     </InputSelect>
                 </div>
+
+                @*Descripcion*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripcion</strong></label>
+                    <InputText class="form-control" @bind-Value="evento.Descripcion"></InputText>
+                    <ValidationMessage For="(() => evento.Descripcion)" />
+                </div>
             </div>
 
             @*footer*@

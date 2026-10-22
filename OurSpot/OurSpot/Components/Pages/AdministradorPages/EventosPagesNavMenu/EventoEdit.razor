@@ -86,7 +86,17 @@
                     <ValidationMessage For="() => Evento.Tipo" />
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Descripcion</strong>
+                    </label>
 
+                    <InputText class="form-control"
+                               @bind-Value="Evento.Descripcion" />
+
+                    <ValidationMessage For="() => Evento.Descripcion" />
+                </div>
+              
                 <!-- ESTADO -->
                 <div class="mb-3">
                     <label class="form-label">
