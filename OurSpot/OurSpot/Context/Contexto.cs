@@ -18,9 +18,8 @@ namespace OurSpot.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
-            modelBuilder.Entity<Contrataciones>().HasQueryFilter(c => !c.Eliminado);
-            modelBuilder.Entity<Lugares>().HasQueryFilter(l => !l.Eliminado);
+            //modelBuilder.Entity<Evento>().HasQueryFilter(e => !e.Eliminado);
+            //modelBuilder.Entity<Contrataciones>().HasQueryFilter(c => !c.Eliminado);
         }
     }
 }
