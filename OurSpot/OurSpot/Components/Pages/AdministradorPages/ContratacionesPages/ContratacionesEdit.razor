@@ -10,40 +10,32 @@
     <DataAnnotationsValidator />
     <div class="container mt-4">
         <div class="card shadow-lg">
-            <div class="card-header text-center">
-                <h3 class="card-title">Modificar Contrataci&oacute;n</h3>
+            <div class="card-header">
+                <h4 class="card-title mt-2">
+                    <a href="/Contrataciones"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>  Modificar Contrataci&oacute;n
+                </h4>
             </div>
 
             <div class="card-body">
-                @* id *@
+                @* Servicio *@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Id</strong></label>
-                    <input type="number" class="form-control" @bind-value="Contratacion.Id" readonly />
-                </div>
-
-                @* Evento *@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Evento</strong></label>
-                    <input type="text" class="form-control" @bind-value="Contratacion.Evento" placeholder="Ej. Feria Municipal Santa Clara" />
+                    <label class="form-label"><strong>Servicio</strong></label>
+                    <input type="text" class="form-control" @bind-value="Contratacion.Servicio" placeholder="Ej. Show del Payaso Bobby" />
+                    <ValidationMessage For="() => Contratacion.Servicio" />
                 </div>
 
                 @* Proveedor *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Proveedor</strong></label>
                     <input type="text" class="form-control" @bind-value="Contratacion.Proveedor" placeholder="Ej. El Buen Sazon" />
+                    <ValidationMessage For="() => Contratacion.Proveedor" />
                 </div>
 
-                @* Fecha *@
+                @* Categoria *@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Fecha</strong></label>
-                    <input type="date" class="form-control" @bind-value="Contratacion.Fecha" placeholder="Ej. 18/10/2026" />
-                </div>
-
-                @* Servicio *@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Servicio</strong></label>
-                    <InputSelect class="form-select" @bind-value="Contratacion.Servicio">
-                        <option value="" selected disabled>Seleccione un servicio</option>
+                    <label class="form-label"><strong>Categoría</strong></label>
+                    <InputSelect class="form-select" @bind-value="Contratacion.Categoria">
+                        <option value="" selected disabled>Seleccione una categoría</option>
                         <option value="Refrigeracion">Refrigeraci&oacute;n</option>
                         <option value="Decoracion">Decoraci&oacute;n</option>
                         <option value="Catering">Catering</option>
@@ -51,12 +43,14 @@
                         <option value="Seguridad">Seguridad</option>
                         <option value="Fotografia">Fotograf&iacute;a</option>
                     </InputSelect>
+                    <ValidationMessage For="() => Contratacion.Categoria" />
                 </div>
 
                 @* Costo *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Costo</strong></label>
                     <input type="number" step="0.01" class="form-control" @bind-value="Contratacion.Costo" placeholder="0.00" />
+                    <ValidationMessage For="() => Contratacion.Costo" />
                 </div>
 
                 @* Estado *@
@@ -69,16 +63,14 @@
                         <option value="Cancelada">Cancelada</option>
                         <option value="Realizada">Realizada</option>
                     </InputSelect>
+                    <ValidationMessage For="() => Contratacion.Estado" />
                 </div>
             </div>
 
             @* Footer con botones de navegación *@
             <div class="card-footer text-center">
-                <a href="/Contrataciones" class="btn btn-secondary me-2" style="background-color:#2D5056">
-                    <span class="bi bi-arrow-left"></span> Cancelar
-                </a>
                 <button type="submit" class="btn btn-primary me-2" style="background-color:#2D5056"> <span class="bi bi-floppy"></span> Guardar </button>
-                <button type="button" class="btn btn-primary " style="background-color:#2D5056" data-bs-toggle="modal" data-bs-target="#modalEliminar"> <span class="bi bi-trash"></span> Eliminar </button>
+                <button type="button" class="btn btn-primary" style="background-color:#2D5056" data-bs-toggle="modal" data-bs-target="#modalEliminar"> <span class="bi bi-x-lg"></span> Eliminar </button>
             </div>
         </div>
     </div>
@@ -96,7 +88,7 @@
             <div class="modal-body">
                 @if (Contratacion != null)
                 {
-                    <p>¿Desea eliminar la contratación @Contratacion.Evento?</p>
+                    <p>¿Desea eliminar la contratación @Contratacion.Servicio?</p>
                 }
             </div>
 

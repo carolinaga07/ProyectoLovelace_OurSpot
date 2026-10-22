@@ -19,17 +19,17 @@
             <div class="row">
 
                 @*Categoria*@
-                <div class="col-3">
+                <div class="col-2">
                     <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
                 </div>
 
                 @*Estado*@
-                <div class="col-4">
+                <div class="col-3">
                     <label class="col-form-label"><strong>Estado</strong></label>
                 </div>
 
                 @*Busqueda*@
-                <div class="col-5">
+                <div class="col-4">
                     <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             @*Inputs y botones*@
             <div class="row align-items-center mb-3">
                 @*Categoria*@
-                <div class="col-3">
+                <div class="col-2">
                     <InputSelect class="form-select" @bind-Value="FiltroCategoria">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Refrigeracion">Refrigeraci&oacute;n</option>
@@ -50,7 +50,7 @@
                 </div>
 
                 @*Esatdo*@
-                <div class="col-4">
+                <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="FiltroEstado">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Pendiente">Pendiente</option>
@@ -61,21 +61,28 @@
                 </div>
 
                 @*Busqueda*@
-                <div class="col-5">
+                <div class="col-4">
                     <div class="input-group">
                         <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
                         <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                     </div>
                 </div>
 
+                @*Restablecer*@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+
             </div>
 
             <div class="grid">
                 <QuickGrid Items="@itemsQueryable">
-                    <PropertyColumn Property="c => c.Evento" Title="Evento" Sortable="true" />
+                    <PropertyColumn Property="c => c.Id" Title="Id" Sortable="true" />
                     <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
                     <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
-                    <PropertyColumn Property="c => c.Fecha" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="c => c.Categoria" Title="Categoría" Sortable="true" />
                     <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
                     <PropertyColumn Property="c => c.Estado" Title="Estado" Sortable="true" />
                     <TemplateColumn Title="Opciones">
@@ -125,7 +132,7 @@
                 (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
                 (FiltroEstado == "" || c.Estado == FiltroEstado) &&
                 (busqueda == "" ||
-                    (c.Evento != null && c.Evento.ToLower().Contains(busqueda)) ||
+                    (c.Categoria != null && c.Categoria.ToLower().Contains(busqueda)) ||
                     (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
                     (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
                 )
@@ -148,5 +155,14 @@
         {
             toastService.ShowError("Error al eliminar la contratación");
         }
+    }
+
+    private async Task Restablecer()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+        FiltroCategoria = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
     }
 }
