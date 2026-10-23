@@ -1,0 +1,182 @@
+﻿
+@page "/Lugares/Recuperar"
+@rendermode InteractiveServer
+
+@inject LugaresService lugaresService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Recuperar Lugares</PageTitle>
+
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .disponible {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .no-disponible {
+        background-color: #faf4e3;
+        color: #9a8550;
+    }
+
+    .eliminado {
+        background-color: #eadede;
+        color: #8a4d4d;
+    }
+</style>
+
+<div class="container">
+    <div class="card shadow-lg">
+
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">
+                <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Recuperar Lugares
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @* Labels de filtros *@
+            <div class="row">
+
+                @* Categoria *@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categoría</strong></label>
+                </div>
+
+                @* Busqueda *@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>Búsqueda</strong></label>
+                </div>
+
+            </div>
+
+            @* Filtros *@
+            <div class="row align-items-center mb-3">
+
+                @* Categoria *@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="Aniversario">Aniversario</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Celebración Religiosa">Celebración Religiosa</option>
+                        <option value="Graduación">Graduación</option>
+                        <option value="Funeral">Funeral</option>
+                    </InputSelect>
+                </div>
+
+                @* Busqueda *@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar ubicación o Id" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar" title="Buscar"></button>
+                    </div>
+                </div>
+
+                @* Restablecer *@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise" @onclick="Restablecer" title="Restablecer"></button>
+                </div>
+
+            </div>
+
+            @* Tabla de Lugares *@
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable" Class="table table-hover">
+                    <PropertyColumn Property="l => l.Id" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="l => l.Ubicacion" Title="Ubicación" Sortable="true" />
+                    <PropertyColumn Property="l => l.Categoria" Title="Categoría" Sortable="true" />
+                    <PropertyColumn Property="l => l.Capacidad" Title="Capacidad" Sortable="true" />
+                    <TemplateColumn Title="Estado" Sortable="true" SortBy="estadoSort">
+                        <span class="estado @(context.Eliminado ? "eliminado" : context.Estado == "Disponible" ? "disponible" : "no-disponible")">
+                            @(context.Eliminado ? "Eliminado" : context.Estado)
+                        </span>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Opciones">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="() => Recuperar(context.Id)" title="Recuperar"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+
+        </div>
+
+        @* Footer *@
+        <div class="card-footer d-flex justify-content-between align-items-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable.Count()</label>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Lugares> itemsQueryable =
+        Enumerable.Empty<Lugares>().AsQueryable();
+
+    public Lugares Lugar { get; set; } = new();
+
+    private GridSort<Lugares> estadoSort = GridSort<Lugares>.ByAscending(l => l.Estado);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await lugaresService.GetList(l => l.Eliminado == true);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" && FiltroCategoria == "")
+        {
+            var items = await lugaresService.GetList(l => l.Eliminado == true);
+            itemsQueryable = items.AsQueryable();
+        }
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await lugaresService.GetList(l =>
+                l.Eliminado == true &&
+                (FiltroCategoria == "" || l.Categoria == FiltroCategoria) &&
+                (busqueda == "" ||
+                    (l.Ubicacion != null && l.Ubicacion.ToLower().Contains(busqueda)) ||
+                    l.Id.ToString().Contains(busqueda)
+                )
+            );
+
+            itemsQueryable = items.AsQueryable();
+        }
+    }
+
+    private async Task Restablecer()
+    {
+        itemsQueryable = (await lugaresService.GetList(l => l.Eliminado == true)).AsQueryable();
+        FiltroCategoria = string.Empty;
+        FiltroBusqueda = string.Empty;
+    }
+
+    private async Task Recuperar(int id)
+    {
+        bool recuperado = await lugaresService.Recuperar(id);
+
+        if (recuperado)
+        {
+            toastService.ShowSuccess("Lugar Recuperado Exitosamente");
+            navigationManager.NavigateTo("/Lugares/Index");
+        }
+        else
+        {
+            toastService.ShowError("Error al Recuperar el Lugar");
+        }
+    }
+}
