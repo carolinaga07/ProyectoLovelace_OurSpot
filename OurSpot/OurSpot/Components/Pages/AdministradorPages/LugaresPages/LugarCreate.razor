@@ -13,10 +13,12 @@
     <div class="container mt-4">
         <div class="card shadow-lg">
 
-            <div class="card-header text-center">
-                <h3 class="card-title">Nuevo Lugar</h3>
+            <div class="card-header">
+                <h4 class="card-title mt-2">
+                    <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Nuevo Lugar
+                </h4>
             </div>
-
+  
             <div class="card-body">
 
                 @* Ubicación *@
@@ -54,13 +56,12 @@
                     <input type="text" class="form-control" @bind-value="Lugar.Estado" readonly />
                 </div>
             </div>
-
+          
             @* Footer *@
             <div class="card-footer text-center">
-                <a href="/Lugares/Index" class="btn btn-secondary me-2" style="background-color:#2D5056"><span class="bi bi-arrow-left"></span> Volver</a>
-                <button type="submit" class="btn btn-primary"> <span class="bi bi-floppy"></span> Guardar </button>
+                <button type="submit" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-floppy"></span> Guardar </button>
             </div>
-
+  
         </div>
     </div>
 </EditForm>

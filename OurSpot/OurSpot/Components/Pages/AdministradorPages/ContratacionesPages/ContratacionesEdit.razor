@@ -1,6 +1,7 @@
 ﻿@page "/Contrataciones/Editar/{IdContratacion:int}"
 @rendermode InteractiveServer
 @inject ContratacionesService contratacionesService
+@inject ProveedorService proveedorService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 
@@ -27,7 +28,15 @@
                 @* Proveedor *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Proveedor</strong></label>
-                    <input type="text" class="form-control" @bind-value="Contratacion.Proveedor" placeholder="Ej. El Buen Sazon" />
+
+                    <InputSelect class="form-select" @bind-Value="Contratacion.Proveedor">
+                        <option value="">Seleccione un proveedor</option>
+
+                        @foreach (var proveedor in ListaProveedores)
+                        {
+                            <option value="@proveedor.Nombre">@proveedor.Nombre</option>
+                        }
+                    </InputSelect>
                     <ValidationMessage For="() => Contratacion.Proveedor" />
                 </div>
 
@@ -70,7 +79,7 @@
             @* Footer con botones de navegación *@
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-primary me-2" style="background-color:#2D5056"> <span class="bi bi-floppy"></span> Guardar </button>
-                <button type="button" class="btn btn-primary" style="background-color:#2D5056" data-bs-toggle="modal" data-bs-target="#modalEliminar"> <span class="bi bi-x-lg"></span> Eliminar </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"> <span class="bi bi-x-lg"></span> Eliminar </button>
             </div>
         </div>
     </div>
@@ -105,6 +114,7 @@
     [Parameter]
     public int IdContratacion { get; set; }
     public Contrataciones Contratacion = new Contrataciones();
+    public List<Proveedores> ListaProveedores { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,9 +123,10 @@
         {
             Contratacion = ContratacionEncontrada;
         }
+
+        var proveedores = await proveedorService.GetList(p => true);
+        ListaProveedores = proveedores;
     }
-
-
 
     private async Task Modificar()
     {
