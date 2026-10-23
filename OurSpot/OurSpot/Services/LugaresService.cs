@@ -55,8 +55,8 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
     public async Task<List<Lugares>> GetList(Expression<Func<Lugares, bool>> criterio)
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
+
         return await contexto.Lugares
-            .Where(l => !l.Eliminado)
             .Where(criterio)
             .AsNoTracking()
             .ToListAsync();
@@ -72,6 +72,21 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
             return false;
 
         lugar.Eliminado = true;
+
+        return await contexto.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> Recuperar(int idLugar)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+
+        var lugar = await contexto.Lugares
+            .FirstOrDefaultAsync(l => l.Id == idLugar && l.Eliminado);
+
+        if (lugar == null)
+            return false;
+
+        lugar.Eliminado = false;
 
         return await contexto.SaveChangesAsync() > 0;
     }
