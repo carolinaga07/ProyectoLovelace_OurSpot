@@ -14,8 +14,10 @@
     <div class="container mt-4">
         <div class="card shadow-lg">
 
-            <div class="card-header text-center">
-                <h3 class="card-title">Editar Lugar</h3>
+            <div class="card-header">
+                <h4 class="card-title mt-2">
+                    <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Modificar Lugar
+                </h4>
             </div>
 
             <div class="card-body">
@@ -56,12 +58,11 @@
                 </div>
 
             </div>
-      
+               
             @* Footer *@
-            <div class="card-footer text-center mb-2">
-                <a href="/Lugares/Index" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Volver</a>
-                <button type="submit" class="btn btn-primary bi bi-floppy"> Modificar</button>
-                <button type="button" class="btn btn-danger bi bi-trash" data-bs-toggle="modal" data-bs-target="#modalEliminar"> Eliminar</button>
+            <div class="card-footer text-center">
+                <button type="submit" class="btn btn-primary me-2" style="background-color:#2D5056"><span class="bi bi-floppy"></span> Guardar</button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"><span class="bi bi-x-lg"></span> Eliminar</button>
             </div>
 
         </div>
