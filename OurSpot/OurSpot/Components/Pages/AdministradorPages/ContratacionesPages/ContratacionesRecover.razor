@@ -122,7 +122,7 @@
 
             var items = await contratacionesService.GetList(c =>
                 c.Eliminado == true &&
-                (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
+                (FiltroCategoria == "" || c.Categoria == FiltroCategoria) &&
                 (FiltroEstado == "" || c.Estado == FiltroEstado) &&
                 (busqueda == "" ||
                     (c.Categoria != null && c.Categoria.ToLower().Contains(busqueda)) ||
@@ -134,18 +134,20 @@
             itemsQueryable = items.AsQueryable();
         }
     }
+
+    
     private async Task Recuperar(int id)
     {
-        bool recuperado = await contratacionesService.Recuperar(Contratacion.Id);
+        bool recuperado = await contratacionesService.Recuperar(id);
 
         if (recuperado)
         {
-            toastService.ShowSuccess("Contratacion Recuperada Exitosamente");
+            toastService.ShowSuccess("Contratación Recuperada Exitosamente");
             navigationManager.NavigateTo("/Contrataciones");
         }
         else
         {
-            toastService.ShowError("Error al Recuperar la contratacion");
+            toastService.ShowError("Error al Recuperar la Contratación");
         }
     }
 }

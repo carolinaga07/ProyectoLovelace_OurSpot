@@ -16,6 +16,7 @@ namespace OurSpot.Context
         public DbSet<Lugares> Lugares { get; set; }
 
         public DbSet<Proveedores> Proveedores { get; set; }
+        public DbSet<Personal> Personales { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
