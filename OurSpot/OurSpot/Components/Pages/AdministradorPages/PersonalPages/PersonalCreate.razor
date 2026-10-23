@@ -1,115 +1,80 @@
-﻿
-@page "/personal/create"
+﻿@page "/personal/create"
 @rendermode InteractiveServer
+@inject PersonalService personalService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
 
 <PageTitle>Crear Personal</PageTitle>
+<EditForm Model="personal" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
 
-<div class="container mt-4">
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear Personal</h5>
+            </div>
 
-    <div class="card shadow-lg">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombre</strong></label>
+                    <InputText class="form-control" @bind-Value="personal.Nombre"></InputText>
+                    <ValidationMessage For="(() => personal.Nombre)" />
+                </div>
 
-        <div class="card-header text-center">
-            <h3 class="card-title">Agregar Personal</h3>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Correo</strong></label>
+                    <InputText class="form-control" @bind-Value="personal.Correo"></InputText>
+                    <ValidationMessage For="(() => personal.Correo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Cargo</strong></label>
+                    <InputSelect class="form-select" @bind-Value="personal.Cargo">
+                        <option value="" selected disabled>Elija una opcion</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Empleado">Empleado</option>
+                    </InputSelect>
+                    <ValidationMessage For="(() => personal.Cargo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Estado</strong></label>
+                    <InputSelect class="form-select" @bind-Value="personal.Estado">
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <a href="/personal" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Volver</a>
+                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+            </div>
         </div>
-
-        <div class="card-body">
-
-            @* Id *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Id</strong>
-                </label>
-
-                <input type="number"
-                       class="form-control"
-                       value="8"
-                       readonly />
-            </div>
-
-            @* Nombre *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Nombre</strong>
-                </label>
-
-                <input type="text"
-                       class="form-control"
-                       placeholder="Ej. María Pérez" />
-            </div>
-
-            @* Correo *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Correo electrónico</strong>
-                </label>
-
-                <input type="email"
-                       class="form-control"
-                       placeholder="Ej. maria@gmail.com" />
-            </div>
-
-            @* Cargo *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Cargo</strong>
-                </label>
-
-                <select class="form-select">
-
-                    <option value="" selected disabled>
-                        Seleccione un cargo
-                    </option>
-
-                    <option value="Administrador">
-                        Administrador
-                    </option>
-
-                    <option value="Empleado">
-                        Empleado
-                    </option>
-
-                </select>
-            </div>
-
-            @* Estado *@
-            <div class="mb-3">
-                <label class="form-label">
-                    <strong>Estado</strong>
-                </label>
-
-                <select class="form-select">
-
-                    <option value="" selected disabled>
-                        Seleccione un estado
-                    </option>
-
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-
-                </select>
-            </div>
-
-        </div>
-
-        @* Footer *@
-        <div class="card-footer text-center">
-
-            <a href="/personal"
-               class="btn btn-secondary me-2">
-
-                <span class="bi bi-arrow-left"></span>
-                Volver
-            </a>
-
-            <a href="/personal"
-               class="btn btn-primary">
-
-                <span class="bi bi-floppy"></span>
-                Guardar
-            </a>
-
-        </div>
-
     </div>
+</EditForm>
 
-</div>
+@code {
+    public Personal personal { get; set; } = new Personal();
+
+    public async Task Guardar()
+    {
+        if (await personalService.ExisteCorreo(personal.Correo))
+        {
+            toastService.ShowError("Ya existe personal con ese correo.");
+            return;
+        }
+
+        var creado = await personalService.Guardar(personal);
+
+        if (creado)
+        {
+            toastService.ShowSuccess("¡Personal guardado exitosamente!");
+            navigationManager.NavigateTo("/personal");
+        }
+        else
+        {
+            toastService.ShowError("No se pudo guardar el personal correctamente...");
+        }
+    }
+}

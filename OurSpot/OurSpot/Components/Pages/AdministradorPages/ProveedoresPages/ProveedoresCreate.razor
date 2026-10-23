@@ -1,76 +1,77 @@
 ﻿@page "/Proveedores/Crear"
+@rendermode InteractiveServer
 @inject NavigationManager navigationManager
+@inject ProveedorService proveedorService
+@inject ToastService toastService
+@using OurSpot.Components.Models
 
-<PageTitle>Crear Proveedor</PageTitle>
+<PageTitle>Nuevo Proveedor</PageTitle>
+<EditForm Model="proveedor" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
 
-<div class="container">
-    <div class="card shadow-lg">
-        <div class="card-header text-center">
-            <h5 class="card-title mt-2">Crear Proveedor</h5>
-        </div>
+    <div class="container">
+        <div class="card shadow-lg">
+        <h5 class="card-title mt-2">
+            <a href="/Proveedores"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Crear Proveedor
+        </h5>
 
-        <div class="card-body">
-            @* id *@
-            <div class="mb-3">
-                <label class="form-label"><strong>Id</strong></label>
-                <input type="number" class="form-control" value="1" readonly />
-            </div>
+            <div class="card-body">
 
             @*Nombre*@
             <div class="mb-3">
                 <label class="form-label"><strong>Nombre</strong></label>
-                <input type="text" class="form-control" placeholder="Ej. Clima Eventos RD"/>
+                <input type="text" class="form-control" @bind= "proveedor.Nombre" placeholder="Ej. Clima Eventos RD"/>
             </div>
 
             @*RNC*@
             <div class="mb-3">
                 <label class="form-label"><strong>RNC</strong></label>
-                <input type="text" class="form-control" placeholder="Ej. 134-34576-3"/>
+                <input type="text" class="form-control" @bind= "proveedor.Rnc" placeholder="Ej. 134-34576-3"/>
             </div>
 
             @*Direccion*@
             <div class="mb-3">
                 <label class="form-label"><strong>Direccion</strong></label>
-                <input type="text" class="form-control" placeholder="Ej. Boulevard del Sol #789"/>       
-            </div>
-
-            @*Categoria*@
-            <div class="mb-3">
-                <label class="form-label"><strong>Categoria</strong></label>
-                <Select class="form-select">
-                    <option value="" selected disabled>Elija una opci&oacute;n</option>
-                    <option value="Refrigeracion">Refrigeraci&oacute;n</option>
-                    <option value="Decoracion">Decoraci&oacute;n</option>
-                    <option value="Catering">Catering</option>
-                    <option value="Entretenimiento">Entretenimiento</option>
-                    <option value="Seguridad">Seguridad</option>
-                    <option value="Fotografia">Fotograf&iacute;a</option>
-                </Select>
+                <input type="text" class="form-control" @bind= "proveedor.Direccion" placeholder="Ej. Boulevard del Sol #789"/>       
             </div>
 
             @*Contacto*@
             <div class="mb-3">
                 <label class="form-label"><strong>Contacto</strong></label>
-                <input type="text" class="form-control" placeholder="Ej. 849-657-3847"/>
+                <input type="text" class="form-control" @bind= "proveedor.Contacto" placeholder="Ej. 849-657-3847"/>
             </div>
 
             @*Servicio*@
             <div class="mb-3">
                 <label class="form-label"><strong>Servicio</strong></label>
-                <input type="text" class="form-control" placeholder="Ej. Alquiler de Aires Acondicionados" />
+                <input type="text" class="form-control" @bind= "proveedor.Servicio" placeholder="Ej. Alquiler de Aires Acondicionados" />
             </div>
+       </div>
 
-        </div>
-
-        @*footer*@
+           @*footer*@
         <div class="card-footer text-center mt-2">
-            <a href="/Proveedores" class="btn btn-secondary"><span class="bi bi-arrow-left"></span>Volver</a>
-            <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+            <button type="submit" class="btn btn-primary bi bi-floppy" style="background-color: #2D5056"> Guardar</button>
         </div>
     </div>
-</div>
-
+ </div>
+</EditForm>
 
 @code {
 
+    public Proveedores proveedor = new Proveedores();
+
+      public async Task Guardar()
+    {
+        var result = await proveedorService.Guardar(proveedor);
+
+        if (result)
+        {
+            toastService.ShowSuccess("¡Proveedor Guardado Correctamente!");
+            navigationManager.NavigateTo("/Proveedores");
+        }
+        else
+        {
+            toastService.ShowError("No se pudo guardar el proveedor correctamente.");
+        }
+    }
 }

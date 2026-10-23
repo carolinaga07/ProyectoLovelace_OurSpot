@@ -1,0 +1,153 @@
+﻿@page "/Contrataciones/Recuperar"
+@rendermode InteractiveServer
+@inject ContratacionesService contratacionesService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Contrataciones</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2"> 
+                <a href="/Contrataciones"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>Recuperar Contrataciones
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
+                    </InputSelect>
+                </div>
+
+                @*Esatdo*@
+                <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Realizada">Realizada</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="c => c.Id" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="c => c.Servicio" Title="Servicio" Sortable="true" />
+                    <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
+                    <PropertyColumn Property="c => c.Categoria" Title="Categoría" Sortable="true" />
+                    <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="c => c.Estado" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="() => Recuperar(context.Id)"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Contrataciones> itemsQueryable =
+        Enumerable.Empty<Contrataciones>().AsQueryable();
+
+    public Contrataciones Contratacion { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await contratacionesService.GetList(c => c.Eliminado == true);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCategoria == "" &&
+            FiltroEstado == "")
+        {
+            var items = await contratacionesService.GetList(c => c.Eliminado == true);
+            itemsQueryable = items.AsQueryable();
+        }
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await contratacionesService.GetList(c =>
+                c.Eliminado == true &&
+                (FiltroCategoria == "" || c.Categoria == FiltroCategoria) &&
+                (FiltroEstado == "" || c.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (c.Categoria != null && c.Categoria.ToLower().Contains(busqueda)) ||
+                    (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
+                    (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+                )
+            );
+
+            itemsQueryable = items.AsQueryable();
+        }
+    }
+
+    
+    private async Task Recuperar(int id)
+    {
+        bool recuperado = await contratacionesService.Recuperar(id);
+
+        if (recuperado)
+        {
+            toastService.ShowSuccess("Contratación Recuperada Exitosamente");
+            navigationManager.NavigateTo("/Contrataciones");
+        }
+        else
+        {
+            toastService.ShowError("Error al Recuperar la Contratación");
+        }
+    }
+}
