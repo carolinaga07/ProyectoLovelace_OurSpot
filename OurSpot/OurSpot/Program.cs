@@ -24,6 +24,7 @@ builder.Services.AddScoped<EventosService>();
 builder.Services.AddScoped<ContratacionesService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<LugaresService>();
+builder.Services.AddScoped<PersonalService>();
 builder.Services.AddBlazorBootstrap();
 
 var app = builder.Build();
