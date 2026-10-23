@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OurSpot.Components.Models;
 using OurSpot.Models;
 
 namespace OurSpot.Context
