@@ -35,6 +35,20 @@ else
                         <ValidationMessage For="(() => personal.Correo)" />
                     </div>
 
+                    @* Usuario *@
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Usuario</strong></label>
+                        <InputText class="form-control" @bind-Value="personal.Usuario"></InputText>
+                        <ValidationMessage For="(() => personal.Usuario)" />
+                    </div>
+
+                    @* Contraseña *@
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Contraseña</strong></label>
+                        <InputText type="password" class="form-control" @bind-Value="personal.Contrasena"></InputText>
+                        <ValidationMessage For="(() => personal.Contrasena)" />
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label"><strong>Cargo</strong></label>
                         <InputSelect class="form-select" @bind-Value="personal.Cargo">
