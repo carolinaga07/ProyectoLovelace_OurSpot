@@ -92,7 +92,7 @@
         }
         else
         {
-            if (await contratacionesService.Existe(Contratacion.Id))
+            if (await contratacionesService.Existe(ContracionId))
             {
                 toastService.ShowError("Esta contratación ya fue registrada.");
                 return;
