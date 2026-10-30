@@ -2,7 +2,7 @@
 
 @inject EventosService eventoService
 @rendermode InteractiveServer
-
+@* @* @* 
 <PageTitle>Eventos</PageTitle>
 
 <div class="container">
@@ -14,28 +14,28 @@
 
         <div class="card-body">
 
-            @*labels*@
+            @*labels
             <div class="row">
 
-                @*Categoria*@
+                @*Categoria
                 <div class="col-3">
                     <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
                 </div>
 
-                @*Estado*@
+                @*Estado
                 <div class="col-4">
                     <label class="col-form-label"><strong>Estado</strong></label>
                 </div>
 
-                @*Busqueda*@
+                @*Busqueda
                 <div class="col-5">
                     <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
                 </div>
             </div>
 
-            @*Inputs y botones*@
+            @*Inputs y botones
             <div class="row align-items-center mb-3">
-                @*Categoria*@
+                @*Categoria
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="FiltroCategoria">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
@@ -46,7 +46,7 @@
                     </InputSelect>
                 </div>
 
-                @*Estado*@
+                @*Estado
                 <div class="col-4">
                     <InputSelect class="form-select" @bind-Value="FiltroEstado">
                         <option value="" selected disabled>Elija una opci&oacute;n</option>
@@ -57,7 +57,7 @@
                     </InputSelect>
                 </div>
 
-                @*Busqueda*@
+                @*Busqueda
                 <div class="col-5">
                     <div class="input-group">
                         <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
@@ -104,7 +104,7 @@
         </div>
     </div>
 </div>
-
+ *@
 @code {
     private List<Evento>? listaEventos = new();
 

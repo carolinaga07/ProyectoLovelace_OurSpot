@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OurSpot.Components.Pages.AdministradorPages.EventosPagesNavMenu;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
@@ -13,39 +14,37 @@ namespace OurSpot.Models
         [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La categoria es obligatoria")]
-        public string Categoria { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La descripcion es necesaria.")]
+        public string Descripcion { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La fecha es obligatoria")]
-        public DateTime Fecha { get; set; }
+        [Required(ErrorMessage = "La fecha de inicio es obligatoria")]
+        public DateOnly FechaInicio { get; set; }
+        [Required(ErrorMessage = "La hora de inicio es obligatoria")]
+        public TimeOnly HoraInicio { get; set;  }
+        [Required(ErrorMessage = "La fecha de cierre es obligatoria")]
+        public DateOnly FechaCierre { get; set; }
+        [Required(ErrorMessage = "La hora de cierre es obligatoria")]
+        public TimeOnly HoraCierre { get; set;  }
 
         [Required(ErrorMessage = "El lugar es obligatorio")]
         public string Lugar { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "El tipo es obligatorio")]
         public string Tipo { get; set; } = string.Empty;
 
         public string Estado { get; set; } = "Pendiente";
 
         public bool Eliminado { get; set; } = false;
+        public double Total { get; set; }
 
         public int Estrella { get; set; }
 
-        [Required(ErrorMessage ="La descripcion es necesaria para el funcionamiento correcto.")]
-        public string Descripcion { get; set; } = string.Empty;
-        //1, "Boda de los Perez", "Social", new DateOnly(2026, 12, 2), "Salon Palma Real", "Privado", "Pendiente"
+        [InverseProperty("Evento")]
+        public virtual ICollection<EventosDetalles> EventosDetalles { get; set; } = new List<EventosDetalles>();
+   
         public Evento()
         {
 
-        }
-        public Evento(int id, string nombre, string categoria, DateTime fecha, string lugar, string tipo, string estado)
-        {
-            EventoId = id;
-            Nombre = nombre;
-            Categoria = categoria;
-            Fecha = fecha;
-            Lugar = lugar;
-            Tipo = tipo;
-            Estado = estado;
         }
 
     }
