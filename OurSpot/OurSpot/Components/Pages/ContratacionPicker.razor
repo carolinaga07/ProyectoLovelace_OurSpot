@@ -1,15 +1,27 @@
 ﻿<div class="col-auto input-group align-items-center">
     <label class="col-form-label input-group-text">Seleccione la categoria:</label>
    
-    <InputSelect class="form-control form-select" @bind-Value="ContratacionId">
-        <option disabled value="0">--seleccione el servicio deseado --</option>
-        @foreach(var contratacion in Contrataciones)
+    <select class="form-control form-select" value="@CategoriaSeleccionada" @onchange="CambiarCategoria">
+        <option value="">--seleccione una categoria--</option>
+        @foreach(var categoria in Categorias)
         {
-           <option value="@contratacion.ContratacionId">@contratacion.Categoria - @((contratacion.Costo * (1 + Ganancia / 100)).ToString("C2"))(</option>
+           <option value="@categoria">@categoria</option>
+        }
+    </select>
+    <label class="col-form-label input-group-text">Contratacion:</label>
+    <InputSelect TValue="int"
+            class="form-control form-select"
+            @bind-Value="ContratacionSeleccionadaId"
+            disabled="@string.IsNullOrEmpty(CategoriaSeleccionada)">
+        <option value="0">--Seleccione una contratacion--</option>
+        @foreach (var contratacion in ContratacionesFiltradas)
+        {
+            <option value="@contratacion.ContratacionId">
+                @contratacion.Servicio -
+                @((contratacion.Costo * (1 + Ganancia / 100)).ToString("C2"))
+            </option>
         }
     </InputSelect>
-    <label class="col-form-label input-group-text">Contratacion:</label>
-    <InputText class="form-control" @bind-Value="ServicioSeleccionado" />
     <button type="button" class="btn btn-outline-success bi bi-plus" @onclick="TriggerSelection"> Agregar</button>
 </div>
 
@@ -37,31 +49,58 @@
     public List<Contrataciones> Contrataciones { get; set; } = new();
 
     [Parameter]
-    public double Ganancia { get; set; } = 25;
+    public double Ganancia { get; set; } 
 
     [Parameter]
     public EventCallback<(Contrataciones Contrataciones, string servicio)> OnContratacionSelected{ get; set; }
 
     private string? ErrorMessage { get; set; } = null;
 
+    private int ContratacionSeleccionadaId { get; set; }
+
+    private string CategoriaSeleccionada = string.Empty;
+
+    private IEnumerable<string> Categorias => Contrataciones
+    .Where(c => !string.IsNullOrWhiteSpace(c.Categoria))
+    .Select(c => c.Categoria)
+    .Distinct()
+    .OrderBy(c => c);
+
+    private IEnumerable<Contrataciones> ContratacionesFiltradas => Contrataciones
+    .Where(c => !string.IsNullOrEmpty(CategoriaSeleccionada)
+    && c.Categoria == CategoriaSeleccionada)
+    .OrderBy(c => c.Servicio);
+
+
+    private async Task CambiarCategoria(ChangeEventArgs e)
+    {
+        CategoriaSeleccionada = e.Value?.ToString() ?? string.Empty;
+
+        ContratacionSeleccionadaId = 0;
+        ErrorMessage = null;
+
+        await ContratacionIdChanged.InvokeAsync(ContratacionId);
+    }
+
     private async Task TriggerSelection()
     {
+
+        var contratacion = ContratacionesFiltradas
+            .FirstOrDefault(c => c.ContratacionId == ContratacionSeleccionadaId);
+
+        if (contratacion is null)
+        {
+            ErrorMessage = "Seleccione una contratacion valida";
+            return;
+        }
+
         ErrorMessage = null;
-        if(ContratacionId > 0)
-        {
-            var seleccionada = Contrataciones.Single(c => c.ContratacionId == ContratacionId);
-            await OnContratacionSelected.InvokeAsync((seleccionada, ServicioSeleccionado));
+        await ContratacionIdChanged.InvokeAsync(contratacion.ContratacionId);
 
-            ContratacionId = 0;
-            await ContratacionIdChanged.InvokeAsync(ContratacionId);
+        await OnContratacionSelected.InvokeAsync((contratacion, contratacion.Servicio));
 
-            ServicioSeleccionado = string.Empty;
-            await servicioSeleccionadoChanged.InvokeAsync(ServicioSeleccionado);
-        }
-        else
-        {
-            ErrorMessage = "Seleccione un servicio valido";
-        }
+        ContratacionSeleccionadaId = 0;
+        await ContratacionIdChanged.InvokeAsync(ContratacionId);
     }
 
 }

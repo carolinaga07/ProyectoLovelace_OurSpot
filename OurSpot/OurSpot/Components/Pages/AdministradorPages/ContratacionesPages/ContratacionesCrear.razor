@@ -6,7 +6,7 @@
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Contrataciones</PageTitle>
-<EditForm>
+<EditForm Model="Contratacion" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="container mt-4">
         <div class="card shadow-lg">
@@ -20,17 +20,15 @@
                 @* Servicio *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Servicio</strong></label>
-                    <input type="text" class="form-control" @bind-value="Contratacion.Servicio" placeholder="Ej. Show del Payaso Bobby" />
-                    <ValidationMessage For="() => Contratacion.Servicio"/>
+                    <InputText class="form-control" @bind-Value="Contratacion.Servicio" />
+                    <ValidationMessage For="() => Contratacion.Servicio" />
                 </div>
 
                 @* Proveedor *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Proveedor</strong></label>
-
                     <InputSelect class="form-select" @bind-Value="Contratacion.Proveedor">
                         <option value="">Seleccione un proveedor</option>
-
                         @foreach (var proveedor in ListaProveedores)
                         {
                             <option value="@proveedor.Nombre">@proveedor.Nombre</option>

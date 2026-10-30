@@ -178,6 +178,45 @@ namespace OurSpot.Migrations
                     b.ToTable("Eventos");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.EventoDetalles", b =>
+                {
+                    b.Property<int>("DetalleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetalleId"));
+
+                    b.Property<int>("ContratacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("PorcentajeGanacia")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PorcentajeGanancia")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PrecioBase")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PrecioFinal")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Servicio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("DetalleId");
+
+                    b.HasIndex("ContratacionId");
+
+                    b.HasIndex("EventoId");
+
+                    b.ToTable("EventoDetalles");
+                });
+
             modelBuilder.Entity("Personal", b =>
                 {
                     b.Property<int>("Id")
@@ -213,6 +252,28 @@ namespace OurSpot.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Personales");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.EventoDetalles", b =>
+                {
+                    b.HasOne("OurSpot.Models.Contrataciones", "Contrataciones")
+                        .WithMany()
+                        .HasForeignKey("ContratacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OurSpot.Models.Evento", null)
+                        .WithMany("EventosDetalles")
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contrataciones");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Evento", b =>
+                {
+                    b.Navigation("EventosDetalles");
                 });
 #pragma warning restore 612, 618
         }
