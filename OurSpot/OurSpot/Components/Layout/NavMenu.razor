@@ -1,4 +1,4 @@
-﻿@rendermode InteractiveServer
+@rendermode InteractiveServer
 
 <style>
     .nav-scrollable * {
@@ -20,47 +20,47 @@
         overflow: visible;
     }
 
-    .accordion-menu li:last-child .dropdown {
-        border-bottom: 0;
-    }
+        .accordion-menu li:last-child .dropdown {
+            border-bottom: 0;
+        }
 
-    .accordion-menu li.active .dropdown {
-        color: #fff;
-    }
+        .accordion-menu li.active .dropdown {
+            color: #fff;
+        }
 
-    .accordion-menu li.active .dropdown .bi-chevron-down {
-        transform: rotate(180deg);
-    }
+            .accordion-menu li.active .dropdown .bi-chevron-down {
+                transform: rotate(180deg);
+            }
 
-    .accordion-menu .dropdown {
-        cursor: pointer;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 15px 20px;
-        font-size: 16px;
-        border-bottom: 1px solid #B4C8CC;
-        color: #FFFFFF;
-        position: relative;
-        white-space: nowrap;
-        transition: background 0.3s ease;
-    }
+        .accordion-menu .dropdown {
+            cursor: pointer;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 15px 20px;
+            font-size: 16px;
+            border-bottom: 1px solid #B4C8CC;
+            color: #FFFFFF;
+            position: relative;
+            white-space: nowrap;
+            transition: background 0.3s ease;
+        }
 
-    .accordion-menu .dropdown:hover {
-        background: #4C6D76;
-    }
+            .accordion-menu .dropdown:hover {
+                background: #4C6D76;
+            }
 
-    .accordion-menu .dropdown i.bi-menu-icon {
-        position: static !important;
-        font-size: 1.2rem;
-        margin-right: 12px;
-    }
+            .accordion-menu .dropdown i.bi-menu-icon {
+                position: static !important;
+                font-size: 1.2rem;
+                margin-right: 12px;
+            }
 
-    .accordion-menu .dropdown i.bi-chevron-down {
-        position: static !important;
-        margin-left: auto;
-        transition: transform 0.2s ease-in-out;
-    }
+            .accordion-menu .dropdown i.bi-chevron-down {
+                position: static !important;
+                margin-left: auto;
+                transition: transform 0.2s ease-in-out;
+            }
 
     .SubmenuItems {
         display: none;
@@ -80,10 +80,10 @@
         text-decoration: none;
     }
 
-    .SubmenuItems a:hover {
-        background: #5c7185;
-        color: #fff;
-    }
+        .SubmenuItems a:hover {
+            background: #5c7185;
+            color: #fff;
+        }
 
     .accordion-menu .dropdown .bi-chevron-down {
         margin-left: 6px !important;
@@ -101,10 +101,10 @@
         width: 100%;
     }
 
-    .config-btn:hover {
-        background: #4C6D76;
-        color: #FFFFFF;
-    }
+        .config-btn:hover {
+            background: #4C6D76;
+            color: #FFFFFF;
+        }
 
     .accordion-menu li:first-child .dropdown {
         border-top: 1px solid #2D5056;
@@ -113,7 +113,7 @@
 
 <div class="top-row px-3 navbar navbar-dark d-flex align-items-center gap-4">
     <div class="container-fluid justify-content-center">
-        <a class="navbar-brand" href="">
+        <a class="navbar-brand" href="/Home">
             <img src="lib/Imagenes/OurSpot-Logo.png"
                  style="max-height: 55px" />
         </a>
@@ -156,7 +156,7 @@
 
                     <ul class="SubmenuItems">
                         <li>
-                            <a href="#">Inicio</a>
+                            <a href="/Home">Inicio</a>
                         </li>
 
                         <li>
@@ -279,15 +279,17 @@
 
             </ul>
         </div>
+
     </nav>
 
     @* CONFIGURACIÓN *@
     <div class="mt-auto">
-        <a href="#"
+        <a href="/Home"
            class="d-flex align-items-center config-btn">
 
             <i class="bi bi-gear fs-5 me-2"></i>
             <span>Configuración</span>
+
         </a>
     </div>
 </div>
