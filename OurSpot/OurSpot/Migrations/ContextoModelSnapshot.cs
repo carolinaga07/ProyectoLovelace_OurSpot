@@ -44,6 +44,10 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Ubicacion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -91,11 +95,11 @@ namespace OurSpot.Migrations
 
             modelBuilder.Entity("OurSpot.Models.Contrataciones", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ContratacionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContratacionId"));
 
                     b.Property<string>("Categoria")
                         .IsRequired()
@@ -119,7 +123,7 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ContratacionId");
 
                     b.ToTable("Contrataciones");
                 });

@@ -1,5 +1,4 @@
-﻿
-@page "/Lugares/Edit/{Id:int}"
+﻿@page "/Lugares/Edit/{Id:int}"
 @rendermode InteractiveServer
 
 @inject LugaresService lugaresService
@@ -16,38 +15,67 @@
 
             <div class="card-header">
                 <h4 class="card-title mt-2">
-                    <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Modificar Lugar
+                    <a href="/Lugares/Index">
+                        <i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i>
+                    </a>
+                    Modificar Lugar
                 </h4>
             </div>
 
             <div class="card-body">
 
+                @* Nombre *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombre</strong></label>
+                    <InputText class="form-control"
+                               @bind-Value="Lugar.Nombre"
+                               placeholder="Ej. Centro Cultural La Nave" />
+                    <ValidationMessage For="@(() => Lugar.Nombre)" />
+                </div>
+
                 @* Ubicación *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Ubicación</strong></label>
-                    <InputText class="form-control" @bind-Value="Lugar.Ubicacion" placeholder="Ej. Centro Cultural La Nave" />
+                    <InputText class="form-control"
+                               @bind-Value="Lugar.Ubicacion"
+                               placeholder="Ej. San Francisco de Macorís" />
                     <ValidationMessage For="@(() => Lugar.Ubicacion)" />
                 </div>
 
                 @* Capacidad *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Capacidad</strong></label>
-                    <InputNumber class="form-control" @bind-Value="Lugar.Capacidad" placeholder="Ej. 150" />
+                    <InputNumber class="form-control"
+                                 @bind-Value="Lugar.Capacidad"
+                                 placeholder="Ej. 150" />
                     <ValidationMessage For="@(() => Lugar.Capacidad)" />
                 </div>
 
                 @* Estado *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Estado</strong></label>
-                    <input type="text" class="form-control" @bind-value="Lugar.Estado" readonly />
+                    <input type="text"
+                           class="form-control"
+                           @bind-value="Lugar.Estado"
+                           readonly />
                 </div>
 
             </div>
-               
+
             @* Footer *@
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary me-2" style="background-color:#2D5056"><span class="bi bi-floppy"></span> Guardar</button>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"><span class="bi bi-x-lg"></span> Eliminar</button>
+                <button type="submit"
+                        class="btn btn-primary me-2"
+                        style="background-color:#2D5056">
+                    <span class="bi bi-floppy"></span> Guardar
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalEliminar">
+                    <span class="bi bi-x-lg"></span> Eliminar
+                </button>
             </div>
 
         </div>
@@ -55,12 +83,25 @@
 </EditForm>
 
 @* Modal de Eliminación *@
-<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalCerrar" aria-hidden="true">
+<div class="modal fade"
+     id="modalEliminar"
+     tabindex="-1"
+     aria-labelledby="modalCerrar"
+     aria-hidden="true">
+
     <div class="modal-dialog">
         <div class="modal-content">
+
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="modalCerrar">Confirmación de eliminación</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h1 class="modal-title fs-5" id="modalCerrar">
+                    Confirmación de eliminación
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
             </div>
 
             <div class="modal-body">
@@ -68,9 +109,21 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+
+                @* Conflicto de Git corregido *@
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        @onclick="Eliminar">
+                    Eliminar
+                </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -78,6 +131,7 @@
 @code {
     [Parameter]
     public int Id { get; set; }
+
     public Lugares Lugar = new Lugares();
 
     protected override async Task OnParametersSetAsync()

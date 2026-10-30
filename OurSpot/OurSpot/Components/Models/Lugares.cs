@@ -8,6 +8,9 @@ public class Lugares
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Este campo es obligatorio")]
+    public string Nombre { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "La ubicación es obligatoria")]
     public string Ubicacion { get; set; } = string.Empty;
 
     [Range(1, int.MaxValue, ErrorMessage = "La capacidad debe ser mayor que 0")]

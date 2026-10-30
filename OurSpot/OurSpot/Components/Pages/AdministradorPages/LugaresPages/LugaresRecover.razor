@@ -1,5 +1,4 @@
-﻿
-@page "/Lugares/Recuperar"
+﻿@page "/Lugares/Recuperar"
 @rendermode InteractiveServer
 
 @inject LugaresService lugaresService
@@ -37,7 +36,10 @@
 
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">
-                <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Recuperar Lugares
+                <a href="/Lugares/Index">
+                    <i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i>
+                </a>
+                Recuperar Lugares
             </h5>
         </div>
 
@@ -46,7 +48,7 @@
             @* Labels de filtros *@
             <div class="row">
 
-                @* Busqueda *@
+                @* Búsqueda *@
                 <div class="col-5">
                     <label class="col-form-label"><strong>Búsqueda</strong></label>
                 </div>
@@ -56,10 +58,10 @@
             @* Filtros *@
             <div class="row align-items-center mb-3">
 
-                @* Busqueda *@
+                @* Búsqueda *@
                 <div class="col-5">
                     <div class="input-group">
-                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar ubicación o Id" />
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar nombre, ubicación o Id" />
                         <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar" title="Buscar"></button>
                     </div>
                 </div>
@@ -74,17 +76,28 @@
             @* Tabla de Lugares *@
             <div class="grid">
                 <QuickGrid Items="@itemsQueryable" Class="table table-hover">
+
                     <PropertyColumn Property="l => l.Id" Title="Id" Sortable="true" />
+
+                    @* Nombre - Columna agregada *@
+                    <PropertyColumn Property="l => l.Nombre" Title="Nombre" Sortable="true" />
+
                     <PropertyColumn Property="l => l.Ubicacion" Title="Ubicación" Sortable="true" />
                     <PropertyColumn Property="l => l.Capacidad" Title="Capacidad" Sortable="true" />
+
                     <TemplateColumn Title="Estado" Sortable="true" SortBy="estadoSort">
                         <span class="estado @(context.Eliminado ? "eliminado" : context.Estado == "Disponible" ? "disponible" : "no-disponible")">
                             @(context.Eliminado ? "Eliminado" : context.Estado)
                         </span>
                     </TemplateColumn>
+
                     <TemplateColumn Title="Opciones">
-                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="() => Recuperar(context.Id)" title="Recuperar"></button>
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-plus-square"
+                                @onclick="() => Recuperar(context.Id)"
+                                title="Recuperar"></button>
                     </TemplateColumn>
+
                 </QuickGrid>
             </div>
 
@@ -106,7 +119,8 @@
 
     public Lugares Lugar { get; set; } = new();
 
-    private GridSort<Lugares> estadoSort = GridSort<Lugares>.ByAscending(l => l.Estado);
+    private GridSort<Lugares> estadoSort =
+        GridSort<Lugares>.ByAscending(l => l.Estado);
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,6 +142,7 @@
             var items = await lugaresService.GetList(l =>
                 l.Eliminado == true &&
                 (busqueda == "" ||
+                    (l.Nombre != null && l.Nombre.ToLower().Contains(busqueda)) ||
                     (l.Ubicacion != null && l.Ubicacion.ToLower().Contains(busqueda)) ||
                     l.Id.ToString().Contains(busqueda)
                 )
