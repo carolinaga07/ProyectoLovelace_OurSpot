@@ -5,13 +5,11 @@ namespace OurSpot.Components.Models;
 public class Lugares
 {
     [Key]
-    public int Id { get; set; }
-
     [Required(ErrorMessage = "Este campo es obligatorio")]
-    public string Nombre { get; set; } = string.Empty;
-
+     public int Id { get; set; }
+       
     [Required(ErrorMessage = "El nombre es obligatorio")]
-    public string Nombre { get; set; }
+     public string Nombre { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "La ubicación es obligatoria")]
     public string Ubicacion { get; set; } = string.Empty;
