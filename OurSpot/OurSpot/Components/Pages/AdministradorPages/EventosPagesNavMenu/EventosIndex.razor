@@ -66,6 +66,7 @@
                 </div>
 
             </div>
+            <div class="table-responsive">
             <QuickGrid Items="listaEventos.AsQueryable()" class="table table-hover text-center mt-3">
                 <PropertyColumn Property="e => e.EventoId" title="EntradaId" Sortable= "true"></PropertyColumn>
                 <PropertyColumn Property="e => e.FechaInicio" title="Fecha Inicio" Sortable="true"></PropertyColumn>
@@ -81,6 +82,7 @@
                     <a href="/eventos/edit/@context.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                 </TemplateColumn>
           </QuickGrid>
+          </div>
         </div>
         <div class="card-footer d-flex justify-content-between align-center mb-4">
             <label><strong>Cantidad: </strong>@listaEventos.Count()</label>

@@ -55,9 +55,11 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
 
             public async Task<Evento?> Buscar(int eventoId)
             {
-                await using var contexto = await contextFactory.CreateDbContextAsync();
+                await using var contexto =
+                    await contextFactory.CreateDbContextAsync();
 
                 return await contexto.Eventos
+                    .Include(e => e.EventosDetalles)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(e => e.EventoId == eventoId);
             }
