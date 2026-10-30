@@ -5,7 +5,7 @@ namespace OurSpot.Models;
 public class Contrataciones
 {
     [Key]
-    public int Id { get; set; }
+    public int ContratacionId { get; set; }
     [Required(ErrorMessage ="Este campo es obligatorio")]
     public string Proveedor { get; set; }
 

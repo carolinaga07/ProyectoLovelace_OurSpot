@@ -195,7 +195,7 @@
 
     public async Task Eliminar()
     {
-        CerrarModal();
+        
         var eliminado = await eventosService.Eliminar(Evento.EventoId);
 
         if (eliminado)

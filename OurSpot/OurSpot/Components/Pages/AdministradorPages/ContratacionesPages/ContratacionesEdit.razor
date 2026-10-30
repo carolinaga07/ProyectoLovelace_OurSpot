@@ -145,7 +145,7 @@
 
     private async Task Eliminar()
     {
-        bool eliminado = await contratacionesService.Eliminar(Contratacion.Id);
+        bool eliminado = await contratacionesService.Eliminar(Contratacion.ContratacionId);
 
         if (eliminado)
         {
