@@ -14,7 +14,6 @@ namespace OurSpot.Context
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Contrataciones> Contrataciones { get; set; }
         public DbSet<Lugares> Lugares { get; set; }
-
         public DbSet<Proveedores> Proveedores { get; set; }
         public DbSet<Personal> Personales { get; set; }
 

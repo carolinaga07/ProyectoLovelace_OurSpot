@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/Home"
 @inject EventosService eventosService
 @inject ContratacionesService contratacionesService
 
@@ -38,6 +38,9 @@
                     <h5 class="card-title">@evento.Nombre</h5>
                     <p class="mb-1 small">Ubicacion: @evento.Lugar</p>
                     <p class="mb-1 small">Tipo de evento: @evento.Tipo</p>
+                    <span class="fs-1 fw-bold">@TotalContrataciones</span>
+                    <span class="fs-1 fw-bold">@TotalProveedores</span>
+                    <span class="fs-1 fw-bold">@TotalLugares</span>
                     <p>Estrellas @evento.Estrella.ToString("N0") <i class="bi bi-star-fill text-danger"></i></p>
                     <a href="/eventos/detalle/@evento.EventoId" class="btn btn-outline-dark btn-sm"> Leer mas</a>
                 </div>
@@ -53,7 +56,7 @@
        <div class="card-body">
             <QuickGrid Items="ListaEventos.AsQueryable()" class="table table-hover">
                 <PropertyColumn Property="e => e.Nombre" title="Evento" Sortable="true"></PropertyColumn>
-                <PropertyColumn Property="e => e.Fecha" title="Fecha" Format="dd/MM/yyyy" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.FechaInicio" title="Fecha" Format="dd/MM/yyyy" Sortable="true"></PropertyColumn>
                 <PropertyColumn Property="e => e.Lugar" title="Lugar" Sortable="true"></PropertyColumn>
                 <PropertyColumn Property="e => e.Tipo" title="Tipo" Sortable="true"></PropertyColumn>
                 <TemplateColumn>
@@ -77,15 +80,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var hoy = DateTime.Today;
-        var eventos = await eventosService.GetList(e => e.Fecha >= hoy && e.Estado != "Cancelado");
-        ListaEventos = eventos.OrderBy(e => e.Fecha).ToList();
+        var hoy = DateOnly.FromDateTime(DateTime.Today);
 
-        var finalizados = await eventosService.GetList(e => e.Estado == "Realizado");
+        var eventos = await eventosService.GetList(e => e.FechaInicio >= hoy && e.Estado != "Cancelado" && !e.Eliminado);
+        ListaEventos = eventos.OrderBy(e => e.FechaInicio).ToList();
+
+        var finalizados = await eventosService.GetList(e => e.Estado == "Realizado" && !e.Eliminado);
         ListaDestacados = finalizados.OrderByDescending(e => e.Estrella).Take(5).ToList();
 
         TotalContrataciones = (await contratacionesService.GetList(c => c.Estado == "Activa")).Count;
 
     }
 
-}
+} 

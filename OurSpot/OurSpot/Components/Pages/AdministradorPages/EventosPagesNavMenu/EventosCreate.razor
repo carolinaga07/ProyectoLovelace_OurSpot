@@ -1,5 +1,6 @@
 @page "/eventos/Crear"
 @inject EventosService eventoService
+@inject LugaresService lugaresService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
@@ -14,35 +15,47 @@
                 <h5 class="card-title">Crear Evento</h5>
             </div>
             <div class="card-body">
-                @*Nombre*@
+                @* Nombre*@
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombre</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Nombre"></InputText>
                     <ValidationMessage For="(() => evento.Nombre)" />
                 </div>
 
-                @*Categoria*@
+                @*Descripcion*@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Categoria</strong></label>
-                    <InputText class="form-control" @bind-Value="evento.Categoria"></InputText>
-                    <ValidationMessage For="(() => evento.Categoria)" />
+                    <label class="form-label"><strong>Descripcion</strong></label>
+                    <InputText class="form-control" @bind-Value="evento.Descripcion"></InputText>
+                    <ValidationMessage For="(() => evento.Descripcion)" />
                 </div>
 
-                @*Fecha*@
+                @*Fecha Inicio*@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Fecha</strong></label>
-                    <InputDate class="form-control" @bind-Value="evento.Fecha"></InputDate>
-                    <ValidationMessage For="(() => evento.Fecha)" />
+                    <label class="form-label"><strong>Fecha Inicio</strong></label>
+                    <InputDate class="form-control" @bind-Value="evento.FechaInicio"></InputDate>
+                    <ValidationMessage For="(() => evento.FechaInicio)" />
+                </div>
+                 @*Hora Inicio*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Hora de Inicio</strong></label>
+                    <Input type ="time" class="form-control" @bind="evento.HoraInicio"/>
+                    <ValidationMessage For="(() => evento.HoraInicio)" />
                 </div>
 
-                @*Lugar*@
+                @*Fecha Cierre*@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Lugar</strong></label>
-                    <InputText class="form-control" @bind-Value="evento.Lugar"></InputText>
-                    <ValidationMessage For="(() => evento.Lugar)" />
+                    <label class="form-label"><strong>Fecha de Cierre</strong></label>
+                    <InputDate class="form-control" @bind-Value="evento.FechaCierre"></InputDate>
+                    <ValidationMessage For="(() => evento.FechaCierre)" />
+                </div>
+                 @*Hora Cierre*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Hora de Cierre</strong></label>
+                    <Input type ="time" class="form-control" @bind="evento.HoraCierre"/>
+                    <ValidationMessage For="(() => evento.HoraCierre)" />
                 </div>
 
-                @*Tipo*@
+                 @*Tipo*@
                 <div class="mb-3">
                     <label class="form-label"><strong>Tipo</strong></label>
                     <InputSelect class="form-select" @bind-Value="evento.Tipo">
@@ -52,13 +65,21 @@
                     </InputSelect>
                 </div>
 
-                @*Descripcion*@
+                @*Lugar*@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Descripcion</strong></label>
-                    <InputText class="form-control" @bind-Value="evento.Descripcion"></InputText>
-                    <ValidationMessage For="(() => evento.Descripcion)" />
+                    <label class="form-label"><strong>Lugar</strong></label>
+                    <InputSelect class = "form-control" @bind-Value = "evento.Lugar">
+                        <option value = "">-- Seleccione un lugar: --</option>
+                    @if(listaLugares != null)
+                    {
+                        @foreach (var lugar in listaLugares)
+                        {
+                            <option value = "@lugar.Nombre">@lugar.Nombre</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For = "(() => evento.Lugar)"></ValidationMessage>
                 </div>
-            </div>
 
             @*footer*@
             <div class="card-footer text-center mt-2">
@@ -66,15 +87,20 @@
                 <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
             </div>
         </div>
+      </div>
     </div>
 </EditForm>
 
 @code {
     public Evento evento { get; set; } = new Evento();
+    public IQueryable<Lugares> listaLugares;
 
     protected override async Task OnInitializedAsync()
     {
-        evento.Fecha = DateTime.Today;
+        evento.FechaInicio = DateOnly.FromDateTime(DateTime.Now);
+        evento.FechaCierre = DateOnly.FromDateTime(DateTime.Now);
+        var lugares = await lugaresService.GetList( l => l.Id > 0);
+        listaLugares = lugares.AsQueryable();
     }
     public async Task Guardar()
     {

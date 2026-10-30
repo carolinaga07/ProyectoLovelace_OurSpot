@@ -10,7 +10,7 @@ namespace OurSpot.Services
     {
         public async Task<bool> Guardar(Contrataciones contratacion)
         {
-            if (!await Existe(contratacion.Id))
+            if (!await Existe(contratacion.ContratacionId))
             {
                 return await Insertar(contratacion);
             }
@@ -24,7 +24,7 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             return await contexto.Contrataciones
-                .AnyAsync(c => c.Id== id);
+                .AnyAsync(c => c.ContratacionId == id);
         }
 
         public async Task<bool> Insertar(Contrataciones contratacion)
@@ -45,7 +45,7 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             return await contexto.Contrataciones
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.ContratacionId == id);
         }
 
         public async Task<List<Contrataciones>> GetList(Expression<Func<Contrataciones, bool>> criterio)
@@ -61,7 +61,7 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
 
-            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.Id == idContratacion && !c.Eliminado);
+            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.ContratacionId == idContratacion && !c.Eliminado);
 
             if (contratacion == null)
                 return false;
@@ -75,7 +75,7 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
 
-            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.Id == idContratacion && c.Eliminado);
+            var contratacion = await contexto.Contrataciones.FirstOrDefaultAsync(c => c.ContratacionId == idContratacion && c.Eliminado);
 
             if (contratacion == null)
                 return false;

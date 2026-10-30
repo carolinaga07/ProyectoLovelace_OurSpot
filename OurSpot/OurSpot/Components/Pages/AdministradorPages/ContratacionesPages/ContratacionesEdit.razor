@@ -103,7 +103,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cerrar </button>
-                <button type="button" class="btn btn-primary" @onclick="Eliminar"> Eliminar </button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="Eliminar"> Eliminar</button>
             </div>
         </div>
     </div>
@@ -145,7 +145,7 @@
 
     private async Task Eliminar()
     {
-        bool eliminado = await contratacionesService.Eliminar(Contratacion.Id);
+        bool eliminado = await contratacionesService.Eliminar(Contratacion.ContratacionId);
 
         if (eliminado)
         {

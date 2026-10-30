@@ -136,10 +136,6 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventoId"));
 
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -154,8 +150,17 @@ namespace OurSpot.Migrations
                     b.Property<int>("Estrella")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("FechaCierre")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("FechaInicio")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("HoraCierre")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("HoraInicio")
+                        .HasColumnType("time");
 
                     b.Property<string>("Lugar")
                         .IsRequired()
@@ -169,12 +174,15 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("Total")
+                        .HasColumnType("float");
+
                     b.HasKey("EventoId");
 
                     b.ToTable("Eventos");
                 });
 
-            modelBuilder.Entity("OurSpot.Components.Models.Lugares", b =>
+            modelBuilder.Entity("Personal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -182,27 +190,33 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Capacidad")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Categoria")
+                    b.Property<string>("Cargo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
+                    b.Property<string>("Contrasena")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Ubicacion")
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Usuario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Lugares");
+                    b.ToTable("Personales");
                 });
 #pragma warning restore 612, 618
         }
