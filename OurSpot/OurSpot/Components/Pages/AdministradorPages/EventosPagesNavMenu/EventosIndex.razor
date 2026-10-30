@@ -66,42 +66,21 @@
                 </div>
 
             </div>
-
-            <table class="table table-hover">
-                <thead class="table  table-striped text-black">
-                    <tr>
-                        <th>Evento</th>
-                        <th>Categoria</th>
-                        <th>Fecha</th>
-                        <th>Lugar</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var evento in listaEventos)
-                    {
-                        <tr>
-                            <td> @evento.Nombre</td>
-                            <td> @evento.FechaInicio.ToString("dd/MM/yy")</td>
-                            <td> @evento.HoraInicio</td>
-                            <td> @evento.FechaCierre.ToString("dd/MM/yy")</td>
-                            <td> @evento.HoraCierre</td>
-                            <td> @evento.Lugar</td>
-                            <td> @evento.Tipo</td>
-                            <td> @evento.Estado</td>
-                            <td> @evento.Total</td>
-
-                             <td class="text-center">
-                                <a href="/eventos/edit/@evento.EventoId"
-                                    class="btn btn-outline-primary bi bi-pencil-square"></a>
-                            </td>
-
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <QuickGrid Items="listaEventos.AsQueryable()" class="table table-hover text-center mt-3">
+                <PropertyColumn Property="e => e.EventoId" title="EntradaId" Sortable= "true"></PropertyColumn>
+                <PropertyColumn Property="e => e.FechaInicio" title="Fecha Inicio" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.HoraInicio" title="Hora Inicio" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.FechaCierre" title="Fecha Cierre" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.HoraCierre" title="Hora Cierre" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Nombre" title="Nombre" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Lugar" title="Lugar" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Descripcion" title="Descripcion" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Total" title="Total" Sortable="true"></PropertyColumn>
+                <PropertyColumn Property="e => e.Estado" title="Estado" Sortable="true"></PropertyColumn>
+                <TemplateColumn title="Opciones">
+                    <a href="/eventos/edit/@context.EventoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                </TemplateColumn>
+          </QuickGrid>
         </div>
         <div class="card-footer d-flex justify-content-between align-center mb-4">
         </div>
@@ -109,7 +88,7 @@
 </div>
 
 @code {
-    private List<Evento>? listaEventos = new();
+    private List<Evento> listaEventos = new();
 
     private string FiltroCategoria { get; set; } = string.Empty;
     private string FiltroEstado { get; set; } = string.Empty;
