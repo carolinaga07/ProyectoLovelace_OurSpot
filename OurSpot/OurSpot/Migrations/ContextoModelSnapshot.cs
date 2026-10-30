@@ -182,6 +182,10 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Contrasena")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Correo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -191,6 +195,10 @@ namespace OurSpot.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Usuario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
