@@ -29,21 +29,6 @@
                     <ValidationMessage For="@(() => Lugar.Ubicacion)" />
                 </div>
 
-                 @* Categoría *@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Categoría</strong></label>
-                    <InputSelect class="form-select" @bind-Value="Lugar.Categoria">
-                        <option value="" disabled>Seleccione una categoría</option>
-                        <option value="Aniversario">Aniversario</option>
-                        <option value="Boda">Boda</option>
-                        <option value="Cumpleaños">Cumpleaños</option>
-                        <option value="Celebración Religiosa">Celebración Religiosa</option>
-                        <option value="Graduación">Graduación</option>
-                        <option value="Funeral">Funeral</option>
-                    </InputSelect>
-                    <ValidationMessage For="@(() => Lugar.Categoria)" />
-                </div>
-
                 @* Capacidad *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Capacidad</strong></label>
