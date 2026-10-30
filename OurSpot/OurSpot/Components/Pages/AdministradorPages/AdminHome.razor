@@ -85,7 +85,7 @@
         var eventos = await eventosService.GetList(e => e.FechaInicio >= hoy && e.Estado != "Cancelado" && !e.Eliminado);
         ListaEventos = eventos.OrderBy(e => e.FechaInicio).ToList();
 
-        var finalizados = await eventosService.GetList(e => e.Estado == "Realizado" && !e.Eliminado);
+        var finalizados = await eventosService.GetList(e => e.Estado == "Finalizado" && !e.Eliminado);
         ListaDestacados = finalizados.OrderByDescending(e => e.Estrella).Take(5).ToList();
 
         TotalContrataciones = (await contratacionesService.GetList(c => c.Estado == "Activa")).Count;
