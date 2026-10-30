@@ -46,11 +46,6 @@
             @* Labels de filtros *@
             <div class="row">
 
-                @* Categoria *@
-                <div class="col-3">
-                    <label class="col-form-label"><strong>Categoría</strong></label>
-                </div>
-
                 @* Busqueda *@
                 <div class="col-5">
                     <label class="col-form-label"><strong>Búsqueda</strong></label>
@@ -60,19 +55,6 @@
 
             @* Filtros *@
             <div class="row align-items-center mb-3">
-
-                @* Categoria *@
-                <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
-                        <option value="">Todas las categorías</option>
-                        <option value="Aniversario">Aniversario</option>
-                        <option value="Boda">Boda</option>
-                        <option value="Cumpleaños">Cumpleaños</option>
-                        <option value="Celebración Religiosa">Celebración Religiosa</option>
-                        <option value="Graduación">Graduación</option>
-                        <option value="Funeral">Funeral</option>
-                    </InputSelect>
-                </div>
 
                 @* Busqueda *@
                 <div class="col-5">
@@ -94,7 +76,6 @@
                 <QuickGrid Items="@itemsQueryable" Class="table table-hover">
                     <PropertyColumn Property="l => l.Id" Title="Id" Sortable="true" />
                     <PropertyColumn Property="l => l.Ubicacion" Title="Ubicación" Sortable="true" />
-                    <PropertyColumn Property="l => l.Categoria" Title="Categoría" Sortable="true" />
                     <PropertyColumn Property="l => l.Capacidad" Title="Capacidad" Sortable="true" />
                     <TemplateColumn Title="Estado" Sortable="true" SortBy="estadoSort">
                         <span class="estado @(context.Eliminado ? "eliminado" : context.Estado == "Disponible" ? "disponible" : "no-disponible")">
@@ -118,7 +99,6 @@
 </div>
 
 @code {
-    public string FiltroCategoria { get; set; } = string.Empty;
     public string FiltroBusqueda { get; set; } = string.Empty;
 
     public IQueryable<Lugares> itemsQueryable =
@@ -136,7 +116,7 @@
 
     private async Task Buscar()
     {
-        if (FiltroBusqueda.Trim() == "" && FiltroCategoria == "")
+        if (FiltroBusqueda.Trim() == "")
         {
             var items = await lugaresService.GetList(l => l.Eliminado == true);
             itemsQueryable = items.AsQueryable();
@@ -147,7 +127,6 @@
 
             var items = await lugaresService.GetList(l =>
                 l.Eliminado == true &&
-                (FiltroCategoria == "" || l.Categoria == FiltroCategoria) &&
                 (busqueda == "" ||
                     (l.Ubicacion != null && l.Ubicacion.ToLower().Contains(busqueda)) ||
                     l.Id.ToString().Contains(busqueda)
@@ -161,7 +140,6 @@
     private async Task Restablecer()
     {
         itemsQueryable = (await lugaresService.GetList(l => l.Eliminado == true)).AsQueryable();
-        FiltroCategoria = string.Empty;
         FiltroBusqueda = string.Empty;
     }
 
