@@ -14,9 +14,6 @@ public class Lugares
     [Required(ErrorMessage = "La ubicación es obligatoria")]
     public string Ubicacion { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Este  es obligatorio")]
-    public string Categoria { get; set; } = string.Empty;
-
     [Range(1, int.MaxValue, ErrorMessage = "La capacidad debe ser mayor que 0")]
     public int Capacidad { get; set; }
 

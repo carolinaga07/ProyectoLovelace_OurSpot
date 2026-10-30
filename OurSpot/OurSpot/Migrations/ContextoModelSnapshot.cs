@@ -33,10 +33,6 @@ namespace OurSpot.Migrations
                     b.Property<int>("Capacidad")
                         .HasColumnType("int");
 
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Eliminado")
                         .HasColumnType("bit");
 
