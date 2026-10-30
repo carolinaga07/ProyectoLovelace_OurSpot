@@ -15,20 +15,28 @@
 
             <div class="card-header">
                 <h4 class="card-title mt-2">
-                    <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Nuevo Lugar
+                    <a href="/Lugares/Index"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>
+                    Nuevo Lugar
                 </h4>
             </div>
-  
+
             <div class="card-body">
+
+                @* Nombre *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombre</strong></label>
+                    <InputText class="form-control" @bind-Value="Lugar.Nombre" placeholder="Ej. Centro Cultural La Nave" />
+                    <ValidationMessage For="@(() => Lugar.Nombre)" />
+                </div>
 
                 @* Ubicación *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Ubicación</strong></label>
-                    <InputText class="form-control" @bind-Value="Lugar.Ubicacion" placeholder="Ej. Centro Cultural La Nave" />
+                    <InputText class="form-control" @bind-Value="Lugar.Ubicacion" placeholder="Ej. San Francisco de Macorís" />
                     <ValidationMessage For="@(() => Lugar.Ubicacion)" />
                 </div>
 
-               @* Capacidad *@
+                @* Capacidad *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Capacidad</strong></label>
                     <InputNumber class="form-control" @bind-Value="Lugar.Capacidad" placeholder="Ej. 150" />
@@ -40,13 +48,16 @@
                     <label class="form-label"><strong>Estado</strong></label>
                     <input type="text" class="form-control" @bind-value="Lugar.Estado" readonly />
                 </div>
+
             </div>
-          
+
             @* Footer *@
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-floppy"></span> Guardar </button>
+                <button type="submit" class="btn btn-primary" style="background-color:#2D5056">
+                    <span class="bi bi-floppy"></span> Guardar
+                </button>
             </div>
-  
+
         </div>
     </div>
 </EditForm>
@@ -72,6 +83,7 @@
                 toastService.ShowError("Este lugar ya fue registrado.");
                 return;
             }
+
             toastService.ShowError("Error al Guardar el Lugar");
         }
     }

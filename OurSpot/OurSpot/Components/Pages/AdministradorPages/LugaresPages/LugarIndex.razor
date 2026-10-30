@@ -32,7 +32,9 @@
         @* Encabezado *@
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">Lugares</h5>
-            <a href="/lugares/create" class="btn btn-primary" style="background-color:#2D5056"><span class="bi bi-plus-square-dotted"></span> Nuevo Lugar</a>
+            <a href="/lugares/create" class="btn btn-primary" style="background-color:#2D5056">
+                <span class="bi bi-plus-square-dotted"></span> Nuevo Lugar
+            </a>
         </div>
 
         <div class="card-body">
@@ -40,12 +42,12 @@
             @* Labels de filtros *@
             <div class="row">
 
-                @*Estado*@
+                @* Estado *@
                 <div class="col-3">
                     <label class="col-form-label"><strong>Estado</strong></label>
                 </div>
 
-                 @*Busqueda*@
+                @* Búsqueda *@
                 <div class="col-5">
                     <label class="col-form-label"><strong>Búsqueda</strong></label>
                 </div>
@@ -67,7 +69,7 @@
                 @* Búsqueda *@
                 <div class="col-5">
                     <div class="input-group">
-                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar ubicación o Id" />
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar nombre, ubicación o Id" />
                         <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar" title="Buscar"></button>
                     </div>
                 </div>
@@ -83,13 +85,23 @@
             <div class="grid">
                 <QuickGrid Items="@itemsQueryable" Class="table table-hover">
                     <PropertyColumn Property="l => l.Id" Title="Id" Sortable="true" />
+
+                    @* Nombre - Columna agregada *@
+                    <PropertyColumn Property="l => l.Nombre" Title="Nombre" Sortable="true" />
+
                     <PropertyColumn Property="l => l.Ubicacion" Title="Ubicación" Sortable="true" />
                     <PropertyColumn Property="l => l.Capacidad" Title="Capacidad" Sortable="true" />
+
                     <TemplateColumn Title="Estado" Sortable="true" SortBy="estadoSort">
-                        <span class="estado @(context.Estado == "Disponible" ? "disponible" : "no-disponible")">@context.Estado</span>
+                        <span class="estado @(context.Estado == "Disponible" ? "disponible" : "no-disponible")">
+                            @context.Estado
+                        </span>
                     </TemplateColumn>
+
                     <TemplateColumn Title="Opciones">
-                        <a href="@($"/Lugares/Edit/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                        <a href="@($"/Lugares/Edit/{context.Id}")"
+                           class="btn btn-outline-primary bi bi-pencil-square"
+                           title="Modificar"></a>
                     </TemplateColumn>
                 </QuickGrid>
             </div>
@@ -101,6 +113,7 @@
             <label><strong>Cantidad: </strong>@itemsQueryable.Count()</label>
             <a href="/Lugares/Recuperar" class="btn btn-outline-primary bi bi-trash" title="Recuperar"></a>
         </div>
+
     </div>
 </div>
 
@@ -113,7 +126,8 @@
 
     public Lugares Lugar { get; set; } = new();
 
-    private GridSort<Lugares> estadoSort = GridSort<Lugares>.ByAscending(l => l.Estado);
+    private GridSort<Lugares> estadoSort =
+        GridSort<Lugares>.ByAscending(l => l.Estado);
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,6 +150,7 @@
                 l.Eliminado == false &&
                 (FiltroEstado == "" || l.Estado == FiltroEstado) &&
                 (busqueda == "" ||
+                    (l.Nombre != null && l.Nombre.ToLower().Contains(busqueda)) ||
                     (l.Ubicacion != null && l.Ubicacion.ToLower().Contains(busqueda)) ||
                     l.Id.ToString().Contains(busqueda)
                 )
