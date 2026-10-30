@@ -31,6 +31,9 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
 
+        // Se conserva el nombre ingresado al registrar el lugar.
+        lugar.Nombre = lugar.Nombre.Trim();
+
         lugar.Estado = "Disponible";
         lugar.Eliminado = false;
 
@@ -41,6 +44,9 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
     public async Task<bool> Modificar(Lugares lugar)
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
+
+        lugar.Nombre = lugar.Nombre.Trim();
+
         contexto.Update(lugar);
         return await contexto.SaveChangesAsync() > 0;
     }
@@ -48,6 +54,7 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
     public async Task<Lugares?> Buscar(int id)
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
+
         return await contexto.Lugares
             .FirstOrDefaultAsync(l => l.Id == id && !l.Eliminado);
     }
@@ -66,7 +73,8 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
 
-        var lugar = await contexto.Lugares.FirstOrDefaultAsync(l => l.Id == idLugar && !l.Eliminado);
+        var lugar = await contexto.Lugares
+            .FirstOrDefaultAsync(l => l.Id == idLugar && !l.Eliminado);
 
         if (lugar == null)
             return false;
