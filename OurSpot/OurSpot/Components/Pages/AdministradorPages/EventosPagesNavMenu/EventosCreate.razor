@@ -3,7 +3,7 @@
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
-
+@* 
 <PageTitle>Crear Evento</PageTitle>
 
 <EditForm Model="evento" OnValidSubmit="Guardar">
@@ -14,14 +14,14 @@
                 <h5 class="card-title">Crear Evento</h5>
             </div>
             <div class="card-body">
-                @*Nombre*@
+                @*Nombre
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombre</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Nombre"></InputText>
                     <ValidationMessage For="(() => evento.Nombre)" />
                 </div>
 
-                @*Descripcion*@
+                @*Descripcion
                 <div class="mb-3">
                     <label class="form-label"><strong>Descripcion</strong></label>
                     <InputText class="form-control" @bind-Value="evento.Descripcion"></InputText>
@@ -29,33 +29,33 @@
                 </div>
             </div>
 
-                @*Fecha Inicio*@
+                @*Fecha Inicio
                 <div class="mb-3">
                     <label class="form-label"><strong>Fecha Inicio</strong></label>
                     <InputDate class="form-control" @bind-Value="evento.FechaInicio"></InputDate>
                     <ValidationMessage For="(() => evento.FechaInicio)" />
                 </div>
-                 @*Hora Inicio*@
+                 @*Hora Inicio
                 <div class="mb-3">
                     <label class="form-label"><strong>Hora de Inicio</strong></label>
                     <InputText type ="time" class="form-control" @bind-Value="evento.HoraInicio"></InputDate>
                     <ValidationMessage For="(() => evento.HoraInicio)" />
                 </div>
 
-                @*Fecha Cierre*@
+                @*Fecha Cierre
                 <div class="mb-3">
                     <label class="form-label"><strong>Fecha de Cierre</strong></label>
                     <InputDate class="form-control" @bind-Value="evento.FechaCierre"></InputDate>
                     <ValidationMessage For="(() => evento.FechaCierre)" />
                 </div>
-                 @*Hora Cierre*@
+                 @*Hora Cierre
                 <div class="mb-3">
                     <label class="form-label"><strong>Hora de Cierre</strong></label>
                     <InputText type ="time" class="form-control" @bind-Value="evento.HoraCierre"></InputDate>
                     <ValidationMessage For="(() => evento.HoraCierre)" />
                 </div>
 
-                 @*Tipo*@
+                 @*Tipo
                 <div class="mb-3">
                     <label class="form-label"><strong>Tipo</strong></label>
                     <InputSelect class="form-select" @bind-Value="evento.Tipo">
@@ -65,7 +65,7 @@
                     </InputSelect>
                 </div>
 
-                @*Lugar*@
+                @*Lugar
                 <div class="mb-3">
                     <label class="form-label"><strong>Lugar</strong></label>
                     <InputSelect class = "form-control" @bind-Value = "evento.Lugar">
@@ -78,7 +78,7 @@
                 <ValidationMessage For = "(() => evento.Lugar)"></ValidationMessage>
                 </div>
 
-            @*footer*@
+            @*footer
             <div class="card-footer text-center mt-2">
                 <a href="/eventos" class="btn btn-secondary"><span class="bi bi-arrow-left"></span>Volver</a>
                 <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
@@ -86,8 +86,8 @@
         </div>
     </div>
 </EditForm>
-
-@code {
+ *@
+@* @code {
     public Evento evento { get; set; } = new Evento();
 
     protected override async Task OnInitializedAsync()
@@ -107,4 +107,4 @@
             toastService.ShowError("No se pudo guardar el evento correctamente...");
         }
     }
-}
+} *@

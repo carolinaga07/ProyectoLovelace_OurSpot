@@ -39,8 +39,8 @@ namespace OurSpot.Models
 
         public int Estrella { get; set; }
 
-        [InverseProperty("Evento")]
-        public virtual ICollection<EventosDetalles> EventosDetalles { get; set; } = new List<EventosDetalles>();
+        //[InverseProperty("Evento")]
+        //public virtual ICollection<EventosDetalles> EventosDetalles { get; set; } = new List<EventosDetalles>();
    
         public Evento()
         {
