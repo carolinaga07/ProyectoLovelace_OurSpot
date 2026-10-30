@@ -62,11 +62,11 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
                     .FirstOrDefaultAsync(e => e.EventoId == eventoId);
             }
 
-            public async Task<bool> Eliminar(int id)
+            public async Task<bool> Eliminar(int idEvento)
             {
                 await using var contexto = await contextFactory.CreateDbContextAsync();
 
-                var evento = await contexto.Eventos.FirstOrDefaultAsync(e => e.EventoId == id && !e.Eliminado);
+                var evento = await contexto.Eventos.FirstOrDefaultAsync(e => e.EventoId == idEvento && !e.Eliminado);
 
                 if (evento == null)
                     return false;
@@ -92,6 +92,21 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages
 
                 return await contexto.Eventos
                     .AnyAsync(e => e.Nombre == nombre && e.EventoId != eventoId);
+
+            }
+
+            public async Task<bool> Recuperar(int idEvento)
+            {
+                await using var contexto = await contextFactory.CreateDbContextAsync();
+
+                var evento = await contexto.Eventos.FirstOrDefaultAsync(e => e.EventoId  == idEvento && e.Eliminado);
+
+                if (evento == null)
+                    return false;
+
+                evento.Eliminado = false;
+
+                return await contexto.SaveChangesAsync() > 0;
             }
         }
     }

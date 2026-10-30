@@ -1,0 +1,123 @@
+﻿@page "/Eventos/Recuperar"
+@rendermode InteractiveServer
+@inject EventosService eventosService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Recuperar Eventos</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">
+                <a href="/eventos"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>Recuperar Eventos
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Tipo</strong></label>
+                </div>
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroTipo">
+                        <option value="">Todos</option>
+                        <option value="Publico">P&uacute;blico</option>
+                        <option value="Privado">Privado</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Realizado">Realizado</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar nombre o lugar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable" Class="table table-hover">
+                    <PropertyColumn Property="e => e.EventoId" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="e => e.Nombre" Title="Nombre" Sortable="true" />
+                    <PropertyColumn Property="e => e.FechaInicio" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="e => e.Lugar" Title="Lugar" Sortable="true" />
+                    <PropertyColumn Property="e => e.Tipo" Title="Tipo" Sortable="true" />
+                    <PropertyColumn Property="e => e.Total" Title="Total" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="e => e.Estado" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" title="Recuperar" @onclick="() => Recuperar(context.EventoId)"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable.Count()</label>
+        </div>
+    </div>
+</div>
+
+
+@code {
+        public string FiltroTipo { get; set; } = string.Empty;
+        public string FiltroEstado { get; set; } = string.Empty;
+        public string FiltroBusqueda { get; set; } = string.Empty;
+
+        public IQueryable<Evento> itemsQueryable = Enumerable.Empty<Evento>().AsQueryable();
+
+        protected override async Task OnInitializedAsync()
+        {
+            var items = await eventosService.GetList(e => e.Eliminado);
+            itemsQueryable = items.AsQueryable();
+        }
+
+        private async Task Buscar()
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await eventosService.GetList(e =>
+                e.Eliminado &&
+                (FiltroTipo == "" || e.Tipo == FiltroTipo) &&
+                (FiltroEstado == "" || e.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    e.Nombre.ToLower().Contains(busqueda) ||
+                    e.Lugar.ToLower().Contains(busqueda)));
+
+            itemsQueryable = items.AsQueryable();
+        }
+
+        private async Task Recuperar(int id)
+        {
+            bool recuperado = await eventosService.Recuperar(id);
+
+            if (recuperado)
+            {
+                toastService.ShowSuccess("Evento recuperado exitosamente");
+                navigationManager.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError("Error al recuperar el evento");
+            }
+        }
+    }
+
