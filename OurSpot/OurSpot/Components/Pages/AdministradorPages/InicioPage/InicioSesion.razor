@@ -1,0 +1,156 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+@inject ToastService toastService
+@inject PersonalService personalService
+
+<PageTitle>Our Spot - Iniciar Sesión</PageTitle>
+
+<div class="login-wrapper">
+    <div class="login-card shadow-lg">
+        <!-- Título y subtítulo -->
+        <div class="text-center mb-4">
+            <h1 class="brand-title">Our Spot</h1>
+            <p class="brand-subtitle">Todo lo que necesitas, en un solo lugar</p>
+        </div>
+
+        <EditForm Model="loginModel" OnValidSubmit="IniciarSesion">
+            <DataAnnotationsValidator />
+
+            <!-- Usuario -->
+            <div class="mb-3">
+                <label class="form-label text-muted small">Usuario</label>
+                <InputText class="form-control" @bind-Value="loginModel.Usuario" placeholder="" />
+                <ValidationMessage For="() => loginModel.Usuario" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-4">
+                <label class="form-label text-muted small">Contraseña</label>
+                <InputText type="password" class="form-control" @bind-Value="loginModel.Contrasena" placeholder="" />
+                <ValidationMessage For="() => loginModel.Contrasena" />
+            </div>
+
+            <!-- Botón Iniciar Sesión -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-login text-white">
+                    Iniciar Sesión
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<style>
+    .sidebar, .top-row, header {
+        display: none !important;
+    }
+
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .login-wrapper {
+        background-image: url("/lib/Imagenes/ourspotFondo.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999999;
+    }
+
+    .login-card {
+        background-color: rgba(255, 255, 255, 0.92);
+        border-radius: 12px;
+        padding: 40px 30px;
+        width: 100%;
+        max-width: 420px;
+        border: none;
+    }
+
+    .brand-title {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        color: #2c2c2c;
+        font-size: 2.5rem;
+        margin-bottom: 0px;
+    }
+
+    .brand-subtitle {
+        color: #555;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .form-control {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        padding: 10px 15px;
+    }
+
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #4a3b32;
+            box-shadow: 0 0 0 0.2rem rgba(74, 59, 50, 0.25);
+        }
+
+    .btn-login {
+        background-color: #4a3b32;
+        border-color: #4a3b32;
+        border-radius: 6px;
+        padding: 10px;
+        font-weight: 500;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .btn-login:hover {
+            background-color: #352a23;
+            border-color: #352a23;
+        }
+</style>
+
+@code {
+    private LoginViewModel loginModel = new();
+
+    private async Task IniciarSesion()
+    {
+        // Buscamos en el servicio si existe un registro con ese usuario y contraseña
+        var listaPersonal = await personalService.GetList(p => p.Usuario == loginModel.Usuario && p.Contrasena == loginModel.Contrasena);
+        var usuarioEncontrado = listaPersonal.FirstOrDefault();
+
+        if (usuarioEncontrado != null)
+        {
+            // Validamos opcionalmente si está activo
+            if (usuarioEncontrado.Estado == "Inactivo")
+            {
+                toastService.ShowError("Esta cuenta se encuentra inactiva.");
+                return;
+            }
+
+            toastService.ShowSuccess($"¡Bienvenido, {usuarioEncontrado.Nombre}!");
+            navigationManager.NavigateTo("/Home");
+        }
+        else
+        {
+            toastService.ShowError("Usuario o contraseña incorrectos.");
+        }
+    }
+
+    public class LoginViewModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "El campo usuario es requerido.")]
+        public string Usuario { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "El campo contraseña es requerido.")]
+        public string Contrasena { get; set; } = string.Empty;
+    }
+}
