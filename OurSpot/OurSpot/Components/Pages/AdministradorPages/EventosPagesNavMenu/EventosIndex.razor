@@ -84,11 +84,14 @@
                     {
                         <tr>
                             <td> @evento.Nombre</td>
-                            <td> @evento.Categoria</td>
-                            <td> @evento.Fecha.ToString("dd/MM/yy")</td>
+                            <td> @evento.FechaInicio.ToString("dd/MM/yy")</td>
+                            <td> @evento.HoraInicio</td>
+                            <td> @evento.FechaCierre.ToString("dd/MM/yy")</td>
+                            <td> @evento.HoraCierre</td>
                             <td> @evento.Lugar</td>
                             <td> @evento.Tipo</td>
                             <td> @evento.Estado</td>
+                            <td> @evento.Total</td>
 
                              <td class="text-center">
                                 <a href="/eventos/edit/@evento.EventoId"
