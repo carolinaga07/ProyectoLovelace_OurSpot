@@ -8,13 +8,13 @@ public class EventoDetalles
     [Key]
     public int DetalleId { get; set; }
     public int EventoId { get; set; }
-    public int Contratacion { get; set; }
-    public int Cantidad { get; set; } = 1;
-    public decimal PrecioBase { get; set; }
-    public decimal PorcentajeGanacias { get; set; } = 25;
-    public decimal PrecioFinal { get; set; }
+    public int ContratacionId { get; set; }
+    public string Servicio { get; set; } = string.Empty;
+    public double PrecioBase { get; set; }
+    public double PorcentajeGanacia { get; set; } = 25;
+    public double PrecioFinal { get; set; }
 
     [ForeignKey("ContratacionId")]
     public Contrataciones? Contrataciones { get; set; }
-
+    public double PorcentajeGanancia { get; internal set; }
 }

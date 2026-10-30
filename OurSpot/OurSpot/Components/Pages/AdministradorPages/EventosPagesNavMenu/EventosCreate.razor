@@ -1,110 +1,159 @@
 @page "/eventos/Crear"
+@rendermode InteractiveServer
 @inject EventosService eventoService
 @inject LugaresService lugaresService
+@inject ContratacionesService contratacionesService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
-@rendermode InteractiveServer
 
 <PageTitle>Crear Evento</PageTitle>
 
 <EditForm Model="evento" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <div class="container">
-        <div class="card shadow-lg">
-            <div class="card-header text-center">
-                <h5 class="card-title">Crear Evento</h5>
-            </div>
-            <div class="card-body">
-                @* Nombre*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Nombre</strong></label>
-                    <InputText class="form-control" @bind-Value="evento.Nombre"></InputText>
-                    <ValidationMessage For="(() => evento.Nombre)" />
-                </div>
 
-                @*Descripcion*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Descripcion</strong></label>
-                    <InputText class="form-control" @bind-Value="evento.Descripcion"></InputText>
-                    <ValidationMessage For="(() => evento.Descripcion)" />
-                </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Nombre</strong></label>
+        <InputText class="form-control" @bind-Value="evento.Nombre" />
+        <ValidationMessage For="() => evento.Nombre" />
+    </div>
 
-                @*Fecha Inicio*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Fecha Inicio</strong></label>
-                    <InputDate class="form-control" @bind-Value="evento.FechaInicio"></InputDate>
-                    <ValidationMessage For="(() => evento.FechaInicio)" />
-                </div>
-                 @*Hora Inicio*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Hora de Inicio</strong></label>
-                    <Input type ="time" class="form-control" @bind="evento.HoraInicio"/>
-                    <ValidationMessage For="(() => evento.HoraInicio)" />
-                </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Descripcion</strong></label>
+        <InputText class="form-control" @bind-Value="evento.Descripcion" />
+        <ValidationMessage For="() => evento.Descripcion" />
+    </div>
 
-                @*Fecha Cierre*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Fecha de Cierre</strong></label>
-                    <InputDate class="form-control" @bind-Value="evento.FechaCierre"></InputDate>
-                    <ValidationMessage For="(() => evento.FechaCierre)" />
-                </div>
-                 @*Hora Cierre*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Hora de Cierre</strong></label>
-                    <Input type ="time" class="form-control" @bind="evento.HoraCierre"/>
-                    <ValidationMessage For="(() => evento.HoraCierre)" />
-                </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Fecha Inicio</strong></label>
+        <InputDate class="form-control" @bind-Value="evento.FechaInicio" />
+        <ValidationMessage For="() => evento.FechaInicio" />
+    </div>
 
-                 @*Tipo*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Tipo</strong></label>
-                    <InputSelect class="form-select" @bind-Value="evento.Tipo">
-                        <option value="" selected disabled>Elija una opcion</option>
-                        <option value="Publico">Publico</option>
-                        <option value="Privado">Privado</option>
-                    </InputSelect>
-                </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Hora de Inicio</strong></label>
+        <input type="time" class="form-control" @bind="evento.HoraInicio" />
+        <ValidationMessage For="() => evento.HoraInicio" />
+    </div>
 
-                @*Lugar*@
-                <div class="mb-3">
-                    <label class="form-label"><strong>Lugar</strong></label>
-                    <InputSelect class = "form-control" @bind-Value = "evento.Lugar">
-                        <option value = "">-- Seleccione un lugar: --</option>
-                    @if(listaLugares != null)
-                    {
-                        @foreach (var lugar in listaLugares)
-                        {
-                            <option value = "@lugar.Nombre">@lugar.Nombre</option>
-                        }
-                    }
-                </InputSelect>
-                <ValidationMessage For = "(() => evento.Lugar)"></ValidationMessage>
-                </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Fecha de Cierre</strong></label>
+        <InputDate class="form-control" @bind-Value="evento.FechaCierre" />
+        <ValidationMessage For="() => evento.FechaCierre" />
+    </div>
 
-            @*footer*@
-            <div class="card-footer text-center mt-2">
-                <a href="/eventos" class="btn btn-secondary"><span class="bi bi-arrow-left"></span>Volver</a>
-                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
-            </div>
-        </div>
-      </div>
+    <div class="mb-3">
+        <label class="form-label"><strong>Hora de Cierre</strong></label>
+        <input type="time" class="form-control" @bind="evento.HoraCierre" />
+        <ValidationMessage For="() => evento.HoraCierre" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label"><strong>Tipo</strong></label>
+        <InputSelect class="form-select" @bind-Value="evento.Tipo">
+            <option value="" selected disabled>Elija una opcion</option>
+            <option value="Publico">Publico</option>
+            <option value="Privado">Privado</option>
+        </InputSelect>
+        <ValidationMessage For="(() => evento.Tipo)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label"><strong>Lugar</strong></label>
+        <InputSelect class="form-select" @bind-Value="evento.Lugar">
+            <option value="">-- Seleccione un lugar --</option>
+            @foreach (var lugar in listaLugares)
+            {
+                <option value="@lugar.Nombre">@lugar.Nombre</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="(() => evento.Lugar)" />
+    </div>
+
+    <div class="border border-success p-3 mt-3">
+        <h5>Detalle del Evento</h5>
+        <ContratacionPicker Contrataciones="ListaContrataciones"
+                            Ganancia="Ganancia"
+                            @bind-ContratacionId="contratacionId"
+                            OnContratacionSelected="HandleContratacionSelected" />
+        <hr />
+        <QuickGrid Items="evento.EventosDetalles.AsQueryable()" class="table table-light text-center">
+            <PropertyColumn Property="d => d.ContratacionId" Title="Id" />
+            <TemplateColumn Title="Servicio" Context="detalle">
+                @NombreContratacion(detalle.ContratacionId)
+            </TemplateColumn>
+            <PropertyColumn Property="d => d.PrecioFinal" Title="Precio" Format="C2" />
+            <TemplateColumn Title="Remover" Context="detalle">
+                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="() => Quitar(detalle)"></button>
+            </TemplateColumn>
+        </QuickGrid>
+        <hr />
+        <p class="text-end"><strong>Total: @evento.Total.ToString("C2")</strong></p>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="/eventos" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Volver</a>
+        <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
     </div>
 </EditForm>
 
 @code {
-    public Evento evento { get; set; } = new Evento();
-    public IQueryable<Lugares> listaLugares;
+    private const double Ganancia = 25;
+    private int contratacionId;
+
+    private Evento evento = new();
+    private List<Lugares> listaLugares = new();
+    public List<Contrataciones> ListaContrataciones { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        evento.FechaInicio = DateOnly.FromDateTime(DateTime.Now);
-        evento.FechaCierre = DateOnly.FromDateTime(DateTime.Now);
-        var lugares = await lugaresService.GetList( l => l.Id > 0);
-        listaLugares = lugares.AsQueryable();
+        evento.FechaInicio = DateOnly.FromDateTime(DateTime.Today);
+        evento.FechaCierre = DateOnly.FromDateTime(DateTime.Today);
+        listaLugares = await lugaresService.GetList(l => l.Id > 0);
+        ListaContrataciones = await contratacionesService.GetList(c => !c.Eliminado && c.Estado == "Activa");
     }
+
+    private string NombreContratacion(int id)
+    {
+        return ListaContrataciones.FirstOrDefault(c => c.ContratacionId == id)?.Servicio ?? "";
+    }
+
+    private void HandleContratacionSelected((Contrataciones Contrataciones, string servicio) seleccion)
+    {
+        var contratacion = seleccion.Contrataciones;
+
+        if (evento.EventosDetalles.Any(d => d.ContratacionId == contratacion.ContratacionId))
+        {
+            toastService.ShowError("Ese servicio ya está agregado al evento.");
+            return;
+        }
+
+        evento.EventosDetalles.Add(new EventoDetalles
+        {
+            ContratacionId = contratacion.ContratacionId,
+            Servicio = seleccion.servicio,
+            PrecioBase = contratacion.Costo,
+            PorcentajeGanancia = Ganancia,
+            PrecioFinal = contratacion.Costo * (1 + Ganancia / 100)
+        });
+
+        ActualizarTotal();
+    }
+
+    private void Quitar(EventoDetalles detalle)
+    {
+        evento.EventosDetalles.Remove(detalle);
+        ActualizarTotal();
+    }
+
+    private void ActualizarTotal()
+    {
+        evento.Total = evento.EventosDetalles.Sum(d => d.PrecioFinal);
+    }
+
     public async Task Guardar()
     {
         var creado = await eventoService.Guardar(evento);
+
         if (creado)
         {
             toastService.ShowSuccess("¡Evento guardado exitosamente!");
