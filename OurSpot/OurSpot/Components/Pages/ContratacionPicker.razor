@@ -1,15 +1,16 @@
 ﻿<div class="col-auto input-group align-items-center">
-    <label class="col-form-label input-group-text">Selecione la categoria:</label>
+    <label class="col-form-label input-group-text">Seleccione la categoria:</label>
+   
     <InputSelect class="form-control form-select" @bind-Value="ContratacionId">
         <option disabled value="0">--seleccione el servicio deseado --</option>
         @foreach(var contratacion in Contrataciones)
         {
-           // <option value="@contratacion.ContratacionId">@contratacion.</option>
+           <option value="@contratacion.ContratacionId">@contratacion.Categoria - @((contratacion.Costo * (1 + Ganancia / 100)).ToString("C2"))(</option>
         }
     </InputSelect>
-    <label class="col-form-label input-group-text">Categoria:</label>
+    <label class="col-form-label input-group-text">Contratacion:</label>
     <InputText class="form-control" @bind-Value="ServicioSeleccionado" />
-    <button type="button" class="btn btn-outline-success bi bi-plus" @onclick="TriggerSelection">Agregar</button>
+    <button type="button" class="btn btn-outline-success bi bi-plus" @onclick="TriggerSelection"> Agregar</button>
 </div>
 
 @if(ErrorMessage != null)
@@ -36,7 +37,11 @@
     public List<Contrataciones> Contrataciones { get; set; } = new();
 
     [Parameter]
+    public double Ganancia { get; set; } = 25;
+
+    [Parameter]
     public EventCallback<(Contrataciones Contrataciones, string servicio)> OnContratacionSelected{ get; set; }
+
     private string? ErrorMessage { get; set; } = null;
 
     private async Task TriggerSelection()
@@ -44,7 +49,18 @@
         ErrorMessage = null;
         if(ContratacionId > 0)
         {
-            //var cont
+            var seleccionada = Contrataciones.Single(c => c.ContratacionId == ContratacionId);
+            await OnContratacionSelected.InvokeAsync((seleccionada, ServicioSeleccionado));
+
+            ContratacionId = 0;
+            await ContratacionIdChanged.InvokeAsync(ContratacionId);
+
+            ServicioSeleccionado = string.Empty;
+            await servicioSeleccionadoChanged.InvokeAsync(ServicioSeleccionado);
+        }
+        else
+        {
+            ErrorMessage = "Seleccione un servicio valido";
         }
     }
 
