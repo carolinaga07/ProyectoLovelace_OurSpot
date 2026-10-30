@@ -41,7 +41,7 @@ namespace OurSpot.Models
 
         //[InverseProperty("Evento")]
         //public virtual ICollection<EventosDetalles> EventosDetalles { get; set; } = new List<EventosDetalles>();
-   
+
         public Evento()
         {
 
