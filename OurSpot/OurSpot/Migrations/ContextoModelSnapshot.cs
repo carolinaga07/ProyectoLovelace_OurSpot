@@ -222,6 +222,35 @@ namespace OurSpot.Migrations
                     b.ToTable("Proveedores");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.Clientes", b =>
+                {
+                    b.Property<int>("ClienteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClienteId"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClienteId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("Clientes");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Contrataciones", b =>
                 {
                     b.Property<int>("ContratacionId")
@@ -509,6 +538,15 @@ namespace OurSpot.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Clientes", b =>
+                {
+                    b.HasOne("OurSpot.Security.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("OurSpot.Models.EventoDetalles", b =>
