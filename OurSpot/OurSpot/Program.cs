@@ -34,7 +34,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/";
+    options.LoginPath = "/cuenta/login";
     options.AccessDeniedPath = "/acceso-denegado";
 });
 
@@ -49,6 +49,8 @@ builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<LugaresService>();
 builder.Services.AddScoped<PersonalService>(); 
 builder.Services.AddBlazorBootstrap();
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
