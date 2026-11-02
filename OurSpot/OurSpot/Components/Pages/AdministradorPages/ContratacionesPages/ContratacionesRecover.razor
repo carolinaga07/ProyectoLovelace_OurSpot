@@ -1,4 +1,5 @@
-﻿@page "/Contrataciones/Recuperar"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Contrataciones/Recuperar"
 @rendermode InteractiveServer
 @inject ContratacionesService contratacionesService
 @inject ToastService toastService

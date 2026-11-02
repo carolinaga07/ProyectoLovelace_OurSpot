@@ -456,6 +456,9 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Cargo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -485,6 +488,8 @@ namespace OurSpot.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Personales");
                 });
@@ -564,6 +569,15 @@ namespace OurSpot.Migrations
                         .IsRequired();
 
                     b.Navigation("Contrataciones");
+                });
+
+            modelBuilder.Entity("Personal", b =>
+                {
+                    b.HasOne("OurSpot.Security.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("OurSpot.Models.Evento", b =>
