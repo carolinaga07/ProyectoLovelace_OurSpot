@@ -1,0 +1,14 @@
+﻿@page "/cliente/home"
+@attribute [Authorize(Roles = "Cliente")]
+
+<h3>Portal de clientes - OurSpot</h3>
+
+<AuthorizeView Roles="Cliente">
+    <Authorized Context="auth">
+        <div class="alert alert-success">
+            Bienvenido, @auth.User.Identity?.Name
+        </div>
+
+        <p>Desde aquí podrás consultar tus eventos y contrataciones.</p>
+    </Authorized>
+</AuthorizeView>

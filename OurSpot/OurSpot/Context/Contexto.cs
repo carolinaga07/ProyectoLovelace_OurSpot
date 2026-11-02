@@ -18,6 +18,7 @@ public class Contexto: IdentityDbContext<ApplicationUser>
     public DbSet<Lugares> Lugares { get; set; }
     public DbSet<Proveedores> Proveedores { get; set; }
     public DbSet<Personal> Personales { get; set; }
+    public DbSet<Clientes> Clientes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

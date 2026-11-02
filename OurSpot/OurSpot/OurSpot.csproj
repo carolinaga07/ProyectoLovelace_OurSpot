@@ -40,7 +40,6 @@
 
   <ItemGroup>
     <Folder Include="Components\Pages\EmpleadoPages\" />
-    <Folder Include="Components\Pages\ClientePages\" />
   </ItemGroup>
 
 </Project>
