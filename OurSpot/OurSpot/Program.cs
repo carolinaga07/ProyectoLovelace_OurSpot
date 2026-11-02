@@ -52,6 +52,19 @@ builder.Services.AddBlazorBootstrap();
 
 var app = builder.Build();
 
+// aqui se crean los roles 
+await IdentitySeeder.CrearRolesAsync(app.Services);
+
+var correoAdmin = app.Configuration["AdminSeed:Email"];
+var claveAdmin = app.Configuration["AdminSeed:Password"];
+
+if(app.Environment.IsDevelopment() 
+    && !string.IsNullOrWhiteSpace(correoAdmin)
+    && !string.IsNullOrWhiteSpace(claveAdmin))
+{
+    await IdentitySeeder.CrearAdministradorAsync(app.Services, correoAdmin, claveAdmin);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
