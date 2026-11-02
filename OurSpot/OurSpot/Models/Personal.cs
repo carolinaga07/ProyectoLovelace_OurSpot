@@ -23,4 +23,7 @@ public class Personal
     public string Contrasena { get; set; } = string.Empty;
 
     public string Estado { get; set; } = "Activo";
+
+    [Required(ErrorMessage = "Seleccione un rol")]
+    public string Rol { get; set; } = "Empleado";
 }
