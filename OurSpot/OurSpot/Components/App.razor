@@ -33,5 +33,7 @@
 
 @code{
     private IComponentRenderMode? RenderModeActual =>
-        HttpContextAccessor.HttpContext?.Request.Path.StartsWithSegments("/cuenta") == true ? null : InteractiveServer;
+        HttpContextAccessor.HttpContext?.Request.Path.StartsWithSegments("/cuenta") == true ||
+    HttpContextAccessor.HttpContext?.Request.Path.StartsWithSegments("/personal/create") == true
+        ? null : InteractiveServer;
 }

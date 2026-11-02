@@ -49,6 +49,8 @@ builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<LugaresService>();
 builder.Services.AddScoped<PersonalService>();
 builder.Services.AddScoped<RegistroClientesService>();
+builder.Services.AddScoped<AdministradoresService>();
+builder.Services.AddScoped<RegistroPersonalService>();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddHttpContextAccessor();
