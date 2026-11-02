@@ -4,7 +4,14 @@
 @inject ToastService toastService
 @inject PersonalService personalService
 
-<PageTitle>Our Spot - Iniciar Sesión</PageTitle>
+@code{
+    protected override void OnInitialized()
+    {
+        navigationManager.NavigateTo("/cuenta/login", forceLoad: true);
+    }
+}
+
+@*<PageTitle>Our Spot - Iniciar Sesión</PageTitle>
 
 <div class="login-wrapper">
     <div class="login-card shadow-lg">
@@ -154,3 +161,4 @@
         public string Contrasena { get; set; } = string.Empty;
     }
 }
+*@

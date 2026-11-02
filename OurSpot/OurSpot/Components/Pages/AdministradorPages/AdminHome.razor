@@ -1,6 +1,7 @@
-﻿@page "/Home"
+﻿@page "/administrador/home"
 @inject EventosService eventosService
 @inject ContratacionesService contratacionesService
+@attribute [Authorize(Roles ="Administrador")]
 
 
 <div class="container-fluid p-4">
@@ -13,17 +14,17 @@
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
             <span>Contrataciones Activas</span>
-            <span class="fs-1 fw-bold">14</span>
+            <span class="fs-1 fw-bold">@TotalContrataciones</span>
         </div>
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
             <span>Proveedores Activos</span>
-            <span class="fs-1 fw-bold">20</span>
+            <span class="fs-1 fw-bold">@TotalProveedores</span>
         </div>
 
         <div class="card text-white p-3" style="background:#2c4a52; flex:1">
             <span>Lugares Disponibles</span>
-            <span class="fs-1 fw-bold">5</span>
+            <span class="fs-1 fw-bold">@TotalLugares</span>
         </div>
 
     </div>

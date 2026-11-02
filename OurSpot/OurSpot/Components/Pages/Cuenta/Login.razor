@@ -1,0 +1,269 @@
+﻿@page "/cuenta/login"
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>Our Spot - Iniciar Sesión</PageTitle>
+
+<div class="login-wrapper">
+    <div class="login-card shadow-lg">
+
+        <!-- Título y subtítulo -->
+        <div class="text-center mb-4">
+            <h1 class="brand-title">Our Spot</h1>
+            <p class="brand-subtitle">
+                Todo lo que necesitas, en un solo lugar
+            </p>
+        </div>
+
+        <!-- Formulario de inicio de sesión -->
+        <EditForm Model="loginModel"
+                  OnValidSubmit="IniciarSesion"
+                  FormName="login">
+
+            <DataAnnotationsValidator />
+
+            <!-- Correo electrónico -->
+            <div class="mb-3">
+                <label class="form-label text-muted small">
+                    Correo electrónico
+                </label>
+
+                <InputText class="form-control"
+                           @bind-Value="loginModel.Correo"
+                           placeholder="Ingrese su correo" />
+
+                <ValidationMessage For="() => loginModel.Correo" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-4">
+                <label class="form-label text-muted small">
+                    Contraseña
+                </label>
+
+                <InputText type="password"
+                           class="form-control"
+                           @bind-Value="loginModel.Contrasena"
+                           placeholder="Ingrese su contraseña" />
+
+                <ValidationMessage For="() => loginModel.Contrasena" />
+            </div>
+
+            <!-- Mensaje de error -->
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger text-center">
+                    @errorMessage
+                </div>
+            }
+
+            <!-- Botón de inicio de sesión -->
+            <div class="d-grid">
+                <button type="submit"
+                        class="btn btn-login text-white">
+                    Iniciar Sesión
+                </button>
+            </div>
+
+            <!-- Registro de clientes -->
+            <div class="text-center mt-3">
+                <span class="text-muted small">
+                    ¿No tienes una cuenta?
+                </span>
+
+                <a href="/cuenta/registro"
+                   class="register-link">
+                    Regístrate aquí
+                </a>
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+<style>
+    .sidebar, .top-row, header {
+        display: none !important;
+    }
+
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .login-wrapper {
+        background-image: url("/lib/Imagenes/ourspotFondo.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999999;
+    }
+
+    .login-card {
+        background-color: rgba(255, 255, 255, 0.92);
+        border-radius: 12px;
+        padding: 40px 30px;
+        width: 100%;
+        max-width: 420px;
+        border: none;
+    }
+
+    .brand-title {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        color: #2c2c2c;
+        font-size: 2.5rem;
+        margin-bottom: 0;
+    }
+
+    .brand-subtitle {
+        color: #555;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .form-control {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        padding: 10px 15px;
+    }
+
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #4a3b32;
+            box-shadow: 0 0 0 0.2rem rgba(74, 59, 50, 0.25);
+        }
+
+    .btn-login {
+        background-color: #4a3b32;
+        border-color: #4a3b32;
+        border-radius: 6px;
+        padding: 10px;
+        font-weight: 500;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .btn-login:hover {
+            background-color: #352a23;
+            border-color: #352a23;
+        }
+
+    .register-link {
+        color: #4a3b32;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .register-link:hover {
+            color: #352a23;
+            text-decoration: underline;
+        }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+</style>
+
+@code {
+    [SupplyParameterFromForm(FormName = "login")]
+    private LoginViewModel loginModel { get; set; } = new();
+
+    private string? errorMessage;
+
+    private async Task IniciarSesion()
+    {
+        errorMessage = null;
+
+        var usuario = await UserManager.FindByEmailAsync(
+            loginModel.Correo);
+
+        if (usuario == null)
+        {
+            errorMessage = "Correo o contraseña incorrectos.";
+            return;
+        }
+
+        var resultado = await SignInManager.PasswordSignInAsync(
+            usuario,
+            loginModel.Contrasena,
+            isPersistent: false,
+            lockoutOnFailure: true);
+
+        if (resultado.IsLockedOut)
+        {
+            errorMessage =
+                "La cuenta está bloqueada temporalmente.";
+            return;
+        }
+
+        if (resultado.IsNotAllowed)
+        {
+            errorMessage =
+                "Tu cuenta todavía no tiene permitido iniciar sesión.";
+            return;
+        }
+
+        if (resultado.RequiresTwoFactor)
+        {
+            errorMessage =
+                "Esta cuenta requiere verificación en dos pasos.";
+            return;
+        }
+
+        if (!resultado.Succeeded)
+        {
+            errorMessage = "Correo o contraseña incorrectos.";
+            return;
+        }
+
+        var roles = await UserManager.GetRolesAsync(usuario);
+
+        string destino;
+
+        if (roles.Contains("Administrador"))
+        {
+            destino = "/administrador/home";
+        }
+        else if (roles.Contains("Empleado"))
+        {
+            destino = "/empleado/home";
+        }
+        else if (roles.Contains("Cliente"))
+        {
+            destino = "/cliente/home";
+        }
+        else
+        {
+            await SignInManager.SignOutAsync();
+            errorMessage = "Tu cuenta no tiene un rol asignado.";
+            return;
+        }
+
+        NavigationManager.NavigateTo(
+            destino,
+            forceLoad: true);
+    }
+
+    public class LoginViewModel
+    {
+        [Required(ErrorMessage = "El correo es obligatorio.")]
+        [EmailAddress(ErrorMessage = "Ingrese un correo válido.")]
+        public string Correo { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        public string Contrasena { get; set; } = string.Empty;
+    }
+}
