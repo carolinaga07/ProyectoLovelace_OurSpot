@@ -73,7 +73,7 @@
                     <span class="estado @(context.Estado == "Activo" ? "activo" : "inactivo")">@context.Estado</span>
                 </TemplateColumn>
                 <TemplateColumn Title="Opciones">
-                    <a href="/personal/edit/@context.Id" class="btn btn-outline-primary bi bi-pencil-square" title="Editar"></a>
+                    <a href="/personal/edit/@context.Id" data-enhance-nav="false" class="btn btn-outline-primary bi bi-pencil-square" title="Editar"></a>
                     <button type="button" class="btn btn-outline-danger bi bi-trash" title="Eliminar"
                             data-bs-toggle="modal" data-bs-target="#modalEliminar"
                             @onclick="() => MostrarModal(context)"></button>

@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@inject UserManager<ApplicationUser> userManager
 
 <style>
     .nav-scrollable * {
@@ -124,9 +125,25 @@
              style="max-height: 50px" />
 
         <aside class="ms-2 mt-2">
-            <h5 class="text-white" style="font-size: 1.2rem">
-                Administrador
-            </h5>
+            <AuthorizeView Context="auth">
+                <Authorized>
+                    <div class="d-flex flex-column">
+                        <span class="text-white fw-bold" style="font-size : 1.1rem">
+                          @nombreUsuario
+                        </span>
+                        <small class="text-white-50">
+                            @if (auth.User.IsInRole("Administrador"))
+                            {
+                               <span>Administrador</span> 
+                            }
+                            else if (auth.User.IsInRole("Empleado"))
+                            {
+                                <span>Empleado</span>
+                            }
+                        </small>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </aside>
     </div>
 </div>
@@ -304,6 +321,28 @@
 
 @code {
     private string MenuAbierto = "";
+    private string nombreUsuario = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateTask == null)
+            return;
+
+        var authState = await AuthenticationStateTask;
+        var usuarioActual = authState.User;
+
+        if (usuarioActual.Identity?.IsAuthenticated == true)
+        {
+            var usuario = await userManager.GetUserAsync(usuarioActual);
+
+            nombreUsuario = usuario?.NombreCompleto
+                ?? usuarioActual.Identity.Name
+                ?? "Usuario";
+        }
+    }
 
     private void AlternarMenu(string menu)
     {

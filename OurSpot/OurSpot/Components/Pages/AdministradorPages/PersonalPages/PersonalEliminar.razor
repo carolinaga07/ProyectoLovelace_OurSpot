@@ -1,143 +1,156 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
+﻿@page "/personal/eliminar/{Id:int}"
 
-@page "/personal/eliminar/{Id:int}"
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using OurSpot.Services
+
+@attribute [Authorize(Roles = "Administrador")]
+
+@inject PersonalService personalService
+@inject RegistroPersonalService registroPersonalService
+@inject NavigationManager navigationManager
 
 <PageTitle>Eliminar Personal</PageTitle>
 
-<div class="container mt-4">
-
-    <div class="card shadow-lg">
-
-        <div class="card-header text-center">
-            <h5><strong>Datos del Personal</strong></h5>
+@if (personal == null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-warning text-center">
+            No se encontró el personal solicitado.
         </div>
 
-        <div class="card-body">
+        <a href="/personal" class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
 
-            <div class="text-center text-danger">
+        <div class="card shadow-lg">
+
+            <div class="card-header text-center">
                 <h5>
-                    <strong>¿Desea eliminar este integrante del personal?</strong>
+                    <strong>Datos del Personal</strong>
                 </h5>
             </div>
 
-            <ul class="list-group list-group-flush mt-4">
+            <div class="card-body">
 
-                <li class="list-group-item">
-                    <strong>Id:</strong> @Id
-                </li>
+                <div class="text-center text-danger">
+                    <h5>
+                        <strong>
+                            ¿Desea eliminar este integrante del personal?
+                        </strong>
+                    </h5>
+                </div>
 
-                <li class="list-group-item">
-                    <strong>Nombre:</strong> @nombre
-                </li>
+                @if (!string.IsNullOrEmpty(Mensaje))
+                {
+                    <div class="alert alert-danger mt-3">
+                        @Mensaje
+                    </div>
+                }
 
-                <li class="list-group-item">
-                    <strong>Correo:</strong> @correo
-                </li>
+                <ul class="list-group list-group-flush mt-4">
 
-                <li class="list-group-item">
-                    <strong>Cargo:</strong> @cargo
-                </li>
+                    <li class="list-group-item">
+                        <strong>Id:</strong> @personal.Id
+                    </li>
 
-                <li class="list-group-item">
-                    <strong>Estado:</strong> @estado
-                </li>
+                    <li class="list-group-item">
+                        <strong>Nombre:</strong> @personal.Nombre
+                    </li>
 
-            </ul>
+                    <li class="list-group-item">
+                        <strong>Correo:</strong> @personal.Correo
+                    </li>
+
+                    <li class="list-group-item">
+                        <strong>Cargo:</strong> @personal.Cargo
+                    </li>
+
+                    <li class="list-group-item">
+                        <strong>Rol:</strong> @personal.Rol
+                    </li>
+
+                    <li class="list-group-item">
+                        <strong>Estado:</strong> @personal.Estado
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div class="card-footer text-center">
+
+                <form method="post"
+                      @formname="eliminar-personal"
+                      @onsubmit="ConfirmarEliminar"
+                      data-enhance="false">
+
+                    <AntiforgeryToken />
+
+                    <a href="/personal"
+                       class="btn btn-secondary me-2">
+
+                        <span class="bi bi-arrow-left"></span>
+                        Volver
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        <span class="bi bi-trash"></span>
+                        Eliminar
+
+                    </button>
+
+                </form>
+
+            </div>
 
         </div>
-
-        <div class="card-footer text-center">
-
-            <a href="/personal"
-               class="btn btn-secondary me-2">
-
-                <span class="bi bi-arrow-left"></span>
-                Volver
-            </a>
-
-            <a href="/personal"
-               class="btn btn-danger">
-
-                <span class="bi bi-trash"></span>
-                Eliminar
-            </a>
-
-        </div>
-
     </div>
-
-</div>
+}
 
 @code {
-
     [Parameter]
     public int Id { get; set; }
 
-    private string nombre = "";
-    private string correo = "";
-    private string cargo = "";
-    private string estado = "";
+    private Personal? personal;
+    private string? Mensaje;
 
-    protected override void OnParametersSet()
+    protected override async Task OnInitializedAsync()
     {
-        switch (Id)
+        personal = await personalService.Buscar(Id);
+    }
+
+    private async Task ConfirmarEliminar()
+    {
+        Mensaje = null;
+
+        try
         {
-            case 1:
-                nombre = "Sharlot Adrian Lopez";
-                correo = "sharlot@gmail.com";
-                cargo = "Administrador";
-                estado = "Activo";
-                break;
+            var resultado =
+                await registroPersonalService.Eliminar(Id);
 
-            case 2:
-                nombre = "Franshelina Camilo Cabrera";
-                correo = "franshelina@gmail.com";
-                cargo = "Administrador";
-                estado = "Activo";
-                break;
-
-            case 3:
-                nombre = "Carolina Garcia Almanzar";
-                correo = "carolina@gmail.com";
-                cargo = "Administrador";
-                estado = "Activo";
-                break;
-
-            case 4:
-                nombre = "Dharianny Sime María";
-                correo = "dharianny@gmail.com";
-                cargo = "Administrador";
-                estado = "Activo";
-                break;
-
-            case 5:
-                nombre = "Jazmine Arleny Minaya Peralta";
-                correo = "jazmine@gmail.com";
-                cargo = "Administrador";
-                estado = "Activo";
-                break;
-
-            case 6:
-                nombre = "Carlos Martínez";
-                correo = "carlos@gmail.com";
-                cargo = "Empleado";
-                estado = "Activo";
-                break;
-
-            case 7:
-                nombre = "Laura Rodríguez";
-                correo = "laura@gmail.com";
-                cargo = "Empleado";
-                estado = "Inactivo";
-                break;
-
-            default:
-                nombre = "";
-                correo = "";
-                cargo = "";
-                estado = "";
-                break;
+            if (resultado.Succeeded)
+            {
+                navigationManager.NavigateTo(
+                    "/personal",
+                    forceLoad: true);
+            }
+            else
+            {
+                Mensaje = string.Join("; ",
+                    resultado.Errors.Select(e => e.Description));
+            }
+        }
+        catch (Exception)
+        {
+            Mensaje = "No se pudo eliminar el personal.";
         }
     }
 }

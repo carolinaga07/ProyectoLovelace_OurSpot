@@ -197,15 +197,15 @@
         }
 
         var resultado = await SignInManager.PasswordSignInAsync(
-            usuario,
+            loginModel.Correo,
             loginModel.Contrasena,
             isPersistent: false,
-            lockoutOnFailure: true);
+            lockoutOnFailure: false);
 
         if (resultado.IsLockedOut)
         {
             errorMessage =
-                "La cuenta está bloqueada temporalmente.";
+                "La cuenta está bloqueada temporalmente. Contacte al administrador";
             return;
         }
 
@@ -225,7 +225,7 @@
 
         if (!resultado.Succeeded)
         {
-            errorMessage = "Correo o contraseña incorrectos.";
+            errorMessage = "Credenciales incorrectas.";
             return;
         }
 

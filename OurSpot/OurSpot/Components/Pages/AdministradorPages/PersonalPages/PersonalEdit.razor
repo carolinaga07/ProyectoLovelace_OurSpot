@@ -1,110 +1,176 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
-@page "/personal/edit/{PersonalId:int}"
-@rendermode InteractiveServer
+﻿@page "/personal/edit/{PersonalId:int}"
+
+@using Microsoft.AspNetCore.Authorization
+@using OurSpot.Services
+
+@attribute [Authorize(Roles = "Administrador")]
+
 @inject PersonalService personalService
-@inject ToastService toastService
+@inject RegistroPersonalService registroPersonalService
 @inject NavigationManager navigationManager
 
 <PageTitle>Editar Personal</PageTitle>
 
 @if (personal == null)
 {
-    <p class="text-center">Cargando...</p>
+    <p class="text-center">Personal no encontrado.</p>
 }
 else
 {
-    <EditForm Model="personal" OnValidSubmit="Guardar">
+    <EditForm Model="personal"
+              OnValidSubmit="Guardar"
+              FormName="editar-personal">
+
         <DataAnnotationsValidator />
 
         <div class="container">
             <div class="card shadow-lg">
+
                 <div class="card-header text-center">
                     <h5 class="card-title">Editar Personal</h5>
                 </div>
 
                 <div class="card-body">
 
+                    @if (!string.IsNullOrEmpty(Mensaje))
+                    {
+                        <div class="alert alert-danger">
+                            @Mensaje
+                        </div>
+                    }
+
                     <div class="mb-3">
-                        <label class="form-label"><strong>Nombre</strong></label>
-                        <InputText class="form-control" @bind-Value="personal.Nombre"></InputText>
-                        <ValidationMessage For="(() => personal.Nombre)" />
+                        <label class="form-label">
+                            <strong>Nombre</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="personal.Nombre" />
+
+                        <ValidationMessage For="() => personal.Nombre" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"><strong>Correo</strong></label>
-                        <InputText class="form-control" @bind-Value="personal.Correo"></InputText>
-                        <ValidationMessage For="(() => personal.Correo)" />
-                    </div>
+                        <label class="form-label">
+                            <strong>Correo</strong>
+                        </label>
 
-                    @* Usuario *@
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Usuario</strong></label>
-                        <InputText class="form-control" @bind-Value="personal.Usuario"></InputText>
-                        <ValidationMessage For="(() => personal.Usuario)" />
-                    </div>
+                        <InputText class="form-control"
+                                   type="email"
+                                   @bind-Value="personal.Correo" />
 
-                    @* Contraseña *@
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Contraseña</strong></label>
-                        <InputText type="password" class="form-control" @bind-Value="personal.Contrasena"></InputText>
-                        <ValidationMessage For="(() => personal.Contrasena)" />
+                        <ValidationMessage For="() => personal.Correo" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"><strong>Cargo</strong></label>
-                        <InputSelect class="form-select" @bind-Value="personal.Cargo">
-                            <option value="Administrador">Administrador</option>
+                        <label class="form-label">
+                            <strong>Cargo</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="personal.Cargo" />
+
+                        <ValidationMessage For="() => personal.Cargo" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Rol de acceso</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="personal.Rol">
+
                             <option value="Empleado">Empleado</option>
+                            <option value="Administrador">Administrador</option>
+
                         </InputSelect>
-                        <ValidationMessage For="(() => personal.Cargo)" />
+
+                        <ValidationMessage For="() => personal.Rol" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"><strong>Estado</strong></label>
-                        <InputSelect class="form-select" @bind-Value="personal.Estado">
+                        <label class="form-label">
+                            <strong>Estado</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="personal.Estado">
+
                             <option value="Activo">Activo</option>
                             <option value="Inactivo">Inactivo</option>
+
                         </InputSelect>
                     </div>
+
                 </div>
 
                 <div class="card-footer text-center mt-2">
-                    <a href="/personal" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Volver</a>
-                    <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+
+                    <a href="/personal" class="btn btn-secondary">
+                        <span class="bi bi-arrow-left"></span>
+                        Volver
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="bi bi-floppy"></span>
+                        Guardar
+                    </button>
+
                 </div>
+
             </div>
         </div>
+
     </EditForm>
 }
 
 @code {
-    [Parameter] public int PersonalId { get; set; }
+    [Parameter]
+    public int PersonalId { get; set; }
 
-    private Personal? personal;
+    [SupplyParameterFromForm(FormName = "editar-personal")]
+    private Personal? personal { get; set; }
+
+    private string? Mensaje;
 
     protected override async Task OnInitializedAsync()
     {
-        personal = await personalService.Buscar(PersonalId);
+        personal ??= await personalService.Buscar(PersonalId);
     }
 
-    public async Task Guardar()
+    private async Task Guardar()
     {
-        if (await personalService.ExisteCorreo(personal!.Correo, personal.Id))
-        {
-            toastService.ShowError("Ya existe personal con ese correo.");
+        if (personal == null)
             return;
-        }
 
-        var modificado = await personalService.Guardar(personal);
+        Mensaje = null;
 
-        if (modificado)
+        try
         {
-            toastService.ShowSuccess("¡Personal actualizado exitosamente!");
-            navigationManager.NavigateTo("/personal");
+            var resultado = await registroPersonalService.Modificar(
+                PersonalId,
+                personal.Nombre,
+                personal.Correo,
+                personal.Cargo,
+                personal.Rol,
+                personal.Estado);
+
+            if (resultado.Succeeded)
+            {
+                navigationManager.NavigateTo(
+                    "/personal",
+                    forceLoad: true);
+            }
+            else
+            {
+                Mensaje = string.Join("; ",
+                    resultado.Errors.Select(e => e.Description));
+            }
         }
-        else
+        catch (Exception)
         {
-            toastService.ShowError("No se pudo actualizar el personal...");
+            Mensaje = "No se pudo actualizar el personal.";
         }
     }
 }
