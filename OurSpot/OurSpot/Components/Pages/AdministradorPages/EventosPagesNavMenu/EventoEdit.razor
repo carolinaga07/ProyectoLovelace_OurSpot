@@ -1,4 +1,5 @@
-﻿@page "/eventos/edit/{EventoId:int}"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/eventos/edit/{EventoId:int}"
 @rendermode InteractiveServer
 
 @inject EventosService eventosService

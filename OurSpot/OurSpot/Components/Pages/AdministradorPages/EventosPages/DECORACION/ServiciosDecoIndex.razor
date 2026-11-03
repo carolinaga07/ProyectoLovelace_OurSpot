@@ -1,4 +1,5 @@
-﻿@page "/Servicios/Decoracion"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Servicios/Decoracion"
 
 <style>
     .grid {

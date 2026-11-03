@@ -1,4 +1,5 @@
-﻿@page "/reportes"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/reportes"
 @rendermode InteractiveServer
 
 <PageTitle>Reporte general</PageTitle>

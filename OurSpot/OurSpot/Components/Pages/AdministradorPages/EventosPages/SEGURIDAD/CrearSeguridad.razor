@@ -1,4 +1,5 @@
-﻿@page "/Servicios/Seguridad/Crear"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Servicios/Seguridad/Crear"
 
 <PageTitle>Crear Servicio de Seguridad</PageTitle>
 

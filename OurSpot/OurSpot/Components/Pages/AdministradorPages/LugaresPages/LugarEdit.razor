@@ -1,4 +1,5 @@
-﻿@page "/Lugares/Edit/{Id:int}"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Lugares/Edit/{Id:int}"
 @rendermode InteractiveServer
 
 @inject LugaresService lugaresService

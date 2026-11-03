@@ -1,4 +1,5 @@
-﻿@page "/Servicios/Seguridad/Eliminar"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Servicios/Seguridad/Eliminar"
 
 <PageTitle>Eliminar Servicio de Seguridad</PageTitle>
 

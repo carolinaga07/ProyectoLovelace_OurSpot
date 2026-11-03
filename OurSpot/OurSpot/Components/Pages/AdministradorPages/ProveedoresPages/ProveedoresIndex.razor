@@ -1,4 +1,5 @@
-﻿@page "/Proveedores"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Proveedores"
 @using OurSpot.Components.Models
 @inject ProveedorService proveedorService
 @rendermode InteractiveServer

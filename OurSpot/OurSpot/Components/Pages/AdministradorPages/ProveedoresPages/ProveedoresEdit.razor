@@ -1,4 +1,5 @@
-﻿@page "/Proveedores/Editar/{Id:int}"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Proveedores/Editar/{Id:int}"
 @inject ToastService toastService
 @inject ProveedorService proveedorService
 @rendermode InteractiveServer
