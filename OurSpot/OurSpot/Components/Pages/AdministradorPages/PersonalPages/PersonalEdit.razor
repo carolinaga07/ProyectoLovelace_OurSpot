@@ -1,4 +1,5 @@
-﻿@page "/personal/edit/{PersonalId:int}"
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/personal/edit/{PersonalId:int}"
 @rendermode InteractiveServer
 @inject PersonalService personalService
 @inject ToastService toastService

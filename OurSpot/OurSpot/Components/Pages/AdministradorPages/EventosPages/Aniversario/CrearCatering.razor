@@ -1,4 +1,6 @@
-﻿@page "/Servicios/Catering/Crear"
+﻿@attribute [Authorize(Roles = "Administrador")]
+
+@page "/Servicios/Catering/Crear"
 
 <PageTitle>Crear Servicio de Catering</PageTitle>
 
