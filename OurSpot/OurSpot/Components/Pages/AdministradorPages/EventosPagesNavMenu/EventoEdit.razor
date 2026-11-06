@@ -1,0 +1,500 @@
+﻿
+@attribute [Authorize(Roles = "Administrador")]
+@page "/eventos/edit/{EventoId:int}"
+@rendermode InteractiveServer
+
+@inject EventosService eventosService
+@inject LugaresService lugaresService
+@inject ContratacionesService contratacionesService
+@inject NavigationManager Navigation
+@inject ToastService toastService
+
+<PageTitle>Modificar Evento</PageTitle>
+
+@if (cargando)
+{
+    <p class="text-center mt-4">Cargando evento...</p>
+}
+else if (!eventoEncontrado)
+{
+    <div class="alert alert-warning">
+        No se pudo cargar el evento.
+    </div>
+
+    <a href="/eventos" class="btn btn-secondary">
+        <span class="bi bi-arrow-left"></span> Volver
+    </a>
+}
+else
+{
+    <EditForm Model="Evento" OnValidSubmit="Modificar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="container">
+            <div class="card shadow-lg">
+
+                <div class="card-header">
+                    <h4 class="card-title mt-2">
+                        <a href="/eventos">
+                            <i class="bi bi-arrow-left-short fs-1 align-middle"
+                               style="color: #2D5056"></i>
+                        </a>
+                        Modificar Evento
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    @* Nombre *@
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Nombre</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="Evento.Nombre" />
+
+                        <ValidationMessage For="(() => Evento.Nombre)" />
+                    </div>
+
+                    @* Descripción *@
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Descripción</strong>
+                        </label>
+
+                        <InputTextArea class="form-control"
+                                       @bind-Value="Evento.Descripcion" />
+
+                        <ValidationMessage For="(() => Evento.Descripcion)" />
+                    </div>
+
+                    @* Fecha y hora de inicio *@
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Fecha de inicio</strong>
+                            </label>
+
+                            <InputDate class="form-control"
+                                       @bind-Value="Evento.FechaInicio" />
+
+                            <ValidationMessage For="(() => Evento.FechaInicio)" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Hora de inicio</strong>
+                            </label>
+
+                            <input type="time"
+                                   class="form-control"
+                                   @bind="Evento.HoraInicio" />
+
+                            <ValidationMessage For="(() => Evento.HoraInicio)" />
+                        </div>
+                    </div>
+
+                    @* Fecha y hora de cierre *@
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Fecha de cierre</strong>
+                            </label>
+
+                            <InputDate class="form-control"
+                                       @bind-Value="Evento.FechaCierre" />
+
+                            <ValidationMessage For="(() => Evento.FechaCierre)" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Hora de cierre</strong>
+                            </label>
+
+                            <input type="time"
+                                   class="form-control"
+                                   @bind="Evento.HoraCierre" />
+
+                            <ValidationMessage For="(() => Evento.HoraCierre)" />
+                        </div>
+                    </div>
+
+                    @* Tipo *@
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Tipo</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="Evento.Tipo">
+
+                            <option value="" disabled>
+                                Elija una opción
+                            </option>
+
+                            <option value="Publico">Público</option>
+                            <option value="Privado">Privado</option>
+
+                        </InputSelect>
+
+                        <ValidationMessage For="(() => Evento.Tipo)" />
+                    </div>
+
+                    @* Lugar *@
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Lugar</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="Evento.Lugar">
+
+                            <option value="">
+                                -- Seleccione un lugar --
+                            </option>
+
+                            @foreach (var lugar in listaLugares)
+                            {
+                                <option value="@lugar.Nombre">
+                                    @lugar.Nombre
+                                </option>
+                            }
+
+                        </InputSelect>
+
+                        <ValidationMessage For="(() => Evento.Lugar)" />
+                    </div>
+
+                    @* Detalle del Evento *@
+                    <div class="border border-success p-3 mt-3">
+                        <h5>Detalle del Evento</h5>
+
+                        <ContratacionPicker @key="EventoId"
+                                            Contrataciones="ListaContrataciones"
+                                            Ganancia="Ganancia"
+                                            @bind-ContratacionId="contratacionId"
+                                            OnContratacionSelected="HandleContratacionSelected" />
+
+                        <hr />
+
+                        @if (!Evento.EventosDetalles.Any())
+                        {
+                            <p class="text-muted">
+                                El evento no tiene contrataciones cargadas.
+                            </p>
+                        }
+
+                        <div class="table-responsive">
+                            <QuickGrid Items="Evento.EventosDetalles.AsQueryable()"
+                                       class="table table-light text-center">
+
+                                <PropertyColumn Property="d => d.ContratacionId"
+                                                Title="Id" />
+
+                                <TemplateColumn Title="Servicio"
+                                                Context="detalle">
+                                    @detalle.Servicio
+                                </TemplateColumn>
+
+                                <PropertyColumn Property="d => d.PrecioBase"
+                                                Title="Precio base"
+                                                Format="C2" />
+
+                                <PropertyColumn Property="d => d.PorcentajeGanancia"
+                                                Title="Ganancia (%)" />
+
+                                <PropertyColumn Property="d => d.PrecioFinal"
+                                                Title="Precio final"
+                                                Format="C2" />
+
+                                <TemplateColumn Title="Remover"
+                                                Context="detalle">
+
+                                    <button type="button"
+                                            class="btn btn-outline-danger bi bi-trash"
+                                            title="Remover contratación"
+                                            disabled="@procesando"
+                                            @onclick="() => Quitar(detalle)">
+                                    </button>
+
+                                </TemplateColumn>
+
+                            </QuickGrid>
+                        </div>
+
+                        <hr />
+
+                        <p class="text-end mb-0">
+                            <strong>
+                                Total: @Evento.Total.ToString("C2")
+                            </strong>
+                        </p>
+                    </div>
+
+                </div>
+
+                @* Footer *@
+                <div class="card-footer text-center">
+
+                    <button type="submit"
+                            class="btn btn-primary me-2"
+                            style="background-color:#2D5056">
+                        <span class="bi bi-floppy"></span> Guardar
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar">
+                        <span class="bi bi-x-lg"></span> Eliminar
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </EditForm>
+}
+
+@* Modal de Eliminación *@
+<div class="modal fade"
+     id="modalEliminar"
+     tabindex="-1"
+     aria-labelledby="modalCerrar"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalCerrar">
+                    Confirmación de eliminación
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>¿Desea eliminar el evento @Evento.Nombre?</p>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        disabled="@procesando"
+                        @onclick="Eliminar">
+                    Eliminar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+
+    private const double Ganancia = 25;
+
+    private Evento Evento { get; set; } = new();
+
+    private List<Lugares> listaLugares = new();
+    private List<Contrataciones> ListaContrataciones = new();
+
+    private int contratacionId;
+    private bool cargando = true;
+    private bool eventoEncontrado;
+    private bool procesando;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        eventoEncontrado = false;
+        contratacionId = 0;
+
+        try
+        {
+            // Buscar debe incluir la colección EventosDetalles.
+            var encontrado = await eventosService.Buscar(EventoId);
+
+            if (encontrado is null)
+            {
+                toastService.ShowError("El evento no existe.");
+                return;
+            }
+
+            // Conserva los detalles que llegan de la base de datos.
+            Evento = encontrado;
+            Evento.EventosDetalles ??= new();
+
+            listaLugares = await lugaresService.GetList(
+                l => l.Id > 0);
+
+            // Esta lista se usa para seleccionar nuevas contrataciones.
+            // Los detalles existentes se muestran desde Evento.
+            ListaContrataciones = await contratacionesService.GetList(
+                c => !c.Eliminado
+                  && (c.Estado == "Activa" || c.Estado == "Pendiente"));
+
+            ActualizarTotal();
+
+            eventoEncontrado = true;
+        }
+        catch (Exception)
+        {
+            toastService.ShowError(
+                "No se pudieron cargar el evento y sus contrataciones.");
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void HandleContratacionSelected(
+        (Contrataciones Contrataciones, string servicio) seleccion)
+    {
+        if (procesando)
+            return;
+
+        var contratacion = seleccion.Contrataciones;
+
+        if (Evento.EventosDetalles.Any(
+            d => d.ContratacionId == contratacion.ContratacionId))
+        {
+            toastService.ShowError(
+                "Ese servicio ya está agregado al evento.");
+            return;
+        }
+
+        Evento.EventosDetalles.Add(new EventoDetalles
+        {
+            ContratacionId = contratacion.ContratacionId,
+            Servicio = seleccion.servicio,
+            PrecioBase = contratacion.Costo,
+            PorcentajeGanancia = Ganancia,
+            PrecioFinal = contratacion.Costo * (1 + Ganancia / 100)
+        });
+
+        ActualizarTotal();
+    }
+
+    private void Quitar(EventoDetalles detalle)
+    {
+        if (procesando)
+            return;
+
+        Evento.EventosDetalles.Remove(detalle);
+        ActualizarTotal();
+    }
+
+    private void ActualizarTotal()
+    {
+        Evento.Total = Evento.EventosDetalles.Sum(
+            d => d.PrecioFinal);
+    }
+
+    private async Task Modificar()
+    {
+        if (procesando)
+            return;
+
+        if (string.IsNullOrWhiteSpace(Evento.Nombre))
+        {
+            toastService.ShowError("El nombre es requerido.");
+            return;
+        }
+
+        if (Evento.FechaCierre < Evento.FechaInicio ||
+            (Evento.FechaCierre == Evento.FechaInicio &&
+             Evento.HoraCierre < Evento.HoraInicio))
+        {
+            toastService.ShowError(
+                "El cierre no puede ser anterior al inicio.");
+            return;
+        }
+
+        procesando = true;
+
+        try
+        {
+            ActualizarTotal();
+
+            var modificado = await eventosService.Guardar(Evento);
+
+            if (modificado)
+            {
+                toastService.ShowSuccess(
+                    "Evento modificado correctamente.");
+
+                Navigation.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo modificar el evento.");
+            }
+        }
+        catch (Exception)
+        {
+            toastService.ShowError(
+                "Ocurrió un error al guardar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+
+    private async Task Eliminar()
+    {
+        if (procesando)
+            return;
+
+        procesando = true;
+
+        try
+        {
+            var eliminado = await eventosService.Eliminar(EventoId);
+
+            if (eliminado)
+            {
+                toastService.ShowSuccess(
+                    "Evento eliminado correctamente.");
+
+                Navigation.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo eliminar el evento.");
+            }
+        }
+        catch (Exception)
+        {
+            toastService.ShowError(
+                "Ocurrió un error al eliminar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}
