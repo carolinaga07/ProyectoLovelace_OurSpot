@@ -95,12 +95,12 @@ else
                 <div class="modal-body">
                     @if (personal != null)
                     {
-                        <p>¿Eliminar a @personal.Nombre?</p>
+                        <p>¿Eliminar a <strong>@personal.Nombre</strong>?</p>
                     }
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cerrar </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cancelar </button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="Eliminar"> Eliminar</button>
                 </div>
             </div>
