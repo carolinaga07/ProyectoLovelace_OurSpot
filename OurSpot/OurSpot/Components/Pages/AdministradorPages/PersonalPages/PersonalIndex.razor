@@ -28,7 +28,7 @@
 <div class="container">
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
-            <h5 class="card-title align-content-center mt-2">Personal</h5>
+            <h4 class="card-title align-content-center mt-2">Personal</h4>
             <a href="/personal/create" data-enhance-nav ="false" class="btn btn-primary" style="background-color:#2D5056">
                 <span class="bi bi-plus-square-dotted"></span> Nuevo Personal
             </a>
@@ -73,8 +73,8 @@
                     <span class="estado @(context.Estado == "Activo" ? "activo" : "inactivo")">@context.Estado</span>
                 </TemplateColumn>
                 <TemplateColumn Title="Opciones">
-                    <a href="/personal/edit/@context.Id" data-enhance-nav="false" class="btn btn-outline-primary bi bi-pencil-square" title="Editar"></a>
-                    <button type="button" class="btn btn-outline-danger bi bi-trash" title="Eliminar"
+                    <a href="/personal/edit/@context.Id" class="btn btn-outline-primary bi bi-pencil-square" title="Editar"></a>
+                    <button type="button" class="btn btn-outline-danger bi bi-x-lg" title="Eliminar"
                             data-bs-toggle="modal" data-bs-target="#modalEliminar"
                             @onclick="() => MostrarModal(context)"></button>
                 </TemplateColumn>
@@ -88,8 +88,9 @@
             }
         </div>
 
-        <div class="card-footer">
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
             <label>Cantidad: @PersonalFiltrado.Count()</label>
+            <a href="/personal/Recuperar" class="btn btn-outline-primary bi bi-trash" title="Recuperar"></a>
         </div>
     </div>
 </div>
@@ -104,7 +105,7 @@
             <div class="modal-body">
                 @if (PersonalAEliminar != null)
                 {
-                    <p>Eliminar a <strong>@PersonalAEliminar.Nombre</strong>?</p>
+                    <p>¿Eliminar a <strong>@PersonalAEliminar.Nombre</strong>?</p>
                 }
             </div>
             <div class="modal-footer">
@@ -124,7 +125,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        listaPersonal = await personalService.GetList(p => p.Id > 0);
+        listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
     }
 
     private IEnumerable<Personal> PersonalFiltrado =>
@@ -149,7 +150,7 @@
         if (eliminado)
         {
             toastService.ShowSuccess("Personal eliminado correctamente.");
-            listaPersonal = await personalService.GetList(p => p.Id > 0);
+            listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
         }
         else
         {

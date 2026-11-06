@@ -53,6 +53,9 @@ builder.Services.AddScoped<AdministradoresService>();
 builder.Services.AddScoped<RegistroPersonalService>();
 builder.Services.AddBlazorBootstrap();
 
+builder.Services.AddHttpClient<NotificacionesApiService>();
+builder.Services.AddHostedService<EventosBackgroundService>();
+
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

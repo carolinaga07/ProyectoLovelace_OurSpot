@@ -1,176 +1,164 @@
-﻿@page "/personal/edit/{PersonalId:int}"
-
-@using Microsoft.AspNetCore.Authorization
-@using OurSpot.Services
-
-@attribute [Authorize(Roles = "Administrador")]
-
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/personal/edit/{PersonalId:int}"
+@rendermode InteractiveServer
 @inject PersonalService personalService
-@inject RegistroPersonalService registroPersonalService
+@inject ToastService toastService
 @inject NavigationManager navigationManager
 
 <PageTitle>Editar Personal</PageTitle>
 
 @if (personal == null)
 {
-    <p class="text-center">Personal no encontrado.</p>
+    <p class="text-center">Cargando...</p>
 }
 else
 {
-    <EditForm Model="personal"
-              OnValidSubmit="Guardar"
-              FormName="editar-personal">
-
+    <EditForm Model="personal" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
 
         <div class="container">
             <div class="card shadow-lg">
-
-                <div class="card-header text-center">
-                    <h5 class="card-title">Editar Personal</h5>
+                <div class="card-header">
+                    <h4 class="card-title mt-2">
+                        <a href="/personal"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>  Modificar Personal
+                    </h4>
                 </div>
 
                 <div class="card-body">
 
-                    @if (!string.IsNullOrEmpty(Mensaje))
-                    {
-                        <div class="alert alert-danger">
-                            @Mensaje
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Nombre</strong></label>
+                        <InputText class="form-control" @bind-Value="personal.Nombre"></InputText>
+                        <ValidationMessage For="(() => personal.Nombre)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Correo</strong></label>
+                        <InputText class="form-control" @bind-Value="personal.Correo"></InputText>
+                        <ValidationMessage For="(() => personal.Correo)" />
+                    </div>
+
+                    @* Usuario *@
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Usuario</strong></label>
+                        <InputText class="form-control" @bind-Value="personal.Usuario"></InputText>
+                        <ValidationMessage For="(() => personal.Usuario)" />
+                    </div>
+
+                    @* Contraseña *@
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Contraseña</strong></label>
+                        <div class="input-group">
+                            <InputText type="@tipoPassword" class="form-control" @bind-Value="personal.Contrasena"></InputText>
+                            <button type="button" class="btn btn-outline-secondary" @onclick="AlternarMostrarContrasena">
+                                <span class="bi @iconoPassword"></span>
+                            </button>
                         </div>
-                    }
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Nombre</strong>
-                        </label>
-
-                        <InputText class="form-control"
-                                   @bind-Value="personal.Nombre" />
-
-                        <ValidationMessage For="() => personal.Nombre" />
+                        <ValidationMessage For="(() => personal.Contrasena)" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Correo</strong>
-                        </label>
-
-                        <InputText class="form-control"
-                                   type="email"
-                                   @bind-Value="personal.Correo" />
-
-                        <ValidationMessage For="() => personal.Correo" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Cargo</strong>
-                        </label>
-
-                        <InputText class="form-control"
-                                   @bind-Value="personal.Cargo" />
-
-                        <ValidationMessage For="() => personal.Cargo" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Rol de acceso</strong>
-                        </label>
-
-                        <InputSelect class="form-select"
-                                     @bind-Value="personal.Rol">
-
-                            <option value="Empleado">Empleado</option>
+                        <label class="form-label"><strong>Cargo</strong></label>
+                        <InputSelect class="form-select" @bind-Value="personal.Cargo">
                             <option value="Administrador">Administrador</option>
-
+                            <option value="Empleado">Empleado</option>
                         </InputSelect>
-
-                        <ValidationMessage For="() => personal.Rol" />
+                        <ValidationMessage For="(() => personal.Cargo)" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Estado</strong>
-                        </label>
-
-                        <InputSelect class="form-select"
-                                     @bind-Value="personal.Estado">
-
+                        <label class="form-label"><strong>Estado</strong></label>
+                        <InputSelect class="form-select" @bind-Value="personal.Estado">
                             <option value="Activo">Activo</option>
                             <option value="Inactivo">Inactivo</option>
-
                         </InputSelect>
                     </div>
-
                 </div>
 
                 <div class="card-footer text-center mt-2">
-
-                    <a href="/personal" class="btn btn-secondary">
-                        <span class="bi bi-arrow-left"></span>
-                        Volver
-                    </a>
-
-                    <button type="submit" class="btn btn-primary">
-                        <span class="bi bi-floppy"></span>
-                        Guardar
-                    </button>
-
+                    <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"> <span class="bi bi-x-lg"></span> Eliminar </button>
                 </div>
-
             </div>
         </div>
-
     </EditForm>
+
+    @* Modal de Eliminación *@
+    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalCerrar" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalCerrar"> Confirmación de eliminación </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"> </button>
+                </div>
+
+                <div class="modal-body">
+                    @if (personal != null)
+                    {
+                        <p>¿Eliminar a <strong>@personal.Nombre</strong>?</p>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cancelar </button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="Eliminar"> Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
-    [Parameter]
-    public int PersonalId { get; set; }
+    [Parameter] public int PersonalId { get; set; }
 
-    [SupplyParameterFromForm(FormName = "editar-personal")]
-    private Personal? personal { get; set; }
-
-    private string? Mensaje;
+    private Personal? personal;
+    private bool mostrarContrasena = false;
+    private string tipoPassword => mostrarContrasena ? "text" : "password";
+    private string iconoPassword => mostrarContrasena ? "bi-eye-slash" : "bi-eye";
 
     protected override async Task OnInitializedAsync()
     {
-        personal ??= await personalService.Buscar(PersonalId);
+        personal = await personalService.Buscar(PersonalId);
     }
 
-    private async Task Guardar()
+    public async Task Guardar()
     {
-        if (personal == null)
+        if (await personalService.ExisteCorreo(personal!.Correo, personal.Id))
+        {
+            toastService.ShowError("Ya existe personal con ese correo.");
             return;
-
-        Mensaje = null;
-
-        try
-        {
-            var resultado = await registroPersonalService.Modificar(
-                PersonalId,
-                personal.Nombre,
-                personal.Correo,
-                personal.Cargo,
-                personal.Rol,
-                personal.Estado);
-
-            if (resultado.Succeeded)
-            {
-                navigationManager.NavigateTo(
-                    "/personal",
-                    forceLoad: true);
-            }
-            else
-            {
-                Mensaje = string.Join("; ",
-                    resultado.Errors.Select(e => e.Description));
-            }
         }
-        catch (Exception)
+
+        var modificado = await personalService.Guardar(personal);
+
+        if (modificado)
         {
-            Mensaje = "No se pudo actualizar el personal.";
+            toastService.ShowSuccess("¡Personal actualizado exitosamente!");
+            navigationManager.NavigateTo("/personal");
         }
+        else
+        {
+            toastService.ShowError("No se pudo actualizar el personal...");
+        }
+    }
+
+    private async Task Eliminar()
+    {
+        bool eliminado = await personalService.Eliminar(personal.Id);
+
+        if (eliminado)
+        {
+            toastService.ShowSuccess("Personal Eliminado Exitosamente");
+            navigationManager.NavigateTo("/personal");
+        }
+        else
+        {
+            toastService.ShowError("Error al Eliminar el personal");
+        }
+    }
+
+    private void AlternarMostrarContrasena()
+    {
+        mostrarContrasena = !mostrarContrasena;
     }
 }

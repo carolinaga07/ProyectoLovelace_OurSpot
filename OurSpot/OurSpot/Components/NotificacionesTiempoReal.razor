@@ -1,0 +1,266 @@
+﻿
+@implements IAsyncDisposable
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components.Authorization
+@using OurSpot.Models
+@using OurSpot.Components.Pages.AdministradorPages.EventosPages.Services
+
+@inject EventosService eventoService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<style>
+    .notificacion-evento {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        width: 350px;
+        max-width: calc(100vw - 40px);
+        background: white;
+        border-left: 5px solid #2D5056;
+        border-radius: 8px;
+        padding: 18px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .notificacion-titulo {
+        color: #2D5056;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .notificacion-mensaje {
+        color: #555;
+        font-size: 14px;
+    }
+</style>
+
+@if (esAdministrador && notificaciones.Count > 0)
+{
+    var notificacion = notificaciones[0];
+
+    <div class="notificacion-evento">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="notificacion-titulo">
+                <i class="bi bi-bell-fill me-2"></i>
+                Confirmación de estado
+            </span>
+
+            <button type="button"
+                    class="btn-close"
+                    @onclick="Cerrar">
+            </button>
+        </div>
+
+        <div class="notificacion-mensaje">
+            El evento
+            <strong>@notificacion.NombreEvento</strong>
+            está listo para cambiar de
+            <strong>@notificacion.EstadoAnterior</strong>
+            a
+            <strong>@notificacion.EstadoNuevo</strong>.
+        </div>
+
+        <button type="button"
+                class="btn btn-sm btn-outline-success mt-3"
+                disabled="@procesando"
+                @onclick="Confirmar">
+            @(procesando ? "Confirmando..." : "Confirmar")
+        </button>
+
+        @if (!string.IsNullOrWhiteSpace(error))
+        {
+            <small class="d-block mt-2 text-danger">
+                @error
+            </small>
+        }
+
+        @if (notificaciones.Count > 1)
+        {
+            <small class="d-block mt-2 text-muted">
+                @(notificaciones.Count - 1) notificaciones más
+            </small>
+        }
+    </div>
+}
+
+@code {
+    private HubConnection? hubConnection;
+
+    private List<NotificacionEvento> notificaciones = new();
+
+    private readonly HashSet<int> ocultadas = new();
+
+    private CancellationTokenSource? cancelacion;
+    private Task? tareaActualizacion;
+
+    private bool esAdministrador;
+    private bool procesando;
+    private string error = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var autenticacion =
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        esAdministrador =
+            autenticacion.User.IsInRole("Administrador");
+
+        if (!esAdministrador)
+            return;
+
+        await CargarNotificaciones();
+
+        cancelacion = new CancellationTokenSource();
+
+        tareaActualizacion = ActualizarPeriodicamente(
+            cancelacion.Token);
+
+        try
+        {
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:7001/notificacionesHub")
+                .WithAutomaticReconnect()
+                .Build();
+
+            hubConnection.On<NotificacionRecibida>(
+                "RecibirNotificacion",
+                async _ =>
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await CargarNotificaciones();
+                        StateHasChanged();
+                    });
+                });
+
+            await hubConnection.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error de conexión SignalR: {ex.Message}");
+        }
+    }
+
+    private async Task CargarNotificaciones()
+    {
+        try
+        {
+            var pendientes =
+                await eventoService.ObtenerNotificacionesPendientes();
+
+            notificaciones = pendientes
+                .Where(n => !ocultadas.Contains(n.NotificacionId))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error al cargar notificaciones: {ex.Message}");
+        }
+    }
+
+    private async Task ActualizarPeriodicamente(
+        CancellationToken token)
+    {
+        using var timer = new PeriodicTimer(
+            TimeSpan.FromSeconds(5));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                await InvokeAsync(async () =>
+                {
+                    await CargarNotificaciones();
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task Confirmar()
+    {
+        if (!esAdministrador || procesando ||
+            notificaciones.Count == 0)
+            return;
+
+        procesando = true;
+        error = string.Empty;
+
+        try
+        {
+            var notificacion = notificaciones[0];
+
+            bool confirmado =
+                await eventoService.ConfirmarCambioEstado(
+                    notificacion.NotificacionId);
+
+            if (confirmado)
+            {
+                await CargarNotificaciones();
+            }
+            else
+            {
+                error = "No se pudo confirmar el cambio de estado.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            error = "Ocurrió un error al confirmar.";
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+
+    private void Cerrar()
+    {
+        if (notificaciones.Count == 0)
+            return;
+
+        ocultadas.Add(notificaciones[0].NotificacionId);
+        notificaciones.RemoveAt(0);
+        error = string.Empty;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (cancelacion != null)
+        {
+            await cancelacion.CancelAsync();
+
+            if (tareaActualizacion != null)
+            {
+                try
+                {
+                    await tareaActualizacion;
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+
+            cancelacion.Dispose();
+        }
+
+        if (hubConnection != null)
+            await hubConnection.DisposeAsync();
+    }
+
+    public class NotificacionRecibida
+    {
+        public int EventoId { get; set; }
+        public string NombreEvento { get; set; } = "";
+        public string EstadoAnterior { get; set; } = "";
+        public string EstadoNuevo { get; set; } = "";
+    }
+}
