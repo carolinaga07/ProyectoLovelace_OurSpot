@@ -150,7 +150,7 @@
         if (eliminado)
         {
             toastService.ShowSuccess("Personal eliminado correctamente.");
-            listaPersonal = await personalService.GetList(p => p.Id > 0);
+            listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
         }
         else
         {
