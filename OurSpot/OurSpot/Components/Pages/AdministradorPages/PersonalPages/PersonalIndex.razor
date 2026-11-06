@@ -88,8 +88,9 @@
             }
         </div>
 
-        <div class="card-footer">
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
             <label>Cantidad: @PersonalFiltrado.Count()</label>
+            <a href="/personal/Recuperar" class="btn btn-outline-primary bi bi-trash" title="Recuperar"></a>
         </div>
     </div>
 </div>
@@ -124,7 +125,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        listaPersonal = await personalService.GetList(p => p.Id > 0);
+        listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
     }
 
     private IEnumerable<Personal> PersonalFiltrado =>
