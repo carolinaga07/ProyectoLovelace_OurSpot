@@ -67,6 +67,22 @@ else
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Rol de acceso</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="personal.Rol">
+
+                            <option value="Empleado">Empleado</option>
+                            <option value="Administrador">Administrador</option>
+
+                        </InputSelect>
+
+                        <ValidationMessage For="() => personal.Rol" />
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label"><strong>Estado</strong></label>
                         <InputSelect class="form-select" @bind-Value="personal.Estado">
                             <option value="Activo">Activo</option>

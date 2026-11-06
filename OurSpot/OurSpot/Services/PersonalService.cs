@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OurSpot.Context;
+using OurSpot.Models;
 using System.Linq.Expressions;
 
 namespace OurSpot.Services;
@@ -8,16 +9,33 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory) : Aplic
 {
     public async Task<bool> Guardar(Personal personal)
     {
-        await using var contexto = await contextFactory.CreateDbContextAsync();
-
-        if (personal.Id == 0)
+        if (!await Existe(personal.Id))
         {
-            contexto.Personales.Add(personal);
+            return await Insertar(personal);
         }
         else
         {
-            contexto.Update(personal);
+            return await Modificar(personal);
         }
+    }
+
+    public async Task<bool> Existe(int id)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+        return await contexto.Personales.AnyAsync(p => p.Id == id);
+    }
+
+    public async Task<bool> Insertar(Personal personal)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+        contexto.Personales.Add(personal);
+        return await contexto.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> Modificar(Personal personal)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+        contexto.Update(personal);
         return await contexto.SaveChangesAsync() > 0;
     }
 
