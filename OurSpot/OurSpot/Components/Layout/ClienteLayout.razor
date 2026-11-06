@@ -1,5 +1,72 @@
-﻿<h3>ClienteLayout</h3>
+﻿
+@inherits LayoutComponentBase
 
-@code {
+<Toasts class="p-3"
+        AutoHide="true"
+        StackLength="3"
+        Placement="ToastsPlacement.TopRight" />
 
-}
+<div class="page">
+    <div class="sidebar">
+        <ClienteNavMenu />
+    </div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@* MODAL DE CERRAR SESIÓN *@
+<div class="modal fade"
+     id="modalCerrarSesion"
+     tabindex="-1"
+     aria-labelledby="modalCerrarSesionLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 text-dark"
+                    id="modalCerrarSesionLabel">
+                    Confirmación de cierre de sesión
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body text-dark">
+                ¿Estás seguro de que deseas salir del sistema?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <form action="/Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <button type="submit" class="btn btn-danger">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+

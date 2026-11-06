@@ -294,6 +294,9 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventoId"));
 
+                    b.Property<int?>("ClienteId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -336,6 +339,8 @@ namespace OurSpot.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("EventoId");
+
+                    b.HasIndex("ClienteId");
 
                     b.ToTable("Eventos");
                 });
@@ -596,6 +601,15 @@ namespace OurSpot.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.Evento", b =>
+                {
+                    b.HasOne("OurSpot.Models.Clientes", "Clientes")
+                        .WithMany("Eventos")
+                        .HasForeignKey("ClienteId");
+
+                    b.Navigation("Clientes");
+                });
+
             modelBuilder.Entity("OurSpot.Models.EventoDetalles", b =>
                 {
                     b.HasOne("OurSpot.Models.Contrataciones", "Contrataciones")
@@ -631,6 +645,11 @@ namespace OurSpot.Migrations
                         .HasForeignKey("ApplicationUserId");
 
                     b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Clientes", b =>
+                {
+                    b.Navigation("Eventos");
                 });
 
             modelBuilder.Entity("OurSpot.Models.Evento", b =>

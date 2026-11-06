@@ -197,10 +197,10 @@
         }
 
         var resultado = await SignInManager.PasswordSignInAsync(
-            loginModel.Correo,
-            loginModel.Contrasena,
-            isPersistent: false,
-            lockoutOnFailure: false);
+         usuario,
+         loginModel.Contrasena,
+         isPersistent: false,
+         lockoutOnFailure: false);
 
         if (resultado.IsLockedOut)
         {

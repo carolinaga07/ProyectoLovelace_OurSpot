@@ -1,0 +1,278 @@
+﻿@rendermode InteractiveServer
+@inject UserManager<ApplicationUser> userManager
+
+<style>
+    .nav-scrollable * {
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .nav-scrollable ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .accordion-menu {
+        width: 100%;
+        max-height: none !important;
+        background: #2D5056;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+        .accordion-menu li:last-child .dropdown {
+            border-bottom: 0;
+        }
+
+        .accordion-menu li.active .dropdown {
+            color: #fff;
+        }
+
+            .accordion-menu li.active .dropdown .bi-chevron-down {
+                transform: rotate(180deg);
+            }
+
+        .accordion-menu .dropdown {
+            cursor: pointer;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 15px 20px;
+            font-size: 16px;
+            border-bottom: 1px solid #B4C8CC;
+            color: #FFFFFF;
+            position: relative;
+            white-space: nowrap;
+            transition: background 0.3s ease;
+        }
+
+            .accordion-menu .dropdown:hover {
+                background: #4C6D76;
+            }
+
+            .accordion-menu .dropdown i.bi-menu-icon {
+                position: static !important;
+                font-size: 1.2rem;
+                margin-right: 12px;
+            }
+
+            .accordion-menu .dropdown i.bi-chevron-down {
+                position: static !important;
+                margin-left: auto;
+                transition: transform 0.2s ease-in-out;
+            }
+
+    .SubmenuItems {
+        display: none;
+        background: #2D5056;
+    }
+
+    .accordion-menu li.active .SubmenuItems {
+        display: block;
+    }
+
+    .SubmenuItems a {
+        display: block;
+        color: #fff;
+        font-weight: 600;
+        padding: 12px 12px 12px 45px;
+        transition: all 0.2s ease-out;
+        text-decoration: none;
+    }
+
+        .SubmenuItems a:hover {
+            background: #5c7185;
+            color: #fff;
+        }
+
+    .accordion-menu .dropdown .bi-chevron-down {
+        margin-left: 6px !important;
+    }
+
+    .config-btn {
+        cursor: pointer;
+        color: #FFFFFF;
+        padding: 15px 20px;
+        border-top: 1px solid #B4C8CC;
+        background: #2D5056;
+        transition: background 0.3s ease;
+        text-decoration: none;
+        font-size: 16px;
+        width: 100%;
+    }
+
+        .config-btn:hover {
+            background: #4C6D76;
+            color: #FFFFFF;
+        }
+
+    .accordion-menu li:first-child .dropdown {
+        border-top: 1px solid #2D5056;
+    }
+</style>
+
+<div class="top-row px-3 navbar navbar-dark d-flex align-items-center gap-4">
+    <div class="container-fluid justify-content-center">
+        <a class="navbar-brand" href="/cliente/home">
+            <img src="/lib/Imagenes/OurSpot-Logo.png"
+                 style="max-height: 55px" />
+        </a>
+    </div>
+
+    <div class="d-flex align-items-center gap-8">
+        <img src="/lib/Imagenes/icono-person.png"
+             style="max-height: 50px" />
+
+        <aside class="ms-2 mt-2">
+            <AuthorizeView Context="auth">
+                <Authorized>
+                    <div class="d-flex flex-column">
+                        <span class="text-white fw-bold"
+                              style="font-size: 1.1rem">
+                            @nombreUsuario
+                        </span>
+
+                        <small class="text-white-50">
+                            Cliente
+                        </small>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </aside>
+    </div>
+</div>
+
+<input type="checkbox"
+       title="Navigation"
+       class="navbar-toggler" />
+
+<div class="nav-scrollable">
+    <nav class="nav flex-column">
+        <div class="container p-0">
+            <ul class="accordion-menu">
+
+                @* PRINCIPAL *@
+                <li class="link @(MenuAbierto == "Principal" ? "active" : "")">
+                    <div class="dropdown"
+                         @onclick='() => AlternarMenu("Principal")'>
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-house-door-fill bi-menu-icon me-2"></i>
+                            Principal
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <ul class="SubmenuItems">
+                        <li>
+                            <NavLink href="/cliente/home">
+                                Inicio
+                            </NavLink>
+                        </li>
+                    </ul>
+                </li>
+
+                @* MIS EVENTOS *@
+                <li class="link @(MenuAbierto == "Eventos" ? "active" : "")">
+                    <div class="dropdown"
+                         @onclick='() => AlternarMenu("Eventos")'>
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar-week bi-menu-icon me-2"></i>
+                            Mis Eventos
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <ul class="SubmenuItems">
+                        <li>
+                            <NavLink href="/cliente/eventos">
+                                Consultar Eventos
+                            </NavLink>
+                        </li>
+
+                        <li>
+                            <NavLink href="/cliente/eventos/crear">
+                                Solicitar Evento
+                            </NavLink>
+                        </li>
+                    </ul>
+                </li>
+
+                @* MI CUENTA *@
+                <li class="link @(MenuAbierto == "Cuenta" ? "active" : "")">
+                    <div class="dropdown"
+                         @onclick='() => AlternarMenu("Cuenta")'>
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-circle bi-menu-icon me-2"></i>
+                            Mi Cuenta
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <ul class="SubmenuItems">
+                        <li>
+                            <NavLink href="/cliente/perfil">
+                                Mi Perfil
+                            </NavLink>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    @* CONFIGURACIÓN *@
+    <div class="mt-auto">
+        <a href="/cliente/perfil"
+           class="d-flex align-items-center config-btn">
+            <i class="bi bi-gear fs-5 me-2"></i>
+            <span>Configuración</span>
+        </a>
+    </div>
+
+    @* CERRAR SESIÓN *@
+    <div>
+        <button type="button"
+                class="d-flex config-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCerrarSesion">
+            <i class="bi bi-box-arrow-right fs-5 me-2"></i>
+            <span>Cerrar Sesión</span>
+        </button>
+    </div>
+</div>
+
+@code {
+    private string MenuAbierto = "";
+    private string nombreUsuario = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateTask == null)
+            return;
+
+        var authState = await AuthenticationStateTask;
+        var usuarioActual = authState.User;
+
+        if (usuarioActual.Identity?.IsAuthenticated == true)
+        {
+            var usuario = await userManager.GetUserAsync(usuarioActual);
+
+            nombreUsuario = usuario?.NombreCompleto
+                ?? usuarioActual.Identity.Name
+                ?? "Usuario";
+        }
+    }
+
+    private void AlternarMenu(string menu)
+    {
+        MenuAbierto = MenuAbierto == menu ? "" : menu;
+    }
+}

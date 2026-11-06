@@ -288,4 +288,23 @@ public class EventosService(
 
         return await contexto.SaveChangesAsync() > 0;
     }
+
+
+    public async Task<List<Evento>> ObtenerEventosCliente(
+        string applicationUserId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        return await contexto.Eventos
+            .Where(e =>
+                e.Clientes != null &&
+                e.Clientes.ApplicationUserId == applicationUserId &&
+                !e.Eliminado)
+            .AsNoTracking()
+            .OrderBy(e => e.FechaInicio)
+            .ThenBy(e => e.HoraInicio)
+            .ToListAsync();
+    }
+
 }
