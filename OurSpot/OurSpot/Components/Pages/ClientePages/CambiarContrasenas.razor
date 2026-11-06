@@ -1,0 +1,154 @@
+﻿@page "/cliente/cambiar-contrasena"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+@inject ContrasenasService contrasenasService
+@inject ToastService toastService
+@inject NavigationManager Navigation
+
+<PageTitle>Cambiar Contraseña - OurSpot</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+
+        <div class="card-header">
+            <h4 class="card-title mt-2">
+                <i class="bi bi-shield-lock me-2"
+                   style="color:#2D5056"></i>
+                Cambiar Contraseña
+            </h4>
+        </div>
+
+        <EditForm Model="modelo" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Contraseña actual</strong>
+                    </label>
+
+                    <InputText type="password"
+                               class="form-control"
+                               autocomplete="current-password"
+                               @bind-Value="modelo.ContrasenaActual" />
+
+                    <ValidationMessage For="() => modelo.ContrasenaActual" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Nueva contraseña</strong>
+                    </label>
+
+                    <InputText type="password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               @bind-Value="modelo.NuevaContrasena" />
+
+                    <ValidationMessage For="() => modelo.NuevaContrasena" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Confirmar nueva contraseña</strong>
+                    </label>
+
+                    <InputText type="password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               @bind-Value="modelo.ConfirmarContrasena" />
+
+                    <ValidationMessage For="() => modelo.ConfirmarContrasena" />
+                </div>
+
+            </div>
+
+            <div class="card-footer text-center">
+                <button type="submit"
+                        class="btn btn-primary me-2"
+                        style="background-color:#2D5056"
+                        disabled="@procesando">
+
+                    <span class="bi bi-shield-check"></span>
+                    @(procesando ? "Actualizando..." : "Cambiar contraseña")
+                </button>
+
+                <a href="/cliente/perfil"
+                   class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private CambiarContrasenaDto modelo = new();
+    private bool procesando;
+
+    private async Task Guardar()
+    {
+        if (procesando || AuthenticationStateTask == null)
+            return;
+
+        procesando = true;
+
+        try
+        {
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            var applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                toastService.ShowError(
+                    "No se pudo identificar al usuario.");
+                return;
+            }
+
+            var resultado =
+                await contrasenasService.CambiarContrasena(
+                    applicationUserId,
+                    modelo);
+
+            if (resultado.Succeeded)
+            {
+                modelo = new();
+
+                toastService.ShowSuccess(
+                    "Contraseña actualizada correctamente.");
+
+                Navigation.NavigateTo("/cliente/perfil");
+            }
+            else
+            {
+                var errores = string.Join(
+                    " ",
+                    resultado.Errors.Select(e => e.Description));
+
+                toastService.ShowError(errores);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            toastService.ShowError(
+                "Ocurrió un error al cambiar la contraseña.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}

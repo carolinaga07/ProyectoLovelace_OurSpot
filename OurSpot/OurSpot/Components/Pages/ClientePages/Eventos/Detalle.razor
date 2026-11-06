@@ -1,0 +1,229 @@
+﻿@page "/cliente/eventos/detalle/{EventoId:int}"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using OurSpot.Models.DTOs
+@using OurSpot.Services
+
+@inject EventosService eventosService
+
+<PageTitle>Detalle del Evento</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+
+        <div class="card-header text-center">
+            <h5 class="card-title mb-0">
+                Detalle del Evento
+            </h5>
+        </div>
+
+        @if (cargando)
+        {
+            <div class="card-body">
+                <p class="text-center p-4">
+                    Cargando evento...
+                </p>
+            </div>
+        }
+        else if (evento is null)
+        {
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    @mensajeError
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body">
+
+                <div class="row">
+
+                    @* Galería de fotografías del evento *@
+                    <div class="col-md-7">
+                        <GaleriaEventoCliente EventoId="@evento.EventoId"
+                                              Estado="@evento.Estado" />
+                    </div>
+
+                    @* Información del evento *@
+                    <div class="col-md-5 mt-4 mt-md-0">
+
+                        <h3 class="mb-3">
+                            @evento.Nombre
+                        </h3>
+
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge border text-dark fw-normal">
+                                @evento.Tipo
+                            </span>
+
+                            <span class="badge border text-dark fw-normal">
+                                @evento.Estado
+                            </span>
+                        </div>
+
+                        <p>
+                            <strong>Fecha de inicio:</strong>
+                            @evento.FechaInicio.ToString("dd/MM/yyyy")
+                        </p>
+
+                        <p>
+                            <strong>Hora de inicio:</strong>
+                            @evento.HoraInicio.ToString("HH:mm")
+                        </p>
+
+                        <p>
+                            <strong>Fecha de cierre:</strong>
+                            @evento.FechaCierre.ToString("dd/MM/yyyy")
+                        </p>
+
+                        <p>
+                            <strong>Hora de cierre:</strong>
+                            @evento.HoraCierre.ToString("HH:mm")
+                        </p>
+
+                        <p>
+                            <strong>Lugar:</strong>
+                            @evento.Lugar
+                        </p>
+
+                        <p>
+                            <strong>Descripción:</strong>
+                            @(string.IsNullOrWhiteSpace(evento.Descripcion)
+                                ? "Sin descripción."
+                                : evento.Descripcion)
+                        </p>
+
+                        <hr />
+
+                        <h4>
+                            Total: @evento.Total.ToString("C2")
+                        </h4>
+
+                    </div>
+                </div>
+
+                @* Servicios contratados *@
+                <div class="border border-success p-3 mt-4">
+
+                    <h5>Servicios Contratados</h5>
+
+                    @if (evento.Contrataciones.Any())
+                    {
+                        <div class="table-responsive">
+                            <QuickGrid Items="evento.Contrataciones.AsQueryable()"
+                                       Class="table table-light text-center">
+
+                                <PropertyColumn Property="d => d.Servicio"
+                                                Title="Servicio" />
+
+                                <PropertyColumn Property="d => d.PrecioFinal"
+                                                Title="Precio"
+                                                Format="C2" />
+
+                            </QuickGrid>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">
+                            No hay servicios contratados para este evento.
+                        </p>
+                    }
+
+                    <hr />
+
+                    <p class="text-end mb-0">
+                        <strong>
+                            Total: @evento.Total.ToString("C2")
+                        </strong>
+                    </p>
+
+                </div>
+
+            </div>
+        }
+
+        <div class="card-footer text-center">
+            <a href="/cliente/eventos"
+               class="btn btn-secondary">
+                <span class="bi bi-arrow-left"></span>
+                Volver
+            </a>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private EventoClienteDetalleDto? evento;
+
+    private bool cargando = true;
+
+    private string mensajeError =
+        "No se encontró el evento.";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        evento = null;
+
+        try
+        {
+            if (AuthenticationStateTask == null)
+            {
+                mensajeError =
+                    "No se pudo obtener la sesión actual.";
+                return;
+            }
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            var applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                mensajeError =
+                    "No se pudo identificar al usuario.";
+                return;
+            }
+
+            evento = await eventosService.ObtenerDetalleCliente(
+                EventoId,
+                applicationUserId);
+
+            if (evento == null)
+            {
+                mensajeError =
+                    "El evento no existe o no tienes permiso para consultarlo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            mensajeError =
+                "Ocurrió un error al cargar el evento.";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+}

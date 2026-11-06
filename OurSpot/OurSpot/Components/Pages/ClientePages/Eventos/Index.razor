@@ -1,0 +1,399 @@
+﻿@page "/cliente/eventos"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@inject EventosService eventoService
+
+<PageTitle>Mis Eventos - OurSpot</PageTitle>
+
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .pendiente {
+        background-color: #faf4e3;
+        color: #9a8550;
+    }
+
+    .activo {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .finalizado {
+        background-color: #e0eaf5;
+        color: #42678d;
+    }
+
+    .cancelado {
+        background-color: #f5dddd;
+        color: #a34c4c;
+    }
+</style>
+
+<div class="container-fluid px-3">
+    <div class="card shadow-lg">
+
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">
+                Mis Eventos
+            </h5>
+
+            <a href="/cliente/eventos/crear"
+               class="btn btn-primary"
+               style="background-color:#2D5056">
+                <span class="bi bi-plus-square-dotted"></span>
+                Nuevo Evento
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Tipo</strong>
+                    </label>
+                </div>
+
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
+                </div>
+
+                <div class="col-5">
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+
+                <div class="col-3">
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroTipo">
+                        <option value="">Todos los tipos</option>
+
+                        @foreach (var tipo in tiposDisponibles)
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="col-3">
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control"
+                               @bind="FiltroBusqueda"
+                               placeholder="Buscar nombre, lugar o Id" />
+
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar"
+                                @onclick="Buscar">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-1">
+                    <button type="button"
+                            class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            title="Restablecer"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger">
+                    @error
+                </div>
+            }
+            else if (cargando)
+            {
+                <p>Cargando eventos...</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <QuickGrid Items="listaEventos.AsQueryable()"
+                               Class="table table-hover text-center mt-3">
+
+                        <PropertyColumn Property="e => e.EventoId"
+                                        Title="Id"
+                                        Sortable="true" />
+
+                        <TemplateColumn Title="Fecha de inicio">
+                            <div class="text-nowrap">
+                                @context.FechaInicio.ToString("dd/MM/yyyy")
+                                @context.HoraInicio.ToString("HH:mm")
+                            </div>
+                        </TemplateColumn>
+
+                        <TemplateColumn Title="Fecha de cierre">
+                            <div class="text-nowrap">
+                                @context.FechaCierre.ToString("dd/MM/yyyy")
+                                @context.HoraCierre.ToString("HH:mm")
+                            </div>
+                        </TemplateColumn>
+
+                        <PropertyColumn Property="e => e.Nombre"
+                                        Title="Nombre"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.Lugar"
+                                        Title="Lugar"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.Total"
+                                        Title="Total"
+                                        Sortable="true" />
+
+                        <TemplateColumn Title="Estado">
+                            <span class="estado @(context.Estado?.ToLowerInvariant())">
+                                @context.Estado
+                            </span>
+                        </TemplateColumn>
+
+                        
+                        <TemplateColumn Title="Opciones">
+                            <div class="d-flex flex-nowrap justify-content-center align-items-center gap-1">
+
+                                <a href="/cliente/eventos/detalle/@context.EventoId"
+                                   class="btn btn-outline-primary bi bi-eye"
+                                   title="Ver detalles">
+                                </a>
+
+                                @if (context.Estado == "Pendiente")
+                                {
+                                    <a href="/cliente/eventos/edit/@context.EventoId"
+                                       class="btn btn-outline-secondary bi bi-pencil-square"
+                                       title="Modificar evento">
+                                    </a>
+                                }
+
+                            </div>
+                        </TemplateColumn>
+
+
+                    </QuickGrid>
+                </div>
+
+                @if (!listaEventos.Any())
+                {
+                    <p class="text-center text-muted mt-3">
+                        No se encontraron eventos.
+                    </p>
+                }
+            }
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-items-center mb-4">
+            <label>
+                <strong>Cantidad: </strong>@listaEventos.Count
+            </label>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<Evento> listaEventos = new();
+    private List<Evento> todosEventos = new();
+    private List<string> tiposDisponibles = new();
+
+    private string FiltroTipo { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    private bool filtrosAplicados;
+    private bool cargando = true;
+    private string? error;
+    private string? applicationUserId;
+
+    private CancellationTokenSource? cancelacion;
+    private Task? tareaActualizacion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask == null)
+            {
+                error = "No se pudo obtener la sesión actual.";
+                return;
+            }
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                error = "No se pudo identificar al usuario.";
+                return;
+            }
+
+            await CargarEventos();
+
+            cancelacion = new CancellationTokenSource();
+
+            tareaActualizacion =
+                ActualizarEventosAutomaticamente(cancelacion.Token);
+        }
+        catch (Exception ex)
+        {
+            error = "Ocurrió un error al cargar tus eventos.";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task CargarEventos()
+    {
+        if (string.IsNullOrEmpty(applicationUserId))
+            return;
+
+        var eventos =
+            await eventoService.ObtenerEventosCliente(
+                applicationUserId);
+
+        todosEventos = eventos
+            .OrderByDescending(e => e.EventoId)
+            .ToList();
+
+        tiposDisponibles = todosEventos
+            .Where(e => !string.IsNullOrWhiteSpace(e.Tipo))
+            .Select(e => e.Tipo)
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+
+        AplicarFiltros();
+    }
+
+    private async Task ActualizarEventosAutomaticamente(
+        CancellationToken token)
+    {
+        using var timer = new PeriodicTimer(
+            TimeSpan.FromSeconds(5));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                await InvokeAsync(async () =>
+                {
+                    try
+                    {
+                        await CargarEventos();
+                        StateHasChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void AplicarFiltros()
+    {
+        if (!filtrosAplicados)
+        {
+            listaEventos = todosEventos.ToList();
+            return;
+        }
+
+        var busqueda = FiltroBusqueda.Trim();
+
+        listaEventos = todosEventos
+            .Where(e =>
+                (FiltroTipo == "" ||
+                 e.Tipo == FiltroTipo) &&
+
+                (FiltroEstado == "" ||
+                 e.Estado == FiltroEstado) &&
+
+                (busqueda == "" ||
+                 e.Nombre.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.Lugar.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.EventoId.ToString().Contains(busqueda))
+            )
+            .ToList();
+    }
+
+    private void Buscar()
+    {
+        filtrosAplicados = true;
+        AplicarFiltros();
+    }
+
+    private void Restablecer()
+    {
+        FiltroTipo = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
+
+        filtrosAplicados = false;
+        AplicarFiltros();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (cancelacion is not null)
+        {
+            await cancelacion.CancelAsync();
+
+            if (tareaActualizacion is not null)
+            {
+                try
+                {
+                    await tareaActualizacion;
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+
+            cancelacion.Dispose();
+        }
+    }
+}

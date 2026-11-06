@@ -1,0 +1,378 @@
+﻿@page "/cliente/eventos/edit/{EventoId:int}"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+
+@inject EventosService eventosService
+@inject LugaresService lugaresService
+@inject ContratacionesService contratacionesService
+@inject NavigationManager Navigation
+@inject ToastService toastService
+
+<PageTitle>Modificar Evento</PageTitle>
+
+@if (cargando)
+{
+    <p class="text-center mt-4">Cargando evento...</p>
+}
+else if (!eventoEncontrado)
+{
+    <div class="alert alert-warning">
+        @mensajeError
+    </div>
+
+    <a href="/cliente/eventos" class="btn btn-secondary">
+        <span class="bi bi-arrow-left"></span> Volver
+    </a>
+}
+else
+{
+    <EditForm Model="Evento" OnValidSubmit="Modificar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="container">
+            <div class="card shadow-lg">
+
+                <div class="card-header">
+                    <h4 class="card-title mt-2">
+                        <a href="/cliente/eventos">
+                            <i class="bi bi-arrow-left-short fs-1 align-middle"
+                               style="color:#2D5056"></i>
+                        </a>
+                        Modificar Evento
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Nombre</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="Evento.Nombre" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Descripción</strong>
+                        </label>
+
+                        <InputTextArea class="form-control"
+                                       @bind-Value="Evento.Descripcion" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Fecha de inicio</strong>
+                            </label>
+
+                            <InputDate class="form-control"
+                                       @bind-Value="Evento.FechaInicio" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Hora de inicio</strong>
+                            </label>
+
+                            <input type="time"
+                                   class="form-control"
+                                   @bind="Evento.HoraInicio" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Fecha de cierre</strong>
+                            </label>
+
+                            <InputDate class="form-control"
+                                       @bind-Value="Evento.FechaCierre" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <strong>Hora de cierre</strong>
+                            </label>
+
+                            <input type="time"
+                                   class="form-control"
+                                   @bind="Evento.HoraCierre" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Tipo</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="Evento.Tipo">
+                            <option value="">Elija una opción</option>
+                            <option value="Publico">Público</option>
+                            <option value="Privado">Privado</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Lugar</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="Evento.Lugar">
+                            <option value="">-- Seleccione un lugar --</option>
+
+                            @foreach (var lugar in listaLugares)
+                            {
+                                <option value="@lugar.Nombre">
+                                    @lugar.Nombre
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="border border-success p-3 mt-3">
+                        <h5>Servicios del Evento</h5>
+
+                        <ContratacionPicker @key="EventoId"
+                                            Contrataciones="ListaContrataciones"
+                                            Ganancia="Ganancia"
+                                            @bind-ContratacionId="contratacionId"
+                                            OnContratacionSelected="HandleContratacionSelected" />
+
+                        <hr />
+
+                        @if (!Evento.Servicios.Any())
+                        {
+                            <p class="text-muted">
+                                El evento no tiene servicios contratados.
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <QuickGrid Items="Evento.Servicios.AsQueryable()"
+                                           Class="table table-light text-center">
+
+                                    <PropertyColumn Property="d => d.Servicio"
+                                                    Title="Servicio" />
+
+                                    <PropertyColumn Property="d => d.PrecioFinal"
+                                                    Title="Precio"
+                                                    Format="C2" />
+
+                                    <TemplateColumn Title="Opciones"
+                                                    Context="detalle">
+                                        <button type="button"
+                                                class="btn btn-outline-danger bi bi-trash"
+                                                title="Quitar servicio"
+                                                disabled="@procesando"
+                                                @onclick="() => Quitar(detalle)">
+                                        </button>
+                                    </TemplateColumn>
+
+                                </QuickGrid>
+                            </div>
+                        }
+
+                        <hr />
+
+                        <p class="text-end mb-0">
+                            <strong>
+                                Total: @Total.ToString("C2")
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit"
+                            class="btn btn-primary"
+                            style="background-color:#2D5056"
+                            disabled="@procesando">
+                        <span class="bi bi-floppy"></span>
+                        @(procesando ? "Guardando..." : "Guardar cambios")
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private const double Ganancia = 25;
+
+    private EditarEventoClienteDto Evento = new();
+
+    private List<Lugares> listaLugares = new();
+    private List<Contrataciones> ListaContrataciones = new();
+
+    private string? applicationUserId;
+    private string mensajeError = "No se pudo cargar el evento.";
+
+    private int contratacionId;
+    private bool cargando = true;
+    private bool eventoEncontrado;
+    private bool procesando;
+
+    private double Total => Evento.Servicios.Sum(s => s.PrecioFinal);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        eventoEncontrado = false;
+        contratacionId = 0;
+
+        try
+        {
+            if (AuthenticationStateTask == null)
+                return;
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                mensajeError = "No se pudo identificar al usuario.";
+                return;
+            }
+
+            var encontrado =
+                await eventosService.ObtenerEventoParaEditarCliente(
+                    EventoId,
+                    applicationUserId);
+
+            if (encontrado == null)
+            {
+                mensajeError =
+                    "El evento no existe o no puede modificarse.";
+                return;
+            }
+
+            Evento = encontrado;
+
+            listaLugares = await lugaresService.GetList(
+                l => l.Id > 0);
+
+            ListaContrataciones =
+                await contratacionesService.GetList(
+                    c => !c.Eliminado && c.Estado == "Activa");
+
+            eventoEncontrado = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            mensajeError = "Ocurrió un error al cargar el evento.";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void HandleContratacionSelected(
+        (Contrataciones Contrataciones, string servicio) seleccion)
+    {
+        if (procesando)
+            return;
+
+        var contratacion = seleccion.Contrataciones;
+
+        if (Evento.ContratacionesIds.Contains(
+            contratacion.ContratacionId))
+        {
+            toastService.ShowError(
+                "Ese servicio ya está agregado al evento.");
+            return;
+        }
+
+        Evento.ContratacionesIds.Add(contratacion.ContratacionId);
+
+        Evento.Servicios.Add(new ServicioEditableClienteDto
+        {
+            ContratacionId = contratacion.ContratacionId,
+            Servicio = seleccion.servicio,
+            PrecioFinal = contratacion.Costo * (1 + Ganancia / 100)
+        });
+    }
+
+    private void Quitar(ServicioEditableClienteDto detalle)
+    {
+        if (procesando)
+            return;
+
+        Evento.ContratacionesIds.Remove(detalle.ContratacionId);
+        Evento.Servicios.Remove(detalle);
+    }
+
+    private async Task Modificar()
+    {
+        if (procesando)
+            return;
+
+        if (string.IsNullOrWhiteSpace(Evento.Nombre))
+        {
+            toastService.ShowError("El nombre es requerido.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(applicationUserId))
+        {
+            toastService.ShowError("No se pudo identificar al usuario.");
+            return;
+        }
+
+        procesando = true;
+
+        try
+        {
+            bool modificado =
+                await eventosService.ActualizarEventoCliente(
+                    Evento,
+                    applicationUserId);
+
+            if (modificado)
+            {
+                toastService.ShowSuccess(
+                    "Evento modificado correctamente.");
+
+                Navigation.NavigateTo("/cliente/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo modificar el evento. Verifica su estado y las fechas.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            toastService.ShowError(
+                "Ocurrió un error al guardar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}

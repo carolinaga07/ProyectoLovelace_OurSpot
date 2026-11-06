@@ -1,0 +1,339 @@
+﻿@page "/cliente/eventos/crear"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+@inject EventosService eventoService
+@inject LugaresService lugaresService
+@inject ContratacionesService contratacionesService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Crear Evento - OurSpot</PageTitle>
+
+<EditForm Model="evento" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="container">
+        <div class="card shadow-lg">
+
+            <div class="card-header">
+                <h4 class="card-title mt-2">
+                    <a href="/cliente/eventos">
+                        <i class="bi bi-arrow-left-short fs-1 align-middle"
+                           style="color:#2D5056"></i>
+                    </a>
+                    Crear Evento
+                </h4>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Nombre</strong>
+                    </label>
+
+                    <InputText class="form-control"
+                               @bind-Value="evento.Nombre" />
+
+                    <ValidationMessage For="(() => evento.Nombre)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Descripción</strong>
+                    </label>
+
+                    <InputTextArea class="form-control"
+                                   @bind-Value="evento.Descripcion" />
+
+                    <ValidationMessage For="(() => evento.Descripcion)" />
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <strong>Fecha de inicio</strong>
+                        </label>
+
+                        <InputDate class="form-control"
+                                   @bind-Value="evento.FechaInicio" />
+
+                        <ValidationMessage For="(() => evento.FechaInicio)" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <strong>Hora de inicio</strong>
+                        </label>
+
+                        <input type="time"
+                               class="form-control"
+                               @bind="evento.HoraInicio" />
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <strong>Fecha de cierre</strong>
+                        </label>
+
+                        <InputDate class="form-control"
+                                   @bind-Value="evento.FechaCierre" />
+
+                        <ValidationMessage For="(() => evento.FechaCierre)" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <strong>Hora de cierre</strong>
+                        </label>
+
+                        <input type="time"
+                               class="form-control"
+                               @bind="evento.HoraCierre" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Tipo</strong>
+                    </label>
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="evento.Tipo">
+
+                        <option value="" disabled>
+                            Elija una opción
+                        </option>
+
+                        <option value="Publico">Público</option>
+                        <option value="Privado">Privado</option>
+
+                    </InputSelect>
+
+                    <ValidationMessage For="(() => evento.Tipo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <strong>Lugar</strong>
+                    </label>
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="evento.Lugar">
+
+                        <option value="">
+                            -- Seleccione un lugar --
+                        </option>
+
+                        @foreach (var lugar in listaLugares)
+                        {
+                            <option value="@lugar.Nombre">
+                                @lugar.Nombre
+                            </option>
+                        }
+
+                    </InputSelect>
+
+                    <ValidationMessage For="(() => evento.Lugar)" />
+                </div>
+
+                <div class="border border-success p-3 mt-3">
+                    <h5>Detalle del Evento</h5>
+
+                    <ContratacionPicker Contrataciones="ListaContrataciones"
+                                        Ganancia="Ganancia"
+                                        @bind-ContratacionId="contratacionId"
+                                        OnContratacionSelected="HandleContratacionSelected" />
+
+                    <hr />
+
+                   
+                    <div class="table-responsive">
+                        <QuickGrid Items="evento.EventosDetalles.AsQueryable()"
+                                   Class="table table-light text-center">
+
+                            <TemplateColumn Title="Servicio" Context="detalle">
+                                @NombreContratacion(detalle.ContratacionId)
+                            </TemplateColumn>
+
+                            <PropertyColumn Property="d => d.PrecioFinal"
+                                            Title="Precio"
+                                            Format="C2" />
+
+                            <TemplateColumn Title="Opciones" Context="detalle">
+                                <button type="button"
+                                        class="btn btn-outline-danger bi bi-trash"
+                                        title="Quitar servicio"
+                                        @onclick="() => Quitar(detalle)">
+                                </button>
+                            </TemplateColumn>
+
+                        </QuickGrid>
+                    </div>
+
+                    <hr />
+
+                    <p class="text-end mb-0">
+                        <strong>
+                            Total: @evento.Total.ToString("C2")
+                        </strong>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <button type="submit"
+                        class="btn btn-primary"
+                        style="background-color:#2D5056"
+                        disabled="@procesando">
+
+                    <span class="bi bi-floppy"></span>
+
+                    @(procesando ? "Guardando..." : "Guardar Evento")
+                </button>
+            </div>
+
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private const double Ganancia = 25;
+    private int contratacionId;
+    private bool procesando;
+
+    private Evento evento = new();
+
+    private List<Lugares> listaLugares = new();
+
+    public List<Contrataciones> ListaContrataciones { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        evento.FechaInicio = DateOnly.FromDateTime(DateTime.Today);
+        evento.FechaCierre = DateOnly.FromDateTime(DateTime.Today);
+
+        listaLugares = await lugaresService.GetList(
+            l => l.Id > 0);
+
+        ListaContrataciones = await contratacionesService.GetList(
+            c => !c.Eliminado && c.Estado == "Activa");
+    }
+
+    private string NombreContratacion(int id)
+    {
+        return ListaContrataciones
+            .FirstOrDefault(c => c.ContratacionId == id)
+            ?.Servicio ?? "";
+    }
+
+    private void HandleContratacionSelected(
+        (Contrataciones Contrataciones, string servicio) seleccion)
+    {
+        var contratacion = seleccion.Contrataciones;
+
+        if (evento.EventosDetalles.Any(
+            d => d.ContratacionId == contratacion.ContratacionId))
+        {
+            toastService.ShowError(
+                "Ese servicio ya está agregado al evento.");
+            return;
+        }
+
+        evento.EventosDetalles.Add(new EventoDetalles
+        {
+            ContratacionId = contratacion.ContratacionId,
+            Servicio = seleccion.servicio,
+            PrecioBase = contratacion.Costo,
+            PorcentajeGanancia = Ganancia,
+            PrecioFinal = contratacion.Costo * (1 + Ganancia / 100)
+        });
+
+        ActualizarTotal();
+    }
+
+    private void Quitar(EventoDetalles detalle)
+    {
+        evento.EventosDetalles.Remove(detalle);
+        ActualizarTotal();
+    }
+
+    private void ActualizarTotal()
+    {
+        evento.Total = evento.EventosDetalles.Sum(
+            d => d.PrecioFinal);
+    }
+
+    private async Task Guardar()
+    {
+        if (procesando)
+            return;
+
+        procesando = true;
+
+        try
+        {
+            if (AuthenticationStateTask == null)
+            {
+                toastService.ShowError(
+                    "No se pudo obtener la sesión.");
+                return;
+            }
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            var applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                toastService.ShowError(
+                    "No se pudo identificar al usuario.");
+                return;
+            }
+
+            ActualizarTotal();
+
+            bool creado = await eventoService.CrearEventoCliente(
+                evento,
+                applicationUserId);
+
+            if (creado)
+            {
+                toastService.ShowSuccess(
+                    "¡Evento guardado exitosamente!");
+
+                navigationManager.NavigateTo("/cliente/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo guardar el evento. Verifica los datos y las fechas.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            toastService.ShowError(
+                "Ocurrió un error al guardar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}
