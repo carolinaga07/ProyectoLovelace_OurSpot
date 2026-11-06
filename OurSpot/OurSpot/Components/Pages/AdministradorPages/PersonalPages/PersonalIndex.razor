@@ -1,0 +1,161 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/personal"
+@rendermode InteractiveServer
+@inject PersonalService personalService
+@inject ToastService toastService
+
+<PageTitle>Personal</PageTitle>
+
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .activo {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .inactivo {
+        background-color: #eadede;
+        color: #8a4d4d;
+    }
+</style>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title align-content-center mt-2">Personal</h4>
+            <a href="/personal/create" data-enhance-nav ="false" class="btn btn-primary" style="background-color:#2D5056">
+                <span class="bi bi-plus-square-dotted"></span> Nuevo Personal
+            </a>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3"><label class="col-form-label"><strong>Cargo</strong></label></div>
+                <div class="col-4"><label class="col-form-label"><strong>Estado</strong></label></div>
+                <div class="col-5"><label class="col-form-label"><strong>Búsqueda</strong></label></div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <div class="col-3">
+                    <select class="form-select" @bind="FiltroCargo">
+                        <option value="">Todos los cargos</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Empleado">Empleado</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <select class="form-select" @bind="FiltroEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" @bind:event="oninput" placeholder="Buscar nombre, correo o Id" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" title="Buscar"></button>
+                    </div>
+                </div>
+            </div>
+
+            <QuickGrid Items="PersonalFiltrado.AsQueryable()" Class="table table-hover">
+                <PropertyColumn Property="p => p.Id" Title="Id" Sortable="true" />
+                <PropertyColumn Property="p => p.Nombre" Title="Nombre" Sortable="true" />
+                <PropertyColumn Property="p => p.Correo" Title="Correo" Sortable="true" />
+                <PropertyColumn Property="p => p.Cargo" Title="Cargo" Sortable="true" />
+                <TemplateColumn Title="Estado" SortBy="GridSort<Personal>.ByAscending(p => p.Estado)">
+                    <span class="estado @(context.Estado == "Activo" ? "activo" : "inactivo")">@context.Estado</span>
+                </TemplateColumn>
+                <TemplateColumn Title="Opciones">
+                    <a href="/personal/edit/@context.Id" class="btn btn-outline-primary bi bi-pencil-square" title="Editar"></a>
+                    <button type="button" class="btn btn-outline-danger bi bi-x-lg" title="Eliminar"
+                            data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                            @onclick="() => MostrarModal(context)"></button>
+                </TemplateColumn>
+            </QuickGrid>
+
+            @if (!PersonalFiltrado.Any())
+            {
+                <p class="text-center text-muted py-4">
+                    No se encontraron registros de personal con los filtros seleccionados.
+                </p>
+            }
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label>Cantidad: @PersonalFiltrado.Count()</label>
+            <a href="/personal/Recuperar" class="btn btn-outline-primary bi bi-trash" title="Recuperar"></a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminacion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (PersonalAEliminar != null)
+                {
+                    <p>¿Eliminar a <strong>@PersonalAEliminar.Nombre</strong>?</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="ConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string FiltroCargo { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+    private List<Personal> listaPersonal = new();
+    private Personal? PersonalAEliminar;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
+    }
+
+    private IEnumerable<Personal> PersonalFiltrado =>
+        listaPersonal.Where(persona =>
+            (string.IsNullOrEmpty(FiltroCargo) || persona.Cargo == FiltroCargo) &&
+            (string.IsNullOrEmpty(FiltroEstado) || persona.Estado == FiltroEstado) &&
+            (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
+             persona.Nombre.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+             persona.Correo.Contains(FiltroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+             persona.Id.ToString().Contains(FiltroBusqueda.Trim())));
+
+    private void MostrarModal(Personal persona)
+    {
+        PersonalAEliminar = persona;
+    }
+
+    private async Task ConfirmarEliminar()
+    {
+        if (PersonalAEliminar == null) return;
+
+        bool eliminado = await personalService.Eliminar(PersonalAEliminar.Id);
+        if (eliminado)
+        {
+            toastService.ShowSuccess("Personal eliminado correctamente.");
+            listaPersonal = await personalService.GetList(p => true && p.Eliminado == false);
+        }
+        else
+        {
+            toastService.ShowError("No se pudo eliminar el personal.");
+        }
+        PersonalAEliminar = null;
+    }
+}

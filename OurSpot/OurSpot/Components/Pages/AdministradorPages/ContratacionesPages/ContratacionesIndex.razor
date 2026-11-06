@@ -1,0 +1,240 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Contrataciones"
+@rendermode InteractiveServer
+@inject ContratacionesService contratationesService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .activa {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .cancelada {
+        background-color: #fde8e8;
+        color: #9e3d3d;
+    }
+
+    .pendiente {
+        background-color: #fef3d6;
+        color: #8c6d1e;
+    }
+
+    .finalizada {
+        background-color: #e2f0fb;
+        color: #3b7197;
+    }
+</style>
+
+<PageTitle>Contrataciones</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Contrataciones</h5>
+            <a href="/Contrataciones/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Nueva Contrataci&oacute;n</a>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-2">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-2">
+                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Refrigeracion">Refrigeraci&oacute;n</option>
+                        <option value="Decoracion">Decoraci&oacute;n</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Fotografia">Fotograf&iacute;a</option>
+                    </InputSelect>
+                </div>
+
+                @*Estado*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Realizada">Realizada</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+
+                @*Restablecer*@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="c => c.ContratacionId" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="c => c.Servicio" Title="Servicio"Sortable="true" />
+                    <PropertyColumn Property="c => c.Proveedor" Title="Proveedor" Sortable="true" />
+                    <PropertyColumn Property="c => c.Categoria" Title="Categoría" Sortable="true" />
+                    <PropertyColumn Property="c => c.Costo" Title="Costo" Format="N2" Sortable="true" />
+                    <TemplateColumn Title="Estado" Sortable="true">
+                        <span class="@ObtenerClaseEstado(context.Estado)">
+                            @context.Estado
+                        </span>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Opciones">
+                        <a href="@($"/Contrataciones/Editar/{context.ContratacionId}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" @onclick="() => Contratacion = context" >
+                            <span class="bi bi-x-lg"></span>
+                        </button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+            <a href="/Contrataciones/Recuperar" class="btn btn-outline-primary bi bi-trash" title="Recuperar"></a>
+        </div>
+    </div>
+</div>
+
+
+@* Modal de Eliminación *@
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalCerrar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalCerrar"> Confirmación de eliminación </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"> </button>
+            </div>
+
+            <div class="modal-body">
+                @if (Contratacion != null)
+                {
+                    <p>¿Desea eliminar la contratación @Contratacion.Servicio?</p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Cerrar </button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="Eliminar"> Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string FiltroCategoria { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Contrataciones> itemsQueryable =
+        Enumerable.Empty<Contrataciones>().AsQueryable();
+
+    public Contrataciones Contratacion { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCategoria == "" &&
+            FiltroEstado == "")
+        {
+            var items = await contratationesService.GetList(c => c.Eliminado == false);
+            itemsQueryable = items.AsQueryable();
+        }
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await contratationesService.GetList(c =>
+                c.Eliminado == false &&
+                (FiltroCategoria == "" || c.Servicio == FiltroCategoria) &&
+                (FiltroEstado == "" || c.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (c.Categoria != null && c.Categoria.ToLower().Contains(busqueda)) ||
+                    (c.Servicio != null && c.Servicio.ToLower().Contains(busqueda)) ||
+                    (c.Proveedor != null && c.Proveedor.ToLower().Contains(busqueda))
+                )
+            );
+
+            itemsQueryable = items.AsQueryable();
+        }
+    }
+
+    private async Task Eliminar()
+    {
+        bool eliminado = await contratationesService.Eliminar(Contratacion.ContratacionId);
+
+        if (eliminado)
+        {
+            await Buscar();
+            toastService.ShowSuccess("Contratación eliminada exitosamente");
+        }
+        else
+        {
+            toastService.ShowError("Error al eliminar la contratación");
+        }
+    }
+
+    private async Task Restablecer()
+    {
+        var items = await contratationesService.GetList(c => c.Eliminado == false);
+        itemsQueryable = items.AsQueryable();
+        FiltroCategoria = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
+    }
+
+    private string ObtenerClaseEstado(string estado) => estado?.ToLower() switch
+    {
+        "activa" => "estado activa",
+        "pendiente" => "estado pendiente",
+        "cancelada" => "estado cancelada",
+        "realizada" => "estado finalizada", 
+        "finalizada" => "estado finalizada",
+        _ => "estado"
+    };
+}

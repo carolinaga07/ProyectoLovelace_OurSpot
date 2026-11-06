@@ -1,0 +1,110 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Proveedores"
+@using OurSpot.Components.Models
+@inject ProveedorService proveedorService
+@rendermode InteractiveServer
+
+<PageTitle>Proveedores</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Proveedores</h5>
+            <a href="/Proveedores/Crear" class="btn btn-primary" style="background-color:#2D5056"> <span class="bi bi-plus-square-dotted mt-3"></span> Agregar Proveedores</a>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+
+                @*filtro*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Nombre">Nombre</option>
+                        <option value="RNC">Rnc</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search"></button>
+                    </div>
+                </div>
+
+                @*Restablecer*@
+                <div class="col-3">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+
+                @*Quickgrid*@
+                <div class="grid mt-3">
+                    <QuickGrid Items="@listaProveedores">
+                        <PropertyColumn Property="p => p.Id" Title="Id" Sortable="true" />
+                        <PropertyColumn Property="p => p.Nombre" Title="Nombre" Sortable="true" />
+                        <PropertyColumn Property="p=> p.Rnc" Title="RNC" Sortable="true" />
+                        <PropertyColumn Property="p => p.Direccion" Title="Direcci&oacute;n" Sortable="true" />
+                        <PropertyColumn Property="p => p.Contacto" Title="Contacto" Sortable="true" />
+                        <PropertyColumn Property="p => p.Servicio" Title="Servicio" Sortable="true" />
+                        <TemplateColumn Title="Opciones">
+                            <a href="@($"/Proveedores/Editar/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                        </TemplateColumn>
+                    </QuickGrid>
+                </div>
+            </div>
+            
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <p>Cantidad: @listaProveedores?.Count()</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IQueryable<Proveedores> listaProveedores;
+
+    private string Filtro { get; set; } = string.Empty;
+    private string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await proveedorService.GetList(p => p.Id > 0);
+        listaProveedores = result.AsQueryable();
+    }
+
+    private async Task Restablecer()
+    {
+        var proveedores = await proveedorService.GetList(e => true);
+        listaProveedores = proveedores.AsQueryable();
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
+    }
+
+    private async Task Buscar()
+    {
+        if(ValorFiltro.Trim() !="" && Filtro == "Nombre")
+        {
+            var nombre = await proveedorService.GetList(l => l.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
+            listaProveedores = nombre.AsQueryable();
+
+        }else if (ValorFiltro.Trim() !="" && Filtro == "RNC")
+        {
+            var rnc = await proveedorService.GetList(l => l.Rnc.ToLower().Contains(ValorFiltro.ToLower()));
+            listaProveedores = rnc.AsQueryable();
+        }
+    }
+}

@@ -1,0 +1,251 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+
+@page "/clientes"
+@rendermode InteractiveServer
+
+<PageTitle>Clientes</PageTitle>
+
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .activo {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .bloqueado {
+        background-color: #eadede;
+        color: #8a4d4d;
+    }
+</style>
+
+<div class="container">
+
+    <div class="card shadow-lg">
+
+        @* Encabezado *@
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+
+            <h5 class="card-title align-content-center mt-2">
+                Clientes
+            </h5>
+
+            <a href="/clientes/create"
+               class="btn btn-primary"
+               style="background-color:#2D5056">
+
+                <span class="bi bi-plus-square-dotted"></span>
+                Nuevo Cliente
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            @* Labels de filtros *@
+            <div class="row">
+
+                <div class="col-4">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
+                </div>
+
+                <div class="col-8">
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
+                </div>
+
+            </div>
+
+            @* Filtros *@
+            <div class="row align-items-center mb-3">
+
+                @* Estado *@
+                <div class="col-4">
+
+                    <select class="form-select"
+                            @bind="FiltroEstado">
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option value="Activo">Activo</option>
+                        <option value="Bloqueado">Bloqueado</option>
+
+                    </select>
+
+                </div>
+
+                @* Búsqueda *@
+                <div class="col-8">
+
+                    <div class="input-group">
+
+                        <input class="form-control"
+                               @bind="FiltroBusqueda"
+                               @bind:event="oninput"
+                               placeholder="Buscar nombre, correo o Id" />
+
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar">
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            @* Tabla *@
+            <div class="grid">
+
+                <table class="table table-hover">
+
+                    <thead class="text-black">
+                        <tr>
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var cliente in ClientesFiltrados)
+                        {
+                            <tr>
+                                <td>@cliente.Id</td>
+
+                                <td>@cliente.Nombre</td>
+
+                                <td>@cliente.Correo</td>
+
+                                <td>@cliente.Telefono</td>
+
+                                <td>
+                                    <span class="estado @(cliente.Estado == "Activo" ? "activo" : "bloqueado")">
+                                        @cliente.Estado
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+
+                                    <a href="@($"/clientes/edit/{cliente.Id}")"
+                                       class="btn btn-outline-primary bi bi-pencil-square"
+                                       title="Editar">
+                                    </a>
+
+                                    <a href="@($"/clientes/eliminar/{cliente.Id}")"
+                                       class="btn btn-outline-danger bi bi-trash"
+                                       title="Eliminar">
+                                    </a>
+
+                                </td>
+                            </tr>
+                        }
+
+                        @if (!ClientesFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="6"
+                                    class="text-center text-muted py-4">
+
+                                    No se encontraron clientes con los filtros seleccionados.
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="card-footer"></div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    // Datos de ejemplo
+    private List<Cliente> listaClientes = new()
+    {
+        new Cliente
+        {
+            Id = 1,
+            Nombre = "Ana Pérez",
+            Correo = "ana@gmail.com",
+            Telefono = "809-555-0101",
+            Estado = "Activo"
+        },
+
+        new Cliente
+        {
+            Id = 2,
+            Nombre = "Luis García",
+            Correo = "luis@gmail.com",
+            Telefono = "829-555-0102",
+            Estado = "Bloqueado"
+        },
+
+        new Cliente
+        {
+            Id = 3,
+            Nombre = "María Rodríguez",
+            Correo = "maria@gmail.com",
+            Telefono = "849-555-0103",
+            Estado = "Activo"
+        }
+    };
+
+    // Filtros
+    private IEnumerable<Cliente> ClientesFiltrados =>
+        listaClientes.Where(cliente =>
+
+            (string.IsNullOrEmpty(FiltroEstado) ||
+             cliente.Estado == FiltroEstado)
+
+            &&
+
+            (string.IsNullOrWhiteSpace(FiltroBusqueda) ||
+             cliente.Nombre.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             cliente.Correo.Contains(
+                 FiltroBusqueda,
+                 StringComparison.OrdinalIgnoreCase
+             ) ||
+             cliente.Id.ToString().Contains(FiltroBusqueda.Trim()))
+
+        );
+
+    private class Cliente
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = "";
+        public string Correo { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public string Estado { get; set; } = "";
+    }
+}

@@ -1,0 +1,62 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Eventos/Recuperar"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject EventosService eventosService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Recuperar Eventos</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">
+                <a href="/eventos"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>Recuperar Eventos
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable" Class="table table-hover">
+                    <PropertyColumn Property="@(e => e.EventoId)" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.Nombre)" Title="Nombre" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.FechaInicio)" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.Lugar)" Title="Lugar" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.Tipo)" Title="Tipo" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.Total)" Title="Total" Format="N2" Sortable="true" />
+                    <PropertyColumn Property="@(e => e.Estado)" Title="Estado" Sortable="true" />
+                    <TemplateColumn Title="Opciones">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" title="Recuperar" @onclick="() => Recuperar(context.EventoId)"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IQueryable<Evento> itemsQueryable = Enumerable.Empty<Evento>().AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await eventosService.GetList(e => e.Eliminado);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Recuperar(int id)
+    {
+        var recuperado = await eventosService.Recuperar(id);
+
+        if (recuperado)
+        {
+            toastService.ShowSuccess("Evento recuperado exitosamente");
+            navigationManager.NavigateTo("/eventos");
+        }
+        else
+        {
+            toastService.ShowError("Error al recuperar el evento");
+        }
+    }
+}
+

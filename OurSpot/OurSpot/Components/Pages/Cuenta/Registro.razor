@@ -1,0 +1,143 @@
+﻿@page "/cuenta/registro"
+@layout CuentaLayout
+@attribute [AllowAnonymous]
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IDbContextFactory<Contexto> ContextFactory
+@inject NavigationManager NavigationManager
+@inject RegistroClientesService registroClientesService
+
+<PageTitle>Registro - OurSpot</PageTitle>
+
+<div class="container py-5" style="max-width:550px">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+            <h3 class="text-center mb-4">Crear cuenta</h3>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @ErrorMessage
+                </div>
+            }
+
+            <EditForm Model="registroModel"
+                      OnValidSubmit="Registrar"
+                      FormName="registro">
+
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre completo</label>
+                    <InputText class="form-control"
+                               @bind-Value="registroModel.Nombre" />
+                    <ValidationMessage For="() => registroModel.Nombre" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Correo electrónico</label>
+                    <InputText class="form-control"
+                               type="email"
+                               @bind-Value="registroModel.Correo" />
+                    <ValidationMessage For="() => registroModel.Correo" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <InputText class="form-control"
+                               @bind-Value="registroModel.Telefono" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <InputText class="form-control"
+                               type="password"
+                               @bind-Value="registroModel.Contrasena" />
+                    <ValidationMessage For="() => registroModel.Contrasena" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirmar contraseña</label>
+                    <InputText class="form-control"
+                               type="password"
+                               @bind-Value="registroModel.ConfirmarContrasena" />
+                    <ValidationMessage For="() => registroModel.ConfirmarContrasena" />
+                </div>
+
+                <button type="submit" class="btn w-100 text-white"
+                        style="background:#2c4a52">
+                    Registrarse
+                </button>
+
+            </EditForm>
+
+            <div class="text-center mt-3">
+                ¿Ya tienes una cuenta?
+                <a href="/cuenta/login">Iniciar sesión</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm(FormName = "registro")]
+    private RegistroModel registroModel { get; set; } = new();
+
+    private string? ErrorMessage;
+
+
+    private async Task Registrar()
+    {
+        ErrorMessage = null;
+
+        try
+        {
+            var resultado = await registroClientesService.Registrar(
+                registroModel.Nombre,
+                registroModel.Correo,
+                registroModel.Telefono,
+                registroModel.Contrasena);
+
+            if (!resultado.Succeeded)
+            {
+                ErrorMessage = string.Join("; ",
+                    resultado.Errors.Select(e => e.Description));
+
+                return;
+            }
+
+            NavigationManager.NavigateTo(
+                "/cuenta/login",
+                forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    private sealed class RegistroModel
+    {
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        public string Nombre { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        [EmailAddress(ErrorMessage = "Correo electrónico inválido")]
+        public string Correo { get; set; } = string.Empty;
+
+        public string? Telefono { get; set; }
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [MinLength(8, ErrorMessage = "Mínimo 8 caracteres")]
+        public string Contrasena { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Confirma la contraseña")]
+        [Compare(nameof(Contrasena),
+            ErrorMessage = "Las contraseñas no coinciden")]
+        public string ConfirmarContrasena { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,111 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Proveedores/Editar/{Id:int}"
+@inject ToastService toastService
+@inject ProveedorService proveedorService
+@rendermode InteractiveServer
+@using OurSpot.Components.Models
+@inject NavigationManager navigationManager
+
+<PageTitle>Editar Proveedor</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <h5 class="card-title mt-2">
+            <a href="/Proveedores"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Modificar Proveedor
+        </h5>
+
+        <div class="card-body">
+          
+            @*Nombre*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Nombre</strong></label>
+                <input type="text" class="form-control" placeholder="Clima Eventos RD"/>
+            </div>
+
+            @*RNC*@
+            <div class="mb-3">
+                <label class="form-label"><strong>RNC</strong></label>
+                <input type="text" class="form-control" placeholder="132-45678-9" />
+            </div>
+
+            @*Direccion*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Direccion</strong></label>
+                <input type="text" class="form-control" placeholder="Calle Principal #123" />
+            </div>
+
+            @*Contacto*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Contacto</strong></label>
+                <input type="text" class="form-control" placeholder="809-555-1201" />
+            </div>
+
+            @*Servicio*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Servicio</strong></label>
+                <input type="text" class="form-control" placeholder="Alquiler de Aires Acondicionados" />
+            </div>
+        </div>
+
+        @* Footer*@
+        <div class="card-footer text-center">
+            <button type="submit" class="btn btn-primary bi bi-floppy" style="background-color: #2D5056"> Guardar</button>
+            <a href="" class="btn btn-danger bi bi-x-lg" data-bs-toggle="modal" data-bs-target="#modalEliminar"> Eliminar</a>
+        </div>
+    </div>
+</div>
+
+@*Modal eliminacion*@
+<div class="modal" id="modalEliminar" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Confirmar Eliminaci&oacute;n</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                @if (proveedor != null)
+                {
+
+                    <p>¿Esta seguro que desea eliminar a este proveedor?</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="Eliminar" data-bs-dismiss ="modal">Confirmar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public Proveedores proveedor { get; set; } = new Proveedores();
+
+    protected override async Task OnInitializedAsync()
+    {
+       var encontrado = await proveedorService.Buscar(Id);
+          if (encontrado != null)
+          {
+             proveedor = encontrado;
+          }
+    }
+
+    private async Task Eliminar()
+    {
+        var result = await proveedorService.Eliminar(proveedor.Id);
+
+        if (result)
+        {
+            toastService.ShowSuccess("¡Se ha eliminado el proveedor exitosamente!");
+            navigationManager.NavigateTo("/Proveedores");
+        }
+        else
+        {
+           toastService.ShowError("No se ha podido eliminar al proveedor.");
+        }
+    }
+}

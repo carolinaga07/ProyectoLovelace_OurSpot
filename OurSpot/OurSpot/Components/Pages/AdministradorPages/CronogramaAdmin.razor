@@ -6,108 +6,107 @@
 <div class="cronograma-page">
 
     @* Panel Próximamente *@
+    @if (VistaActual == "principal")
+    {
+        <section class="panel-eventos">
 
-    <section class="proximamente">
+            <h2>Próximamente</h2>
 
-        <h2>Próximamente</h2>
+            <div class="lista-eventos">
 
-        <div class="lista-eventos">
+                @foreach (var evento in Eventos.OrderBy(e => e.Fecha).ThenBy(e => e.Hora))
+                {
+                    <div class="evento">
 
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Payaso Bobby</strong>
-                </div>
-                <span class="evento-fecha">Hoy - 4:00 PM</span>
+                        <div class="evento-nombre">
+                            <span class="punto"></span>
+                            <strong>@evento.Nombre</strong>
+                        </div>
+
+                        <span class="evento-fecha">
+                            @ObtenerFechaProxima(evento)
+                        </span>
+
+                    </div>
+                }
             </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Taller de Pintura</strong>
-                </div>
-                <span class="evento-fecha">Hoy - 6:30 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Repostería Dulce Encanto</strong>
-                </div>
-                <span class="evento-fecha">25 Sep - 4:30 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>DJ Carlos Music</strong>
-                </div>
-                <span class="evento-fecha">25 Sep - 5:30 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Fotografía Studio 56</strong>
-                </div>
-                <span class="evento-fecha">25 Sep - 5:30 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>SFM Fashion Night</strong>
-                </div>
-                <span class="evento-fecha">25 Sep - 6:00 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Decoraciones Elegance</strong>
-                </div>
-                <span class="evento-fecha">29 Sep - 4:00 PM</span>
-            </div>
-
-            <div class="evento">
-                <div class="evento-nombre">
-                    <span class="punto"></span>
-                    <strong>Sonido AudioMax</strong>
-                </div>
-                <span class="evento-fecha">29 Sep - 4:00 PM</span>
-            </div>
-
-        </div>
-
-    </section>
+        </section>
+    }
 
 
     @* Calendario *@
-
     <section class="calendario">
 
         @* Encabezado *@
-
         <div class="calendario-header">
 
             <h1>@NombreMes @AnioActual</h1>
 
             <div class="controles">
 
-                <button type="button">
-                    Mes
-                </button>
+                @* Filtro por mes *@
+                <div class="filtro">
 
-                <button type="button">
-                    Año
-                </button>
+                    <button type="button"
+                            @onclick="MostrarFiltroMes">
+                        Mes
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
 
+                    @if (FiltroMesVisible)
+                    {
+                        <div class="filtro-menu filtro-meses">
+
+                            @foreach (var mes in Meses)
+                            {
+                                <button type="button"
+                                        class="opcion-filtro @(mes.Numero == MesActual ? "seleccionado" : "")"
+                                        @onclick="() => SeleccionarMes(mes.Numero)">
+
+                                    @mes.Nombre
+
+                                </button>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+
+
+                @* Filtro por año *@
+                <div class="filtro">
+
+                    <button type="button"
+                            @onclick="MostrarFiltroAnio">
+                        Año
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+
+                    @if (FiltroAnioVisible)
+                    {
+                        <div class="filtro-menu">
+
+                            @foreach (var anio in Anios)
+                            {
+                                <button type="button"
+                                        class="opcion-filtro @(anio == AnioActual ? "seleccionado" : "")"
+                                        @onclick="() => SeleccionarAnio(anio)">
+                                    @anio
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                @* Mes anterior *@
                 <button type="button"
                         class="flecha"
                         @onclick="MesAnterior">
                     &lt;
                 </button>
 
+                @* Mes siguiente *@
                 <button type="button"
                         class="flecha"
                         @onclick="MesSiguiente">
@@ -118,9 +117,7 @@
 
         </div>
 
-
-        @* Días de la Semana *@
-
+        @* Días de la semana *@
         <div class="dias-semana">
             <span>Domingo</span>
             <span>Lunes</span>
@@ -131,33 +128,283 @@
             <span>Sábado</span>
         </div>
 
-
-        @* Días del Calendario *@
-
+        @* Días del calendario *@
         <div class="calendario-grid">
 
             @foreach (var dia in DiasCalendario)
             {
-                <div class="dia @(dia.EsDelMesActual ? "" : "otro-mes")">
+                <div class="dia @(dia.EsDelMesActual ? "" : "otro-mes")"
+                     @onclick="() => SeleccionarDia(dia)">
 
                     <span class="numero-dia">
                         @dia.Numero
                     </span>
 
+                    @if (dia.EsDelMesActual)
+                    {
+                        @foreach (var evento in ObtenerEventosDia(dia.Numero))
+                        {
+                            <div class="evento-calendario"
+                                 @onclick:stopPropagation="true"
+                                 @onclick="() => MostrarDetalleDesdeCalendario(evento)">
+
+                                @evento.Nombre
+
+                            </div>
+                        }
+                    }
+
                 </div>
             }
-
         </div>
-
     </section>
+
+    @* Panel del día *@
+    @if (VistaActual == "dia" && FechaSeleccionada != null)
+    {
+        <section class="panel-eventos panel-dia">
+
+            <div class="titulo-panel">
+
+                <h2>
+                    @FechaSeleccionada.Value.Day de
+                    @NombreMesCorto(FechaSeleccionada.Value)
+                </h2>
+
+                <button type="button"
+                        class="cerrar-panel"
+                        @onclick="CerrarPanel">
+                    ×
+                </button>
+
+            </div>
+
+            @{
+                var eventosDia = Eventos
+                    .Where(e => e.Fecha.Date == FechaSeleccionada.Value.Date)
+                    .OrderBy(e => e.Hora)
+                    .ToList();
+            }
+
+            @if (eventosDia.Any())
+            {
+                <div class="lista-eventos">
+
+                    @foreach (var evento in eventosDia)
+                    {
+                        <div class="evento evento-seleccionable"
+                             @onclick="() => MostrarDetalle(evento)">
+
+                            <div class="evento-nombre">
+                                <span class="punto"></span>
+                                <strong>@evento.Nombre</strong>
+                            </div>
+
+                            <span class="evento-fecha">
+                                @ObtenerHora(evento.Hora)
+                            </span>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <p class="sin-eventos">
+                    No hay eventos agendados
+                </p>
+            }
+
+        </section>
+    }
+
+    @* Panel Detalle *@
+    @if (VistaActual == "detalle" && EventoSeleccionado != null)
+    {
+        <section class="panel-eventos panel-detalle">
+
+            <div class="titulo-panel">
+
+                <h2>Detalle</h2>
+
+                <button type="button"
+                        class="volver-panel"
+                        @onclick="VolverAlDia">
+                    <i class="bi bi-arrow-left-short"></i>
+                </button>
+
+            </div>
+
+            <div class="detalle">
+
+                <div class="detalle-campo">
+                    <strong>Empresa:</strong>
+                    <span>@EventoSeleccionado.Empresa</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Evento:</strong>
+                    <span>@EventoSeleccionado.Evento</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Fecha:</strong>
+
+                    <span>
+                        @EventoSeleccionado.Fecha.Day
+                        @NombreMesCompleto(EventoSeleccionado.Fecha)
+                        de @EventoSeleccionado.Fecha.Year
+                    </span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Hora:</strong>
+                    <span>@ObtenerHora(EventoSeleccionado.Hora)</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Dirección:</strong>
+                    <span>@EventoSeleccionado.Direccion</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Personas registradas:</strong>
+
+                    @if (EventoSeleccionado.PersonasRegistradas.HasValue)
+                    {
+                        <span>
+                            @EventoSeleccionado.PersonasRegistradas
+                        </span>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Estado:</strong>
+                    <span>@EventoSeleccionado.Estado</span>
+                </div>
+
+            </div>
+        </section>
+    }
 
 </div>
 
 
 @code {
     // Mes y año actual
-    private int MesActual = DateTime.Today.Month;
-    private int AnioActual = DateTime.Today.Year;
+    private int MesActual = 9;
+    private int AnioActual = 2026;
+
+    private string VistaActual = "principal";
+
+    private DateTime? FechaSeleccionada;
+
+    private EventoCronograma? EventoSeleccionado;
+
+    // Eventos
+    private List<EventoCronograma> Eventos = new()
+    {
+        new EventoCronograma
+        {
+            Nombre = "Payaso Bobby",
+            Empresa = "Diversiones Bobby",
+            Evento = "Taller de Pintura",
+            Fecha = new DateTime(2026, 9, 21),
+            Hora = new TimeSpan(16, 0, 0),
+            Direccion = "Av. Presidente Antonio Guzmán, SFM",
+            PersonasRegistradas = null,
+            Estado = "Pendiente"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "Taller de Pintura",
+            Empresa = "Arte Creativo SFM",
+            Evento = "-",
+            Fecha = new DateTime(2026, 9, 21),
+            Hora = new TimeSpan(18, 30, 0),
+            Direccion = "Centro Cultural La Nave, SFM",
+            PersonasRegistradas = 38,
+            Estado = "Ocupado"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "Repostería Dulce Encanto",
+            Empresa = "Dulce Encanto",
+            Evento = "SFM Fashion Night",
+            Fecha = new DateTime(2026, 9, 25),
+            Hora = new TimeSpan(16, 30, 0),
+            Direccion = "Av. Libertad, SFM",
+            PersonasRegistradas = null,
+            Estado = "Pendiente"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "DJ Carlos Music",
+            Empresa = "Carlos Music Entertainment",
+            Evento = "SFM Fashion Night",
+            Fecha = new DateTime(2026, 9, 25),
+            Hora = new TimeSpan(17, 30, 0),
+            Direccion = "Av. Libertad, SFM",
+            PersonasRegistradas = null,
+            Estado = "Pendiente"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "Fotografía Studio 56",
+            Empresa = "Studio 56",
+            Evento = "SFM Fashion Night",
+            Fecha = new DateTime(2026, 9, 25),
+            Hora = new TimeSpan(17, 30, 0),
+            Direccion = "Av. Libertad, SFM",
+            PersonasRegistradas = null,
+            Estado = "Cancelado"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "SFM Fashion Night",
+            Empresa = "SFM Events",
+            Evento = "-",
+            Fecha = new DateTime(2026, 9, 25),
+            Hora = new TimeSpan(18, 0, 0),
+            Direccion = "Av. Libertad, SFM",
+            PersonasRegistradas = 126,
+            Estado = "Disponible"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "Decoraciones Elegance",
+            Empresa = "Elegance Eventos",
+            Evento = "Taller de Pintura",
+            Fecha = new DateTime(2026, 9, 29),
+            Hora = new TimeSpan(16, 0, 0),
+            Direccion = "Centro Cultural La Nave, SFM",
+            PersonasRegistradas = null,
+            Estado = "Pendiente"
+        },
+
+        new EventoCronograma
+        {
+            Nombre = "Sonido AudioMax",
+            Empresa = "AudioMax Producciones",
+            Evento = "Taller de Pintura",
+            Fecha = new DateTime(2026, 9, 29),
+            Hora = new TimeSpan(16, 0, 0),
+            Direccion = "Centro Cultural La Nave, SFM",
+            PersonasRegistradas = null,
+            Estado = "Pendiente"
+        }
+    };
 
     // Nombre del mes
     private string NombreMes
@@ -165,6 +412,7 @@
         get
         {
             DateTime fecha = new DateTime(AnioActual, MesActual, 1);
+
             string nombre = fecha.ToString("MMMM", new System.Globalization.CultureInfo("es-ES"));
 
             return char.ToUpper(nombre[0]) + nombre.Substring(1);
@@ -178,10 +426,8 @@
         {
             var dias = new List<DiaCalendario>();
 
-            // Primer día del mes seleccionado
             DateTime primerDia = new DateTime(AnioActual, MesActual, 1);
 
-            // Cantidad de días que posee el mes
             int cantidadDias = DateTime.DaysInMonth(AnioActual, MesActual);
 
             int posicionPrimerDia = (int)primerDia.DayOfWeek;
@@ -189,10 +435,7 @@
             // Mes anterior
             DateTime fechaMesAnterior = primerDia.AddMonths(-1);
 
-            int cantidadDiasMesAnterior = DateTime.DaysInMonth(
-                fechaMesAnterior.Year,
-                fechaMesAnterior.Month
-            );
+            int cantidadDiasMesAnterior =DateTime.DaysInMonth(fechaMesAnterior.Year, fechaMesAnterior.Month);
 
             for (int i = posicionPrimerDia - 1; i >= 0; i--)
             {
@@ -229,12 +472,64 @@
                         EsDelMesActual = false
                     }
                 );
-
                 diaSiguiente++;
             }
-
             return dias;
         }
+    }
+
+    // Eventos de un día
+    private List<EventoCronograma> ObtenerEventosDia(int dia)
+    {
+        return Eventos
+            .Where(e =>
+                e.Fecha.Year == AnioActual &&
+                e.Fecha.Month == MesActual &&
+                e.Fecha.Day == dia)
+            .OrderBy(e => e.Hora)
+            .ToList();
+    }
+
+    // Seleccionar día
+    private void SeleccionarDia(DiaCalendario dia)
+    {
+        if (!dia.EsDelMesActual)
+            return;
+
+        FechaSeleccionada = new DateTime(AnioActual, MesActual, dia.Numero);
+        EventoSeleccionado = null;
+        VistaActual = "dia";
+    }
+
+    // Mostrar detalle
+    private void MostrarDetalle(EventoCronograma evento)
+    {
+        FechaSeleccionada = evento.Fecha;
+        EventoSeleccionado = evento;
+        VistaActual = "detalle";
+    }
+
+    // Mostrar detalle desde calendario
+    private void MostrarDetalleDesdeCalendario(EventoCronograma evento)
+    {
+        FechaSeleccionada = evento.Fecha;
+        EventoSeleccionado = evento;
+        VistaActual = "detalle";
+    }
+
+    // Volver al día
+    private void VolverAlDia()
+    {
+        EventoSeleccionado = null;
+        VistaActual = "dia";
+    }
+
+    // Cerrar panel
+    private void CerrarPanel()
+    {
+        FechaSeleccionada = null;
+        EventoSeleccionado = null;
+        VistaActual = "principal";
     }
 
     // Botones
@@ -245,6 +540,8 @@
 
         MesActual = nuevaFecha.Month;
         AnioActual = nuevaFecha.Year;
+
+        CerrarPanel();
     }
 
     private void MesSiguiente()
@@ -254,6 +551,43 @@
 
         MesActual = nuevaFecha.Month;
         AnioActual = nuevaFecha.Year;
+
+        CerrarPanel();
+    }
+
+    // Fecha del panel Próximamente
+    private string ObtenerFechaProxima(EventoCronograma evento)
+    {
+        string mes = evento.Fecha.ToString("MMM", new System.Globalization.CultureInfo("es-ES"));
+        mes = mes.Replace(".", "");
+        mes = char.ToUpper(mes[0]) + mes.Substring(1);
+
+        return $"{evento.Fecha.Day} {mes} - {ObtenerHora(evento.Hora)}";
+    }
+
+    // Hora
+    private string ObtenerHora(TimeSpan hora)
+    {
+        DateTime fecha = DateTime.Today.Add(hora);
+
+        return fecha.ToString("h:mm tt");
+    }
+
+    // Nombre corto del mes
+    private string NombreMesCorto(DateTime fecha)
+    {
+        string nombre = fecha.ToString("MMM", new System.Globalization.CultureInfo("es-ES"));
+        nombre = nombre.Replace(".", "");
+
+        return char.ToUpper(nombre[0]) + nombre.Substring(1);
+    }
+
+    // Nombre completo del mes
+    private string NombreMesCompleto(DateTime fecha)
+    {
+        string nombre = fecha.ToString("MMMM", new System.Globalization.CultureInfo("es-ES"));
+
+        return char.ToUpper(nombre[0]) + nombre.Substring(1);
     }
 
     // Casillas del calendario
@@ -261,5 +595,84 @@
     {
         public int Numero { get; set; }
         public bool EsDelMesActual { get; set; }
+    }
+
+    // Datos del cronograma
+    private class EventoCronograma
+    {
+        public string Nombre { get; set; } = "";
+        public string Empresa { get; set; } = "";
+        public string Evento { get; set; } = "";
+        public DateTime Fecha { get; set; }
+        public TimeSpan Hora { get; set; }
+        public string Direccion { get; set; } = "";
+        public int? PersonasRegistradas { get; set; }
+        public string Estado { get; set; } = "";
+    }
+
+    // Mes del filtro
+    private class MesFiltro
+    {
+        public int Numero { get; set; }
+        public string Nombre { get; set; } = "";
+    }
+
+    // Filtros
+    private bool FiltroMesVisible = false;
+    private bool FiltroAnioVisible = false;
+
+    // Meses
+    private List<MesFiltro> Meses = new()
+    {
+        new MesFiltro { Numero = 1, Nombre = "Enero" },
+        new MesFiltro { Numero = 2, Nombre = "Febrero" },
+        new MesFiltro { Numero = 3, Nombre = "Marzo" },
+        new MesFiltro { Numero = 4, Nombre = "Abril" },
+        new MesFiltro { Numero = 5, Nombre = "Mayo" },
+        new MesFiltro { Numero = 6, Nombre = "Junio" },
+        new MesFiltro { Numero = 7, Nombre = "Julio" },
+        new MesFiltro { Numero = 8, Nombre = "Agosto" },
+        new MesFiltro { Numero = 9, Nombre = "Septiembre" },
+        new MesFiltro { Numero = 10, Nombre = "Octubre" },
+        new MesFiltro { Numero = 11, Nombre = "Noviembre" },
+        new MesFiltro { Numero = 12, Nombre = "Diciembre" }
+    };
+
+    // Años
+    private List<int> Anios = Enumerable
+        .Range(DateTime.Today.Year - 5, 11)
+        .ToList();
+
+    // Mostrar filtro de mes
+    private void MostrarFiltroMes()
+    {
+        FiltroMesVisible = !FiltroMesVisible;
+        FiltroAnioVisible = false;
+    }
+
+    // Mostrar filtro de año
+    private void MostrarFiltroAnio()
+    {
+        FiltroAnioVisible = !FiltroAnioVisible;
+        FiltroMesVisible = false;
+    }
+
+    // Seleccionar mes
+    private void SeleccionarMes(int mes)
+    {
+        MesActual = mes;
+        FiltroMesVisible = false;
+
+        CerrarPanel();
+    }
+
+    // Seleccionar año
+    private void SeleccionarAnio(int anio)
+    {
+        AnioActual = anio;
+        MesActual = 1;
+        FiltroAnioVisible = false;
+
+        CerrarPanel();
     }
 }

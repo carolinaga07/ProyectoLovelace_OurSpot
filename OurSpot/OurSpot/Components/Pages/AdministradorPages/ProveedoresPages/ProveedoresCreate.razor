@@ -1,0 +1,78 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Proveedores/Crear"
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+@inject ProveedorService proveedorService
+@inject ToastService toastService
+@using OurSpot.Components.Models
+
+<PageTitle>Nuevo Proveedor</PageTitle>
+<EditForm Model="proveedor" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+        <h5 class="card-title mt-2">
+            <a href="/Proveedores"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a> Nuevo Proveedor
+        </h5>
+
+            <div class="card-body">
+
+            @*Nombre*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Nombre</strong></label>
+                <input type="text" class="form-control" @bind= "proveedor.Nombre" placeholder="Ej. Clima Eventos RD"/>
+            </div>
+
+            @*RNC*@
+            <div class="mb-3">
+                <label class="form-label"><strong>RNC</strong></label>
+                <input type="text" class="form-control" @bind= "proveedor.Rnc" placeholder="Ej. 134-34576-3"/>
+            </div>
+
+            @*Direccion*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Direccion</strong></label>
+                <input type="text" class="form-control" @bind= "proveedor.Direccion" placeholder="Ej. Boulevard del Sol #789"/>       
+            </div>
+
+            @*Contacto*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Contacto</strong></label>
+                <input type="text" class="form-control" @bind= "proveedor.Contacto" placeholder="Ej. 849-657-3847"/>
+            </div>
+
+            @*Servicio*@
+            <div class="mb-3">
+                <label class="form-label"><strong>Servicio</strong></label>
+                <input type="text" class="form-control" @bind= "proveedor.Servicio" placeholder="Ej. Alquiler de Aires Acondicionados" />
+            </div>
+       </div>
+
+           @*footer*@
+        <div class="card-footer text-center mt-2">
+            <button type="submit" class="btn btn-primary bi bi-floppy" style="background-color: #2D5056"> Guardar</button>
+        </div>
+    </div>
+ </div>
+</EditForm>
+
+@code {
+
+    public Proveedores proveedor = new Proveedores();
+
+      public async Task Guardar()
+    {
+        var result = await proveedorService.Guardar(proveedor);
+
+        if (result)
+        {
+            toastService.ShowSuccess("¡Proveedor Guardado Correctamente!");
+            navigationManager.NavigateTo("/Proveedores");
+        }
+        else
+        {
+            toastService.ShowError("No se pudo guardar el proveedor correctamente.");
+        }
+    }
+}
