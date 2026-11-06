@@ -15,8 +15,10 @@
 
     <div class="card shadow-lg">
 
-        <div class="card-header text-center">
-            <h5 class="card-title">Crear Personal</h5>
+        <div class="card-header">
+            <h4 class="card-title mt-2">
+                <a href="/personal"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>  Crear Personal
+            </h4>
         </div>
 
         <EditForm Model="modelo"
@@ -62,9 +64,12 @@
                         <strong>Contraseña</strong>
                     </label>
 
-                    <InputText class="form-control"
-                               type="password"
-                               @bind-Value="modelo.Contrasena" />
+                    <div class="input-group">
+                        <InputText type="@tipoPasswordContrasena" class="form-control" @bind-Value="modelo.Contrasena"></InputText>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="AlternarContrasena">
+                            <span class="bi @iconoPasswordContrasena"></span>
+                        </button>
+                    </div>
 
                     <ValidationMessage For="() => modelo.Contrasena" />
                 </div>
@@ -74,9 +79,12 @@
                         <strong>Confirmar contraseña</strong>
                     </label>
 
-                    <InputText class="form-control"
-                               type="password"
-                               @bind-Value="modelo.ConfirmarContrasena" />
+                    <div class="input-group">
+                        <InputText type="@tipoPasswordConfirmar" class="form-control" @bind-Value="modelo.ConfirmarContrasena"></InputText>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="AlternarConfirmar">
+                            <span class="bi @iconoPasswordConfirmar"></span>
+                        </button>
+                    </div>
 
                     <ValidationMessage For="() => modelo.ConfirmarContrasena" />
                 </div>
@@ -126,11 +134,6 @@
 
             <div class="card-footer text-center mt-2">
 
-                <a href="/personal" class="btn btn-secondary">
-                    <span class="bi bi-arrow-left"></span>
-                    Volver
-                </a>
-
                 <button type="submit" class="btn btn-primary">
                     <span class="bi bi-floppy"></span>
                     Guardar
@@ -147,6 +150,14 @@
     private CrearPersonalModel modelo { get; set; } = new();
 
     private string? Mensaje;
+    
+    private bool mostrarContrasena = false;
+    private string tipoPasswordContrasena => mostrarContrasena ? "text" : "password";
+    private string iconoPasswordContrasena => mostrarContrasena ? "bi-eye-slash" : "bi-eye";
+
+    private bool mostrarConfirmar = false;
+    private string tipoPasswordConfirmar => mostrarConfirmar ? "text" : "password";
+    private string iconoPasswordConfirmar => mostrarConfirmar ? "bi-eye-slash" : "bi-eye";
 
     private async Task Guardar()
     {
@@ -194,5 +205,15 @@
         [Compare(nameof(Contrasena),
             ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarContrasena { get; set; } = string.Empty;
+    }
+
+    private void AlternarContrasena()
+    {
+        mostrarContrasena = !mostrarContrasena;
+    }
+
+    private void AlternarConfirmar()
+    {
+        mostrarConfirmar = !mostrarConfirmar;
     }
 }
