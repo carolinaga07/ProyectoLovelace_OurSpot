@@ -1,4 +1,4 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
+@attribute [Authorize(Roles = "Administrador")]
 @page "/eventos/edit/{EventoId:int}"
 @rendermode InteractiveServer
 
@@ -33,12 +33,19 @@ else
         <div class="container">
             <div class="card shadow-lg">
 
-                <div class="card-header text-center">
-                    <h5 class="card-title">Modificar Evento</h5>
+                <div class="card-header">
+                    <h4 class="card-title mt-2">
+                        <a href="/eventos">
+                            <i class="bi bi-arrow-left-short fs-1 align-middle"
+                               style="color: #2D5056"></i>
+                        </a>
+                        Modificar Evento
+                    </h4>
                 </div>
 
                 <div class="card-body">
 
+                    @* Nombre *@
                     <div class="mb-3">
                         <label class="form-label">
                             <strong>Nombre</strong>
@@ -50,6 +57,7 @@ else
                         <ValidationMessage For="(() => Evento.Nombre)" />
                     </div>
 
+                    @* Descripción *@
                     <div class="mb-3">
                         <label class="form-label">
                             <strong>Descripción</strong>
@@ -61,6 +69,7 @@ else
                         <ValidationMessage For="(() => Evento.Descripcion)" />
                     </div>
 
+                    @* Fecha y hora de inicio *@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
@@ -86,6 +95,7 @@ else
                         </div>
                     </div>
 
+                    @* Fecha y hora de cierre *@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">
@@ -111,6 +121,7 @@ else
                         </div>
                     </div>
 
+                    @* Tipo *@
                     <div class="mb-3">
                         <label class="form-label">
                             <strong>Tipo</strong>
@@ -118,17 +129,20 @@ else
 
                         <InputSelect class="form-select"
                                      @bind-Value="Evento.Tipo">
+
                             <option value="" disabled>
                                 Elija una opción
                             </option>
 
                             <option value="Publico">Público</option>
                             <option value="Privado">Privado</option>
+
                         </InputSelect>
 
                         <ValidationMessage For="(() => Evento.Tipo)" />
                     </div>
 
+                    @* Lugar *@
                     <div class="mb-3">
                         <label class="form-label">
                             <strong>Lugar</strong>
@@ -136,6 +150,7 @@ else
 
                         <InputSelect class="form-select"
                                      @bind-Value="Evento.Lugar">
+
                             <option value="">
                                 -- Seleccione un lugar --
                             </option>
@@ -146,11 +161,13 @@ else
                                     @lugar.Nombre
                                 </option>
                             }
+
                         </InputSelect>
 
                         <ValidationMessage For="(() => Evento.Lugar)" />
                     </div>
 
+                    @* Detalle del Evento *@
                     <div class="border border-success p-3 mt-3">
                         <h5>Detalle del Evento</h5>
 
@@ -194,12 +211,14 @@ else
 
                                 <TemplateColumn Title="Remover"
                                                 Context="detalle">
+
                                     <button type="button"
                                             class="btn btn-outline-danger bi bi-trash"
                                             title="Remover contratación"
                                             disabled="@procesando"
                                             @onclick="() => Quitar(detalle)">
                                     </button>
+
                                 </TemplateColumn>
 
                             </QuickGrid>
@@ -213,26 +232,25 @@ else
                             </strong>
                         </p>
                     </div>
+
                 </div>
 
-                <div class="card-footer text-center mt-2">
-                    <a href="/eventos"
-                       class="btn btn-secondary me-2">
-                        <span class="bi bi-arrow-left"></span> Volver
-                    </a>
+                @* Footer *@
+                <div class="card-footer text-center">
 
                     <button type="submit"
                             class="btn btn-primary me-2"
-                            disabled="@procesando">
+                            style="background-color:#2D5056">
                         <span class="bi bi-floppy"></span> Guardar
                     </button>
 
                     <button type="button"
                             class="btn btn-danger"
-                            disabled="@procesando"
-                            @onclick="MostrarModal">
-                        <span class="bi bi-trash"></span> Eliminar
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar">
+                        <span class="bi bi-x-lg"></span> Eliminar
                     </button>
+
                 </div>
 
             </div>
@@ -240,63 +258,53 @@ else
     </EditForm>
 }
 
-@if (mostrarModal)
-{
-    <div class="modal-backdrop fade show"></div>
+@* Modal de Eliminación *@
+<div class="modal fade"
+     id="modalEliminar"
+     tabindex="-1"
+     aria-labelledby="modalCerrar"
+     aria-hidden="true">
 
-    <div class="modal fade show d-block"
-         tabindex="-1"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="tituloEliminar">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalCerrar">
+                    Confirmación de eliminación
+                </h1>
 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="tituloEliminar">
-                        Confirmar eliminación
-                    </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
 
-                    <button type="button"
-                            class="btn-close"
-                            aria-label="Cerrar"
-                            disabled="@procesando"
-                            @onclick="CerrarModal">
-                    </button>
-                </div>
+            <div class="modal-body">
+                <p>¿Desea eliminar el evento @Evento.Nombre?</p>
+            </div>
 
-                <div class="modal-body">
-                    <p>
-                        ¿Desea eliminar el evento
-                        <strong>@Evento.Nombre</strong>?
-                    </p>
+            <div class="modal-footer">
 
-                    <p class="mb-0">
-                        Total: @Evento.Total.ToString("C2")
-                    </p>
-                </div>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
 
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            disabled="@procesando"
-                            @onclick="CerrarModal">
-                        Cancelar
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-danger"
-                            disabled="@procesando"
-                            @onclick="Eliminar">
-                        Eliminar
-                    </button>
-                </div>
+                <button type="button"
+                        class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        disabled="@procesando"
+                        @onclick="Eliminar">
+                    Eliminar
+                </button>
 
             </div>
+
         </div>
     </div>
-}
+</div>
 
 @code {
     [Parameter]
@@ -310,7 +318,6 @@ else
     private List<Contrataciones> ListaContrataciones = new();
 
     private int contratacionId;
-    private bool mostrarModal;
     private bool cargando = true;
     private bool eventoEncontrado;
     private bool procesando;
@@ -319,7 +326,6 @@ else
     {
         cargando = true;
         eventoEncontrado = false;
-        mostrarModal = false;
         contratacionId = 0;
 
         try
@@ -456,16 +462,6 @@ else
         }
     }
 
-    private void MostrarModal()
-    {
-        mostrarModal = true;
-    }
-
-    private void CerrarModal()
-    {
-        mostrarModal = false;
-    }
-
     private async Task Eliminar()
     {
         if (procesando)
@@ -479,8 +475,6 @@ else
 
             if (eliminado)
             {
-                mostrarModal = false;
-
                 toastService.ShowSuccess(
                     "Evento eliminado correctamente.");
 

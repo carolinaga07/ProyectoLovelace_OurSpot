@@ -17,8 +17,11 @@
     <div class="container">
         <div class="card shadow-lg">
 
-            <div class="card-header text-center">
-                <h5 class="card-title">Crear Evento</h5>
+            <div class="card-header">
+                <h4 class="card-title mt-2">
+                    <a href="/eventos"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>
+                    Crear Evento
+                </h4>
             </div>
 
             <div class="card-body">
@@ -202,14 +205,9 @@
                 </div>
             </div>
 
+            @* Footer *@
             <div class="card-footer text-center mt-2">
-                <a href="/eventos"
-                   class="btn btn-secondary me-2">
-                    <span class="bi bi-arrow-left"></span> Volver
-                </a>
-
-                <button type="submit"
-                        class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" style="background-color:#2D5056">
                     <span class="bi bi-floppy"></span> Guardar
                 </button>
             </div>
@@ -304,3 +302,4 @@
         }
     }
 }
+
