@@ -59,10 +59,7 @@ else
 
                     <div class="mb-3">
                         <label class="form-label"><strong>Cargo</strong></label>
-                        <InputSelect class="form-select" @bind-Value="personal.Cargo">
-                            <option value="Administrador">Administrador</option>
-                            <option value="Empleado">Empleado</option>
-                        </InputSelect>
+                        <InputText class="form-control" @bind-Value="personal.Cargo"></InputText>
                         <ValidationMessage For="(() => personal.Cargo)" />
                     </div>
 
