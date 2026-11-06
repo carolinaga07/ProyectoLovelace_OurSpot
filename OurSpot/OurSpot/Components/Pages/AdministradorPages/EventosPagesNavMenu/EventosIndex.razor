@@ -2,6 +2,8 @@
 @page "/eventos"
 @rendermode InteractiveServer
 
+@implements IAsyncDisposable
+
 @inject EventosService eventoService
 @inject ToastService toastService
 
@@ -38,10 +40,15 @@
 
 <div class="container-fluid px-3">
     <div class="card shadow-lg">
+
+        @* Encabezado *@
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">Eventos</h5>
-            <a href="/eventos/Crear" class="btn btn-primary" style="background-color:#2D5056">
-                <span class="bi bi-plus-square-dotted mt-3"></span> Nuevo Evento
+            <a href="/eventos/Crear"
+               class="btn btn-primary"
+               style="background-color:#2D5056">
+                <span class="bi bi-plus-square-dotted mt-3"></span>
+                Nuevo Evento
             </a>
         </div>
 
@@ -50,33 +57,45 @@
             @* Labels *@
             <div class="row">
                 <div class="col-3">
-                    <label class="col-form-label"><strong>Categoría</strong></label>
+                    <label class="col-form-label">
+                        <strong>Tipo</strong>
+                    </label>
                 </div>
 
-                <div class="col-4">
-                    <label class="col-form-label"><strong>Estado</strong></label>
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
                 </div>
 
                 <div class="col-5">
-                    <label class="col-form-label"><strong>Búsqueda</strong></label>
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
                 </div>
             </div>
 
-            @* Inputs y botones *@
+            @* Filtros *@
             <div class="row align-items-center mb-3">
+
+                @* Tipo *@
                 <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="FiltroCategoria">
-                        <option value="" disabled>Elija una opción</option>
-                        <option value="Cultural">Cultural</option>
-                        <option value="Social">Social</option>
-                        <option value="Empresarial">Empresarial</option>
-                        <option value="Deportivo">Deportivo</option>
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroTipo">
+                        <option value="">Todos los tipos</option>
+
+                        @foreach (var tipo in tiposDisponibles)
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
                     </InputSelect>
                 </div>
 
-                <div class="col-4">
-                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
-                        <option value="" disabled>Elija una opción</option>
+                @* Estado *@
+                <div class="col-3">
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroEstado">
+                        <option value="">Todos los estados</option>
                         <option value="Pendiente">Pendiente</option>
                         <option value="Activo">Activo</option>
                         <option value="Finalizado">Finalizado</option>
@@ -84,16 +103,28 @@
                     </InputSelect>
                 </div>
 
+                @* Búsqueda *@
                 <div class="col-5">
                     <div class="input-group">
                         <input class="form-control"
                                @bind="FiltroBusqueda"
-                               placeholder="Buscar" />
+                               placeholder="Buscar nombre, lugar o Id" />
 
                         <button type="button"
-                                class="btn btn-outline-primary bi bi-search">
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar"
+                                @onclick="Buscar">
                         </button>
                     </div>
+                </div>
+
+                @* Restablecer *@
+                <div class="col-1">
+                    <button type="button"
+                            class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            title="Restablecer"
+                            @onclick="Restablecer">
+                    </button>
                 </div>
             </div>
 
@@ -104,7 +135,8 @@
                            style="min-width: 950px;">
 
                     <PropertyColumn Property="e => e.EventoId"
-                                    Title="Id" Sortable="true" />
+                                    Title="Id"
+                                    Sortable="true" />
 
                     <TemplateColumn Title="Fecha de inicio">
                         <div class="text-nowrap">
@@ -121,13 +153,16 @@
                     </TemplateColumn>
 
                     <PropertyColumn Property="e => e.Nombre"
-                                    Title="Nombre" Sortable="true" />
+                                    Title="Nombre"
+                                    Sortable="true" />
 
                     <PropertyColumn Property="e => e.Lugar"
-                                    Title="Lugar" Sortable="true" />
+                                    Title="Lugar"
+                                    Sortable="true" />
 
                     <PropertyColumn Property="e => e.Total"
-                                    Title="Total" Sortable="true" />
+                                    Title="Total"
+                                    Sortable="true" />
 
                     <TemplateColumn Title="Estado">
                         <span class="estado @(context.Estado?.ToLowerInvariant())">
@@ -159,6 +194,7 @@
             </div>
         </div>
 
+        @* Footer *@
         <div class="card-footer d-flex justify-content-between align-items-center mb-4">
             <label>
                 <strong>Cantidad: </strong>@listaEventos.Count
@@ -201,7 +237,6 @@
             </div>
 
             <div class="modal-footer">
-
                 <button type="button"
                         class="btn btn-secondary"
                         data-bs-dismiss="modal">
@@ -215,7 +250,6 @@
                         @onclick="Eliminar">
                     Eliminar
                 </button>
-
             </div>
 
         </div>
@@ -224,26 +258,119 @@
 
 @code {
     private List<Evento> listaEventos = new();
+    private List<Evento> todosEventos = new();
+    private List<string> tiposDisponibles = new();
 
-    private string FiltroCategoria { get; set; } = string.Empty;
+    private string FiltroTipo { get; set; } = string.Empty;
     private string FiltroEstado { get; set; } = string.Empty;
     private string FiltroBusqueda { get; set; } = string.Empty;
+
+    private bool filtrosAplicados = false;
 
     private Evento? eventoSeleccionado;
     private bool procesando = false;
 
+    private CancellationTokenSource? cancelacion;
+    private Task? tareaActualizacion;
+
     protected override async Task OnInitializedAsync()
     {
         await CargarEventos();
+
+        cancelacion = new CancellationTokenSource();
+
+        tareaActualizacion = ActualizarEventosAutomaticamente(
+            cancelacion.Token);
+    }
+
+    private async Task ActualizarEventosAutomaticamente(
+        CancellationToken token)
+    {
+        using var timer = new PeriodicTimer(
+            TimeSpan.FromSeconds(5));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                await InvokeAsync(async () =>
+                {
+                    await CargarEventos();
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // La página se cerró o el usuario cambió de menú.
+        }
     }
 
     private async Task CargarEventos()
     {
-        var eventos = await eventoService.GetList(e => e.EventoId > 0) ?? new();
+        var eventos = await eventoService.GetList(
+            e => e.EventoId > 0 && !e.Eliminado);
 
-        listaEventos = eventos
+        todosEventos = eventos
             .OrderByDescending(e => e.EventoId)
             .ToList();
+
+        // Obtener los tipos reales registrados.
+        tiposDisponibles = todosEventos
+            .Where(e => !string.IsNullOrWhiteSpace(e.Tipo))
+            .Select(e => e.Tipo)
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        if (!filtrosAplicados)
+        {
+            listaEventos = todosEventos.ToList();
+            return;
+        }
+
+        var busqueda = FiltroBusqueda.Trim();
+
+        listaEventos = todosEventos
+            .Where(e =>
+                (FiltroTipo == "" ||
+                 e.Tipo == FiltroTipo) &&
+
+                (FiltroEstado == "" ||
+                 e.Estado == FiltroEstado) &&
+
+                (busqueda == "" ||
+                 e.Nombre.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.Lugar.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.EventoId.ToString().Contains(busqueda))
+            )
+            .ToList();
+    }
+
+    private void Buscar()
+    {
+        filtrosAplicados = true;
+        AplicarFiltros();
+    }
+
+    private void Restablecer()
+    {
+        FiltroTipo = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
+
+        filtrosAplicados = false;
+
+        AplicarFiltros();
     }
 
     private void SeleccionarEvento(Evento evento)
@@ -260,11 +387,13 @@
 
         try
         {
-            bool eliminado = await eventoService.Eliminar(eventoSeleccionado.EventoId);
+            bool eliminado = await eventoService.Eliminar(
+                eventoSeleccionado.EventoId);
 
             if (eliminado)
             {
-                toastService.ShowSuccess("Evento Eliminado Exitosamente");
+                toastService.ShowSuccess(
+                    "Evento Eliminado Exitosamente");
 
                 eventoSeleccionado = null;
 
@@ -272,16 +401,39 @@
             }
             else
             {
-                toastService.ShowError("Error al Eliminar el Evento");
+                toastService.ShowError(
+                    "Error al Eliminar el Evento");
             }
         }
         catch (Exception)
         {
-            toastService.ShowError("Ocurrió un error al eliminar el evento");
+            toastService.ShowError(
+                "Ocurrió un error al eliminar el evento");
         }
         finally
         {
             procesando = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (cancelacion is not null)
+        {
+            await cancelacion.CancelAsync();
+
+            if (tareaActualizacion is not null)
+            {
+                try
+                {
+                    await tareaActualizacion;
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+
+            cancelacion.Dispose();
         }
     }
 }

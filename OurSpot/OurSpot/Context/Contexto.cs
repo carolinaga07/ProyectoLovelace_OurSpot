@@ -14,6 +14,7 @@ public class Contexto: IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<Evento> Eventos { get; set; }
+    public DbSet<NotificacionEvento> NotificacionesEventos { get; set; }
     public DbSet<Contrataciones> Contrataciones { get; set; }
     public DbSet<Lugares> Lugares { get; set; }
     public DbSet<Proveedores> Proveedores { get; set; }
