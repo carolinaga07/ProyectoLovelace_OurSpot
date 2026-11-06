@@ -379,6 +379,45 @@ namespace OurSpot.Migrations
                     b.ToTable("EventoDetalles");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
+                {
+                    b.Property<int>("NotificacionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificacionId"));
+
+                    b.Property<bool>("Confirmada")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("EstadoAnterior")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EstadoNuevo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaConfirmacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreEvento")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NotificacionId");
+
+                    b.HasIndex("EventoId");
+
+                    b.ToTable("NotificacionesEventos");
+                });
+
             modelBuilder.Entity("OurSpot.Security.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -572,6 +611,17 @@ namespace OurSpot.Migrations
                         .IsRequired();
 
                     b.Navigation("Contrataciones");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
+                {
+                    b.HasOne("OurSpot.Models.Evento", "Evento")
+                        .WithMany()
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evento");
                 });
 
             modelBuilder.Entity("Personal", b =>
