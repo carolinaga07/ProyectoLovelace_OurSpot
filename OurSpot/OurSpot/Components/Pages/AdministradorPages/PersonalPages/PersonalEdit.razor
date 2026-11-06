@@ -46,7 +46,12 @@ else
                     @* Contraseña *@
                     <div class="mb-3">
                         <label class="form-label"><strong>Contraseña</strong></label>
-                        <InputText type="password" class="form-control" @bind-Value="personal.Contrasena"></InputText>
+                        <div class="input-group">
+                            <InputText type="@tipoPassword" class="form-control" @bind-Value="personal.Contrasena"></InputText>
+                            <button type="button" class="btn btn-outline-secondary" @onclick="AlternarMostrarContrasena">
+                                <span class="bi @iconoPassword"></span>
+                            </button>
+                        </div>
                         <ValidationMessage For="(() => personal.Contrasena)" />
                     </div>
 
@@ -106,6 +111,9 @@ else
     [Parameter] public int PersonalId { get; set; }
 
     private Personal? personal;
+    private bool mostrarContrasena = false;
+    private string tipoPassword => mostrarContrasena ? "text" : "password";
+    private string iconoPassword => mostrarContrasena ? "bi-eye-slash" : "bi-eye";
 
     protected override async Task OnInitializedAsync()
     {
@@ -146,5 +154,10 @@ else
         {
             toastService.ShowError("Error al Eliminar el personal");
         }
+    }
+
+    private void AlternarMostrarContrasena()
+    {
+        mostrarContrasena = !mostrarContrasena;
     }
 }
