@@ -1,0 +1,12 @@
+@API = https://localhost:7001
+
+POST {{API}}/api/Notificaciones
+Content-Type: application/json
+X-OurSpot-Key: 123456
+
+{
+  "eventoId": 1,
+  "nombreEvento": "Festival Cultural",
+  "estadoAnterior": "Pendiente",
+  "estadoNuevo": "Activo"
+}
