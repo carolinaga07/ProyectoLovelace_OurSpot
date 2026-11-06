@@ -51,6 +51,9 @@ builder.Services.AddScoped<PersonalService>();
 builder.Services.AddScoped<RegistroClientesService>();
 builder.Services.AddScoped<AdministradoresService>();
 builder.Services.AddScoped<RegistroPersonalService>();
+builder.Services.AddScoped<ClientesService>();
+builder.Services.AddScoped<ContrasenasService>();
+builder.Services.AddScoped<EventoImagenesService>();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddHttpClient<NotificacionesApiService>();
@@ -80,6 +83,66 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
+app.MapGet("/api/cliente/eventos/imagenes/{imagenId:int}",
+    async (
+        int imagenId,
+        System.Security.Claims.ClaimsPrincipal usuario,
+        IDbContextFactory<Contexto> factory,
+        IWebHostEnvironment entorno) =>
+    {
+        if (usuario.Identity?.IsAuthenticated != true ||
+            !usuario.IsInRole("Cliente"))
+            return Results.Forbid();
+
+        var usuarioId = usuario.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(usuarioId))
+            return Results.Forbid();
+
+        await using var contexto =
+            await factory.CreateDbContextAsync();
+
+        var imagen = await contexto.EventoImagenes
+            .AsNoTracking()
+            .Where(i =>
+                i.EventoImagenId == imagenId &&
+                !i.Evento.Eliminado &&
+                i.Evento.Clientes != null &&
+                i.Evento.Clientes.ApplicationUserId == usuarioId)
+            .Select(i => i.RutaImagen)
+            .FirstOrDefaultAsync();
+
+        if (imagen == null)
+            return Results.NotFound();
+
+        var nombre = Path.GetFileName(imagen);
+
+        var ruta = Path.Combine(
+            entorno.ContentRootPath,
+            "ArchivosPrivados",
+            "Eventos",
+            nombre);
+
+        if (!File.Exists(ruta))
+            return Results.NotFound();
+
+        var tipo = Path.GetExtension(nombre).ToLowerInvariant() switch
+        {
+            ".jpg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        return Results.File(
+            ruta,
+            contentType: tipo,
+            enableRangeProcessing: false);
+    })
+    .RequireAuthorization();
 
 
 app.UseHttpsRedirection();

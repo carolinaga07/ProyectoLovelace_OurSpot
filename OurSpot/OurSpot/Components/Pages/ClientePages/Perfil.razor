@@ -1,0 +1,192 @@
+﻿@page "/cliente/perfil"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+
+@inject ClientesService clientesService
+@inject ToastService toastService
+
+<PageTitle>Mi Perfil - OurSpot</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+
+        <div class="card-header">
+            <h4 class="card-title mt-2">
+                <i class="bi bi-person-circle me-2"
+                   style="color:#2D5056"></i>
+                Mi Perfil
+            </h4>
+        </div>
+
+        @if (cargando)
+        {
+            <div class="card-body text-center">
+                Cargando información...
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(error))
+        {
+            <div class="card-body">
+                <div class="alert alert-danger">@error</div>
+            </div>
+        }
+        else
+        {
+            <EditForm Model="perfil" OnValidSubmit="Guardar">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Nombre completo</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="perfil.Nombre" />
+
+                        <ValidationMessage For="(() => perfil.Nombre)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Correo electrónico</strong>
+                        </label>
+
+                        <input class="form-control"
+                               value="@perfil.Correo"
+                               disabled />
+
+                        <small class="text-muted">
+                            El correo electrónico no puede modificarse desde esta página.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Teléfono</strong>
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="perfil.Telefono" />
+
+                        <ValidationMessage For="(() => perfil.Telefono)" />
+                    </div>
+
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit"
+                            class="btn btn-primary"
+                            style="background-color:#2D5056"
+                            disabled="@procesando">
+
+                        <span class="bi bi-floppy"></span>
+                        @(procesando ? "Guardando..." : "Guardar cambios")
+                    </button>
+                </div>
+
+            </EditForm>
+        }
+
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private PerfilClienteDto perfil = new();
+
+    private string? applicationUserId;
+    private string? error;
+
+    private bool cargando = true;
+    private bool procesando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask == null)
+            {
+                error = "No se pudo obtener la sesión.";
+                return;
+            }
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                error = "No se pudo identificar al usuario.";
+                return;
+            }
+
+            var datos = await clientesService.ObtenerPerfil(
+                applicationUserId);
+
+            if (datos == null)
+            {
+                error = "No se encontró el perfil del cliente.";
+                return;
+            }
+
+            perfil = datos;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            error = "Ocurrió un error al cargar el perfil.";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (procesando ||
+            string.IsNullOrEmpty(applicationUserId))
+            return;
+
+        procesando = true;
+
+        try
+        {
+            bool actualizado = await clientesService.ActualizarPerfil(
+                applicationUserId,
+                perfil);
+
+            if (actualizado)
+            {
+                toastService.ShowSuccess(
+                    "Perfil actualizado correctamente.");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo actualizar el perfil.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            toastService.ShowError(
+                "Ocurrió un error al guardar los cambios.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}

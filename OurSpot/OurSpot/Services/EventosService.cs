@@ -3,6 +3,7 @@ using Aplicada1.Core;
 using Microsoft.EntityFrameworkCore;
 using OurSpot.Context;
 using OurSpot.Models;
+using OurSpot.Models.DTOs;
 using OurSpot.Services;
 using System.Linq.Expressions;
 
@@ -306,5 +307,299 @@ public class EventosService(
             .ThenBy(e => e.HoraInicio)
             .ToListAsync();
     }
+
+
+    public async Task<bool> CrearEventoCliente(
+        Evento nuevoEvento,
+        string applicationUserId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var cliente = await contexto.Clientes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c =>
+                c.ApplicationUserId == applicationUserId);
+
+        if (cliente == null)
+            return false;
+
+        var inicio = nuevoEvento.FechaInicio
+            .ToDateTime(nuevoEvento.HoraInicio);
+
+        var cierre = nuevoEvento.FechaCierre
+            .ToDateTime(nuevoEvento.HoraCierre);
+
+        if (inicio < DateTime.Now || cierre <= inicio)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(nuevoEvento.Nombre) ||
+            string.IsNullOrWhiteSpace(nuevoEvento.Descripcion) ||
+            string.IsNullOrWhiteSpace(nuevoEvento.Tipo) ||
+            string.IsNullOrWhiteSpace(nuevoEvento.Lugar))
+            return false;
+
+        if (nuevoEvento.Tipo != "Publico" &&
+            nuevoEvento.Tipo != "Privado")
+            return false;
+
+        bool lugarValido = await contexto.Lugares
+            .AnyAsync(l => l.Nombre == nuevoEvento.Lugar);
+
+        if (!lugarValido)
+            return false;
+
+        var ids = nuevoEvento.EventosDetalles
+            .Select(d => d.ContratacionId)
+            .ToList();
+
+        if (ids.Count != ids.Distinct().Count())
+            return false;
+
+        var contrataciones = await contexto.Contrataciones
+            .AsNoTracking()
+            .Where(c =>
+                ids.Contains(c.ContratacionId) &&
+                !c.Eliminado &&
+                c.Estado == "Activa")
+            .ToListAsync();
+
+        if (contrataciones.Count != ids.Count)
+            return false;
+
+        const double ganancia = 25;
+
+        var evento = new Evento
+        {
+            ClienteId = cliente.ClienteId,
+            Nombre = nuevoEvento.Nombre.Trim(),
+            Descripcion = nuevoEvento.Descripcion.Trim(),
+            FechaInicio = nuevoEvento.FechaInicio,
+            HoraInicio = nuevoEvento.HoraInicio,
+            FechaCierre = nuevoEvento.FechaCierre,
+            HoraCierre = nuevoEvento.HoraCierre,
+            Tipo = nuevoEvento.Tipo,
+            Lugar = nuevoEvento.Lugar,
+            Estado = "Pendiente",
+            Eliminado = false,
+            EventosDetalles = contrataciones.Select(c =>
+                new EventoDetalles
+                {
+                    ContratacionId = c.ContratacionId,
+                    Servicio = nuevoEvento.EventosDetalles
+                        .First(d =>
+                            d.ContratacionId == c.ContratacionId)
+                        .Servicio,
+                    PrecioBase = c.Costo,
+                    PorcentajeGanancia = ganancia,
+                    PrecioFinal = c.Costo * (1 + ganancia / 100)
+                }).ToList()
+        };
+
+        evento.Total = evento.EventosDetalles
+            .Sum(d => d.PrecioFinal);
+
+        contexto.Eventos.Add(evento);
+
+        bool guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+            await RevisarEstadosPendientes();
+
+        return guardado;
+    }
+
+
+    public async Task<EventoClienteDetalleDto?> ObtenerDetalleCliente(
+        int eventoId,
+        string applicationUserId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        return await contexto.Eventos
+            .AsNoTracking()
+            .Where(e =>
+                e.EventoId == eventoId &&
+                !e.Eliminado &&
+                e.Clientes != null &&
+                e.Clientes.ApplicationUserId == applicationUserId)
+            .Select(e => new EventoClienteDetalleDto
+            {
+                EventoId = e.EventoId,
+                Nombre = e.Nombre,
+                Descripcion = e.Descripcion,
+                FechaInicio = e.FechaInicio,
+                HoraInicio = e.HoraInicio,
+                FechaCierre = e.FechaCierre,
+                HoraCierre = e.HoraCierre,
+                Lugar = e.Lugar,
+                Tipo = e.Tipo,
+                Estado = e.Estado,
+                Total = e.Total,
+
+                Contrataciones = e.EventosDetalles
+                    .Select(d => new ContratacionClienteDetalleDto
+                    {
+                        Servicio = d.Servicio,
+                        PrecioFinal = d.PrecioFinal
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+    }
+
+
+    public async Task<EditarEventoClienteDto?> ObtenerEventoParaEditarCliente(
+        int eventoId,
+        string applicationUserId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        return await contexto.Eventos
+            .AsNoTracking()
+            .Where(e =>
+                e.EventoId == eventoId &&
+                !e.Eliminado &&
+                e.Estado == "Pendiente" &&
+                e.Clientes != null &&
+                e.Clientes.ApplicationUserId == applicationUserId)
+            .Select(e => new EditarEventoClienteDto
+            {
+                EventoId = e.EventoId,
+                Nombre = e.Nombre,
+                Descripcion = e.Descripcion,
+                FechaInicio = e.FechaInicio,
+                HoraInicio = e.HoraInicio,
+                FechaCierre = e.FechaCierre,
+                HoraCierre = e.HoraCierre,
+                Lugar = e.Lugar,
+                Tipo = e.Tipo,
+
+                ContratacionesIds = e.EventosDetalles
+                    .Select(d => d.ContratacionId)
+                    .ToList(),
+
+                Servicios = e.EventosDetalles
+                .Select(d => new ServicioEditableClienteDto
+                {
+                  ContratacionId = d.ContratacionId,
+                  Servicio = d.Servicio,
+                  PrecioFinal = d.PrecioFinal
+                })
+                .ToList()
+            })
+            .FirstOrDefaultAsync();
+    }
+
+
+    public async Task<bool> ActualizarEventoCliente(
+        EditarEventoClienteDto datos,
+        string applicationUserId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var evento = await contexto.Eventos
+            .Include(e => e.EventosDetalles)
+            .FirstOrDefaultAsync(e =>
+                e.EventoId == datos.EventoId &&
+                !e.Eliminado &&
+                e.Estado == "Pendiente" &&
+                e.Clientes != null &&
+                e.Clientes.ApplicationUserId == applicationUserId);
+
+        if (evento == null)
+            return false;
+
+        var inicio = datos.FechaInicio.ToDateTime(datos.HoraInicio);
+        var cierre = datos.FechaCierre.ToDateTime(datos.HoraCierre);
+
+        if (inicio < DateTime.Now || cierre <= inicio)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(datos.Nombre) ||
+            string.IsNullOrWhiteSpace(datos.Descripcion) ||
+            string.IsNullOrWhiteSpace(datos.Lugar))
+            return false;
+
+        if (datos.Tipo != "Publico" && datos.Tipo != "Privado")
+            return false;
+
+        bool lugarValido = await contexto.Lugares
+            .AnyAsync(l => l.Nombre == datos.Lugar);
+
+        if (!lugarValido)
+            return false;
+
+        var ids = datos.ContratacionesIds;
+
+        if (ids.Count != ids.Distinct().Count())
+            return false;
+
+        var existentes = evento.EventosDetalles
+            .ToDictionary(d => d.ContratacionId);
+
+        var idsNuevos = ids
+            .Where(id => !existentes.ContainsKey(id))
+            .ToList();
+
+        var nuevasContrataciones = await contexto.Contrataciones
+            .AsNoTracking()
+            .Where(c =>
+                idsNuevos.Contains(c.ContratacionId) &&
+                !c.Eliminado &&
+                c.Estado == "Activa")
+            .ToListAsync();
+
+        if (nuevasContrataciones.Count != idsNuevos.Count)
+            return false;
+
+        foreach (var detalle in evento.EventosDetalles
+            .Where(d => !ids.Contains(d.ContratacionId))
+            .ToList())
+        {
+            evento.EventosDetalles.Remove(detalle);
+            contexto.Remove(detalle);
+        }
+
+        const double ganancia = 25;
+
+        foreach (var contratacion in nuevasContrataciones)
+        {
+            evento.EventosDetalles.Add(new EventoDetalles
+            {
+                ContratacionId = contratacion.ContratacionId,
+                Servicio = contratacion.Servicio,
+                PrecioBase = contratacion.Costo,
+                PorcentajeGanancia = ganancia,
+                PrecioFinal = contratacion.Costo * (1 + ganancia / 100)
+            });
+        }
+
+        evento.Nombre = datos.Nombre.Trim();
+        evento.Descripcion = datos.Descripcion.Trim();
+        evento.FechaInicio = datos.FechaInicio;
+        evento.HoraInicio = datos.HoraInicio;
+        evento.FechaCierre = datos.FechaCierre;
+        evento.HoraCierre = datos.HoraCierre;
+        evento.Lugar = datos.Lugar;
+        evento.Tipo = datos.Tipo;
+
+        evento.Total = evento.EventosDetalles
+            .Sum(d => d.PrecioFinal);
+
+        bool guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+            await RevisarEstadosPendientes();
+
+        return guardado;
+    }
+
+
+
+
 
 }

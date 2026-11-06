@@ -384,6 +384,31 @@ namespace OurSpot.Migrations
                     b.ToTable("EventoDetalles");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.EventoImagen", b =>
+                {
+                    b.Property<int>("EventoImagenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventoImagenId"));
+
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaSubida")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RutaImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EventoImagenId");
+
+                    b.HasIndex("EventoId");
+
+                    b.ToTable("EventoImagenes");
+                });
+
             modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
                 {
                     b.Property<int>("NotificacionId")
@@ -627,6 +652,17 @@ namespace OurSpot.Migrations
                     b.Navigation("Contrataciones");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.EventoImagen", b =>
+                {
+                    b.HasOne("OurSpot.Models.Evento", "Evento")
+                        .WithMany("Imagenes")
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evento");
+                });
+
             modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
                 {
                     b.HasOne("OurSpot.Models.Evento", "Evento")
@@ -655,6 +691,8 @@ namespace OurSpot.Migrations
             modelBuilder.Entity("OurSpot.Models.Evento", b =>
                 {
                     b.Navigation("EventosDetalles");
+
+                    b.Navigation("Imagenes");
                 });
 #pragma warning restore 612, 618
         }

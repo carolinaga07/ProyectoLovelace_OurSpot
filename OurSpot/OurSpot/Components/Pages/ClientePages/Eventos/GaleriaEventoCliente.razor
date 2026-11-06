@@ -1,0 +1,241 @@
+﻿@rendermode InteractiveServer
+@inject EventoImagenesService imagenesService
+@inject ToastService toastService
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-images me-2"></i>
+            Galería del Evento
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        @if (cargando)
+        {
+            <p>Cargando fotografías...</p>
+        }
+        else if (imagenes.Count == 0)
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p>Este evento todavía no tiene fotografías.</p>
+            </div>
+        }
+        else
+        {
+            <div class="text-center mb-3">
+                <img src="@UrlImagen(imagenes[indice])"
+                     class="img-fluid rounded"
+                     style="max-height:400px; object-fit:contain;"
+                     alt="Fotografía del evento" />
+            </div>
+
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        @onclick="Anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <span class="align-self-center">
+                    @(indice + 1) de @imagenes.Count
+                </span>
+
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        @onclick="Siguiente">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="row g-2">
+                @foreach (var imagen in imagenes)
+                {
+                    <div class="col-6 col-md-3">
+                        <img src="@UrlImagen(imagen)"
+                             class="img-thumbnail w-100"
+                             style="height:120px; object-fit:cover;"
+                             alt="Miniatura del evento" />
+
+                        @if (Estado == "Finalizado")
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm w-100 mt-1"
+                                    disabled="@procesando"
+                                    @onclick="() => Eliminar(imagen.EventoImagenId)">
+                                <i class="bi bi-trash"></i>
+                                Eliminar
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @if (Estado == "Finalizado")
+        {
+            <hr />
+
+            <h6>Agregar fotografías</h6>
+
+            <InputFile OnChange="SubirImagenes"
+                       multiple
+                       accept=".jpg,.jpeg,.png,.webp"
+                       class="form-control"
+                       disabled="@procesando" />
+
+            <small class="text-muted">
+                Máximo 5 MB por imagen y 20 imágenes por evento.
+            </small>
+
+            @if (procesando)
+            {
+                <p class="mt-2 text-muted">
+                    Subiendo fotografías...
+                </p>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+
+    [Parameter]
+    public string Estado { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<EventoImagenDto> imagenes = new();
+
+    private string? usuarioId;
+    private bool cargando = true;
+    private bool procesando;
+    private int indice;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        indice = 0;
+
+        try
+        {
+            if (AuthenticationStateTask == null)
+                return;
+
+            var estado = await AuthenticationStateTask;
+
+            if (!estado.User.IsInRole("Cliente"))
+                return;
+
+            usuarioId = estado.User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            await CargarImagenes();
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task CargarImagenes()
+    {
+        if (string.IsNullOrEmpty(usuarioId))
+            return;
+
+        imagenes = await imagenesService.ObtenerImagenes(
+            EventoId, usuarioId);
+
+        if (indice >= imagenes.Count)
+            indice = 0;
+    }
+
+    private static string UrlImagen(EventoImagenDto imagen)
+    {
+        return $"/api/cliente/eventos/imagenes/{imagen.EventoImagenId}";
+    }
+
+    private void Anterior()
+    {
+        if (imagenes.Count > 0)
+            indice = (indice - 1 + imagenes.Count) % imagenes.Count;
+    }
+
+    private void Siguiente()
+    {
+        if (imagenes.Count > 0)
+            indice = (indice + 1) % imagenes.Count;
+    }
+
+    private async Task SubirImagenes(InputFileChangeEventArgs e)
+    {
+        if (procesando ||
+            Estado != "Finalizado" ||
+            string.IsNullOrEmpty(usuarioId))
+            return;
+
+        procesando = true;
+
+        try
+        {
+            foreach (var archivo in e.GetMultipleFiles(20))
+            {
+                var resultado = await imagenesService.SubirImagen(
+                    EventoId, usuarioId, archivo);
+
+                if (!resultado.Exito)
+                    toastService.ShowError(resultado.Mensaje);
+            }
+
+            await CargarImagenes();
+            toastService.ShowSuccess("Carga de fotografías finalizada.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            toastService.ShowError(
+                "No se pudieron subir todas las fotografías.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+
+    private async Task Eliminar(int imagenId)
+    {
+        if (procesando ||
+            Estado != "Finalizado" ||
+            string.IsNullOrEmpty(usuarioId))
+            return;
+
+        procesando = true;
+
+        try
+        {
+            bool eliminado = await imagenesService.EliminarImagen(
+                imagenId, usuarioId);
+
+            if (eliminado)
+            {
+                await CargarImagenes();
+                toastService.ShowSuccess("Fotografía eliminada.");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo eliminar la fotografía.");
+            }
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}

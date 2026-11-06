@@ -2,11 +2,271 @@
 @layout ClienteLayout
 @attribute [Authorize(Roles = "Cliente")]
 @rendermode InteractiveServer
+@inject EventosService eventosService
 
+<PageTitle>OurSpot - Inicio</PageTitle>
 
-<PageTitle>Inicio - OurSpot</PageTitle>
+<div class="container-fluid p-4">
 
-<div class="container mt-4">
-    <h3>Bienvenido a OurSpot</h3>
-    <p>Desde aquí podrás gestionar tus eventos y solicitudes.</p>
+    <h2 class="mb-4">Panel del Cliente</h2>
+
+    @if (cargando)
+    {
+        <p>Cargando información de tus eventos...</p>
+    }
+    else if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">
+            @error
+        </div>
+    }
+    else
+    {
+        @* TARJETAS DE RESUMEN *@
+        <div class="d-flex gap-3 mb-4 flex-wrap">
+
+            <div class="card text-white p-3 tarjeta-resumen">
+                <span>Próximos Eventos</span>
+                <span class="fs-1 fw-bold">
+                    @TotalProximos
+                </span>
+            </div>
+
+            <div class="card text-white p-3 tarjeta-resumen">
+                <span>Eventos Pendientes</span>
+                <span class="fs-1 fw-bold">
+                    @TotalPendientes
+                </span>
+            </div>
+
+            <div class="card text-white p-3 tarjeta-resumen">
+                <span>Eventos Activos</span>
+                <span class="fs-1 fw-bold">
+                    @TotalActivos
+                </span>
+            </div>
+
+            <div class="card text-white p-3 tarjeta-resumen">
+                <span>Eventos Finalizados</span>
+                <span class="fs-1 fw-bold">
+                    @TotalFinalizados
+                </span>
+            </div>
+
+        </div>
+
+        @* EVENTOS DESTACADOS *@
+        <h2>Mis Eventos Destacados</h2>
+
+        <div class="d-flex gap-3 pb-2"
+             style="overflow-x:auto">
+
+            @if (!ListaDestacados.Any())
+            {
+                <p class="text-muted">
+                    Todavía no tienes eventos destacados.
+                </p>
+            }
+            else
+            {
+                @foreach (var evento in ListaDestacados)
+                {
+                    <div class="card tarjeta-evento">
+
+                        <div class="imagen-evento"></div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                @evento.Nombre
+                            </h5>
+
+                            <p class="mb-1 small">
+                                Ubicación: @evento.Lugar
+                            </p>
+
+                            <p class="mb-1 small">
+                                Tipo de evento: @evento.Tipo
+                            </p>
+
+                            <p class="mb-1 small">
+                                Fecha:
+                                @evento.FechaInicio.ToString("dd/MM/yyyy")
+                            </p>
+
+                            <p class="mb-1 small">
+                                Estado: @evento.Estado
+                            </p>
+
+                            <p>
+                                Estrellas:
+                                @evento.Estrella
+                                <i class="bi bi-star-fill text-danger"></i>
+                            </p>
+
+                            <a href="/cliente/eventos/detalle/@evento.EventoId"
+                               class="btn btn-outline-dark btn-sm">
+                                Leer más
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+
+        @* PRÓXIMOS EVENTOS *@
+        <div class="container-fluid mt-4 px-0">
+
+            <div class="card-header">
+                <h2>Mis Próximos Eventos</h2>
+            </div>
+
+            <div class="card-body px-0">
+
+                @if (!ListaProximos.Any())
+                {
+                    <div class="alert alert-info">
+                        No tienes eventos próximos.
+                    </div>
+                }
+                else
+                {
+                    <QuickGrid Items="ListaProximos.AsQueryable()"
+                               Class="table table-hover">
+
+                        <PropertyColumn Property="e => e.Nombre"
+                                        Title="Evento"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.FechaInicio"
+                                        Title="Fecha"
+                                        Format="dd/MM/yyyy"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.Lugar"
+                                        Title="Lugar"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.Tipo"
+                                        Title="Tipo"
+                                        Sortable="true" />
+
+                        <PropertyColumn Property="e => e.Estado"
+                                        Title="Estado"
+                                        Sortable="true" />
+
+                        <TemplateColumn Title="Acciones">
+                            <a href="/cliente/eventos/detalle/@context.EventoId"
+                               class="btn btn-sm text-white"
+                               style="background-color:#2D5056">
+                                Ver detalles
+                            </a>
+                        </TemplateColumn>
+
+                    </QuickGrid>
+                }
+
+            </div>
+        </div>
+    }
 </div>
+
+<style>
+    .tarjeta-resumen {
+        background: #2c4a52;
+        flex: 1;
+        min-width: 190px;
+    }
+
+    .tarjeta-evento {
+        min-width: 220px;
+        max-width: 260px;
+        flex-shrink: 0;
+    }
+
+    .imagen-evento {
+        height: 180px;
+        background: #8fa8b0;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<Evento> ListaEventos = new();
+    private List<Evento> ListaProximos = new();
+    private List<Evento> ListaDestacados = new();
+
+    private bool cargando = true;
+    private string? error;
+
+    private int TotalProximos =>
+        ListaProximos.Count;
+
+    private int TotalPendientes =>
+        ListaEventos.Count(e => e.Estado == "Pendiente");
+
+    private int TotalActivos =>
+        ListaEventos.Count(e => e.Estado == "Activo");
+
+    private int TotalFinalizados =>
+        ListaEventos.Count(e => e.Estado == "Finalizado");
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask == null)
+            {
+                error = "No se pudo obtener la sesión actual.";
+                return;
+            }
+
+            var authenticationState =
+                await AuthenticationStateTask;
+
+            var applicationUserId =
+                authenticationState.User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(applicationUserId))
+            {
+                error = "No se pudo identificar al usuario autenticado.";
+                return;
+            }
+
+            ListaEventos =
+                await eventosService.ObtenerEventosCliente(
+                    applicationUserId);
+
+            var ahora = DateTime.Now;
+
+            ListaProximos = ListaEventos
+                .Where(e =>
+                    e.FechaInicio.ToDateTime(e.HoraInicio) >= ahora &&
+                    e.Estado != "Cancelado")
+                .OrderBy(e => e.FechaInicio)
+                .ThenBy(e => e.HoraInicio)
+                .ToList();
+
+            ListaDestacados = ListaEventos
+                .Where(e => e.Estrella > 0)
+                .OrderByDescending(e => e.Estrella)
+                .Take(5)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error: {ex.Message}";
+            Console.WriteLine(ex.ToString());
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+}
