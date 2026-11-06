@@ -1,4 +1,5 @@
-﻿using OurSpot.Components.Pages.AdministradorPages.EventosPagesNavMenu;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using OurSpot.Components.Pages.AdministradorPages.EventosPagesNavMenu;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
@@ -36,7 +37,10 @@ namespace OurSpot.Models
 
         public bool Eliminado { get; set; } = false;
         public double Total { get; set; }
-
+        
+        [ForeignKey(nameof(Clientes))]
+        public int? ClienteId { get; set; }
+        public Clientes? Clientes { get; set; }
         public int Estrella { get; set; }
         public List<EventoDetalles> EventosDetalles { get; set; } = new();
 

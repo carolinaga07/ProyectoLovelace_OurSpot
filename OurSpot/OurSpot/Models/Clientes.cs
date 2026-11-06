@@ -15,4 +15,6 @@ public class Clientes
     [ForeignKey(nameof(ApplicationUser))]
     public string? ApplicationUserId { get; set; } 
     public ApplicationUser? ApplicationUser { get; set; }
+
+    public List<Evento> Eventos { get; set; } = new List<Evento>();
 }

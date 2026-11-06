@@ -1,14 +1,12 @@
 ﻿@page "/cliente/home"
+@layout ClienteLayout
 @attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
 
-<h3>Portal de clientes - OurSpot</h3>
 
-<AuthorizeView Roles="Cliente">
-    <Authorized Context="auth">
-        <div class="alert alert-success">
-            Bienvenido, @auth.User.Identity?.Name
-        </div>
+<PageTitle>Inicio - OurSpot</PageTitle>
 
-        <p>Desde aquí podrás consultar tus eventos y contrataciones.</p>
-    </Authorized>
-</AuthorizeView>
+<div class="container mt-4">
+    <h3>Bienvenido a OurSpot</h3>
+    <p>Desde aquí podrás gestionar tus eventos y solicitudes.</p>
+</div>
