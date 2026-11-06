@@ -23,6 +23,8 @@ public class Personal
 
     public string Estado { get; set; } = "Activo";
 
+    public bool Eliminado { get; set; } = false;
+
     [Required(ErrorMessage = "Seleccione un rol")]
     public string Rol { get; set; } = "Empleado";
 

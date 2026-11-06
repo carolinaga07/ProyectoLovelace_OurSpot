@@ -1,0 +1,157 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/personal/Recuperar"
+@rendermode InteractiveServer
+@inject PersonalService personalService
+@inject ToastService toastService
+@inject NavigationManager navigationManager
+
+<PageTitle>Recuperar Personal</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">
+                <a href="/Personal"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>Recuperar Personal
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+
+                @*Categoria*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Categor&iacute;a</strong></label>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Estado</strong></label>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Categoria*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroCargo">
+                        <option value="">Todos los cargos</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Empleado">Empleado</option>
+                    </InputSelect>
+                </div>
+
+                @*Estado*@
+                <div class="col-4">
+                    <InputSelect class="form-select" @bind-Value="FiltroEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" @bind:event="oninput" placeholder="Buscar nombre, correo o Id" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" title="Buscar"></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="p => p.Id" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="p => p.Nombre" Title="Nombre" Sortable="true" />
+                    <PropertyColumn Property="p => p.Correo" Title="Correo" Sortable="true" />
+                    <PropertyColumn Property="p => p.Cargo" Title="Cargo" Sortable="true" />
+                    <TemplateColumn Title="Estado" SortBy="GridSort<Personal>.ByAscending(p => p.Estado)">
+                        <span class="estado @(context.Estado == "Activo" ? "activo" : "inactivo")">@context.Estado</span>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Opciones">
+                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" @onclick="() => Recuperar(context.Id)"></button>
+                    </TemplateColumn>
+                </QuickGrid>
+
+                @if (!itemsQueryable.Any())
+                {
+                    <p class="text-center text-muted py-4">
+                        No se encontraron registros de personal con los filtros seleccionados.
+                    </p>
+                }
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string FiltroCargo { get; set; } = string.Empty;
+    public string FiltroEstado { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Personal> itemsQueryable =
+        Enumerable.Empty<Personal>().AsQueryable();
+
+    public Personal personal { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await personalService.GetList(c => c.Eliminado == true);
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (FiltroBusqueda.Trim() == "" &&
+            FiltroCargo == "" &&
+            FiltroEstado == "")
+        {
+            var items = await personalService.GetList(c => c.Eliminado == true);
+            itemsQueryable = items.AsQueryable();
+        }
+        else
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+
+            var items = await personalService.GetList(c =>
+                c.Eliminado == true &&
+                (FiltroCargo == "" || c.Cargo == FiltroCargo) &&
+                (FiltroEstado == "" || c.Estado == FiltroEstado) &&
+                (busqueda == "" ||
+                    (c.Cargo != null && c.Cargo.ToLower().Contains(busqueda)) ||
+                    (c.Estado != null && c.Estado.ToLower().Contains(busqueda)) ||
+                    (c.Nombre != null && c.Nombre.ToLower().Contains(busqueda))
+                )
+            );
+
+            itemsQueryable = items.AsQueryable();
+        }
+    }
+
+    
+    private async Task Recuperar(int id)
+    {
+        bool recuperado = await personalService.Recuperar(id);
+
+        if (recuperado)
+        {
+            toastService.ShowSuccess("Personal Recuperado Exitosamente");
+            navigationManager.NavigateTo("/personal");
+
+        }
+        else
+        {
+            toastService.ShowError("Error al Recuperar el Personal");
+        }
+    }
+}
