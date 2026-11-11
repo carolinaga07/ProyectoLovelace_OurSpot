@@ -1,8 +1,8 @@
 ﻿<div class="col-auto input-group align-items-center">
-    <label class="col-form-label input-group-text">Seleccione la categoria:</label>
+    <label class="col-form-label input-group-text">Seleccione el tipo de servicio deseado:</label>
    
     <select class="form-control form-select" value="@CategoriaSeleccionada" @onchange="CambiarCategoria">
-        <option value="">--seleccione una categoria--</option>
+        <option value="">--Seleccione el servicio--</option>
         @foreach(var categoria in Categorias)
         {
            <option value="@categoria">@categoria</option>
