@@ -35,6 +35,8 @@ namespace OurSpot.Models
 
         public string Estado { get; set; } = "Pendiente";
 
+        [Required(ErrorMessage = "La categoria del evento es obligatoria")]
+        public string Categoria { get; set; } = string.Empty;
         public bool Eliminado { get; set; } = false;
         public double Total { get; set; }
         
