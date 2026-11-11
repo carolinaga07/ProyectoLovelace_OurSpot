@@ -598,8 +598,27 @@ public class EventosService(
         return guardado;
     }
 
+  public async Task<List<Evento>> ObtenerEventoDestacados()
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
 
+        var eventos = await contexto.Eventos.Where(e => e.Estado == "Finalizado" &&
+        !e.Eliminado).Select(e => new
+        {
+            Evento = e,
+            Promedio = e.calificacionEventos.Select(c => (double?)c.Estrellas)
+            .Average() ?? 0
 
+        })
+        .AsNoTracking()
+        .ToListAsync();
 
-
+        return eventos.OrderByDescending(e => e.Promedio).Take(5)
+            .Select(e =>
+            {
+                e.Evento.Estrella = e.Promedio;
+                return e.Evento;
+            })
+            .ToList();
+    }
 }
