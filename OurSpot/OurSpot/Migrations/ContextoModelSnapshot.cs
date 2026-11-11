@@ -222,6 +222,36 @@ namespace OurSpot.Migrations
                     b.ToTable("Proveedores");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.CalificacionEvento", b =>
+                {
+                    b.Property<int>("CalificacionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CalificacionId"));
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Estrellas")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCalificacion")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CalificacionId");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("EventoId", "ClienteId")
+                        .IsUnique();
+
+                    b.ToTable("CalificacionEventos");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Clientes", b =>
                 {
                     b.Property<int>("ClienteId")
@@ -307,9 +337,6 @@ namespace OurSpot.Migrations
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Estrella")
-                        .HasColumnType("int");
 
                     b.Property<DateOnly>("FechaCierre")
                         .HasColumnType("date");
@@ -617,6 +644,25 @@ namespace OurSpot.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OurSpot.Models.CalificacionEvento", b =>
+                {
+                    b.HasOne("OurSpot.Models.Clientes", "Clientes")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OurSpot.Models.Evento", "Evento")
+                        .WithMany("calificacionEventos")
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Clientes");
+
+                    b.Navigation("Evento");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Clientes", b =>
                 {
                     b.HasOne("OurSpot.Security.ApplicationUser", "ApplicationUser")
@@ -693,6 +739,8 @@ namespace OurSpot.Migrations
                     b.Navigation("EventosDetalles");
 
                     b.Navigation("Imagenes");
+
+                    b.Navigation("calificacionEventos");
                 });
 #pragma warning restore 612, 618
         }

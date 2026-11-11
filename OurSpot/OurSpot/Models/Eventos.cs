@@ -41,7 +41,9 @@ namespace OurSpot.Models
         [ForeignKey(nameof(Clientes))]
         public int? ClienteId { get; set; }
         public Clientes? Clientes { get; set; }
-        public int Estrella { get; set; }
+        [NotMapped]
+        public double Estrella { get; set; }
+        public ICollection<CalificacionEvento> calificacionEventos { get; set; } = new List<CalificacionEvento>();
         public List<EventoDetalles> EventosDetalles { get; set; } = new();
         public List<EventoImagen> Imagenes { get; set; } = new();
 
