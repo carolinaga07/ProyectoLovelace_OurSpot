@@ -54,6 +54,7 @@ builder.Services.AddScoped<RegistroPersonalService>();
 builder.Services.AddScoped<ClientesService>();
 builder.Services.AddScoped<ContrasenasService>();
 builder.Services.AddScoped<EventoImagenesService>();
+builder.Services.AddScoped<AuditoriaService>();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddHttpClient<NotificacionesApiService>();
