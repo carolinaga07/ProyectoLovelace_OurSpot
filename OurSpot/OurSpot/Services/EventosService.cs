@@ -110,8 +110,7 @@ public class EventosService(
             string estadoNuevo =
                 ObtenerEstadoCorrespondiente(evento, ahora);
 
-            // Invalidar notificaciones que ya no corresponden
-            // al estado actual del evento.
+            // Invalidar notificaciones que ya no corresponden.
             var notificacionesInvalidas =
                 await contexto.NotificacionesEventos
                     .Where(n =>
@@ -123,60 +122,60 @@ public class EventosService(
                         ))
                     .ToListAsync();
 
-            foreach (var notificacionInvalida
-                     in notificacionesInvalidas)
+            foreach (var invalida in notificacionesInvalidas)
             {
-                notificacionInvalida.Confirmada = true;
-                notificacionInvalida.FechaConfirmacion = ahora;
+                invalida.Confirmada = true;
+                invalida.FechaConfirmacion = ahora;
             }
 
             if (notificacionesInvalidas.Count > 0)
                 await contexto.SaveChangesAsync();
 
-            // Si el estado no necesita cambiar, continuar.
             if (evento.Estado == estadoNuevo)
                 continue;
 
-            // Evitar notificaciones duplicadas.
-            bool existePendiente =
+            // Buscar una notificación pendiente existente.
+            var notificacion =
                 await contexto.NotificacionesEventos
-                    .AnyAsync(n =>
+                    .FirstOrDefaultAsync(n =>
                         n.EventoId == evento.EventoId &&
                         !n.Confirmada);
 
-            if (existePendiente)
-                continue;
-
-            // Crear una notificación pendiente.
-            var notificacion = new NotificacionEvento
+            // Crear solamente si todavía no existe.
+            if (notificacion == null)
             {
-                EventoId = evento.EventoId,
-                NombreEvento = evento.Nombre,
-                EstadoAnterior = evento.Estado,
-                EstadoNuevo = estadoNuevo,
-                Fecha = ahora,
-                Confirmada = false
-            };
+                notificacion = new NotificacionEvento
+                {
+                    EventoId = evento.EventoId,
+                    NombreEvento = evento.Nombre,
+                    EstadoAnterior = evento.Estado,
+                    EstadoNuevo = estadoNuevo,
+                    Fecha = ahora,
+                    Confirmada = false
+                };
 
-            contexto.NotificacionesEventos.Add(notificacion);
+                contexto.NotificacionesEventos.Add(notificacion);
 
-            await contexto.SaveChangesAsync();
+                await contexto.SaveChangesAsync();
+            }
 
-            // Avisar mediante SignalR sin cambiar el estado.
+            // Enviar también las notificaciones ya existentes.
             try
             {
                 await notificacionesApi.NotificarCambioEstado(
-                    evento.EventoId,
-                    evento.Nombre,
-                    evento.Estado,
-                    estadoNuevo);
+                    notificacion.EventoId,
+                    notificacion.NombreEvento,
+                    notificacion.EstadoAnterior,
+                    notificacion.EstadoNuevo);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR AL CONECTAR CON OURSPOT.API: {ex}");
+                Console.WriteLine(
+                    $"ERROR AL CONECTAR CON OURSPOT.API: {ex}");
             }
         }
     }
+
 
     public async Task<bool> ConfirmarCambioEstado(int notificacionId)
     {
