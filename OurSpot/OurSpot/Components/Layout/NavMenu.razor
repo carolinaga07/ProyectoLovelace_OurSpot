@@ -294,6 +294,32 @@
                     </ul>
                 </li>
 
+                @* AUDITORÍAS (Solo Administradores) *@
+                <AuthorizeView Roles="Administrador">
+                    <Authorized>
+                        <li class="link @(MenuAbierto == "Auditorias" ? "active" : "")">
+
+                            <div class="dropdown"
+                                 @onclick='() => AlternarMenu("Auditorias")'>
+
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-shield-lock bi-menu-icon me-2"></i>
+                                    Auditor&iacute;as
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                            </div>
+
+                            <ul class="SubmenuItems">
+                                <li>
+                                    <NavLink href="/Auditorias">
+                                        Historial de Auditor&iacute;as
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
             </ul>
         </div>
 
