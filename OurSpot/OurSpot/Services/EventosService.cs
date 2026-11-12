@@ -110,8 +110,7 @@ public class EventosService(
             string estadoNuevo =
                 ObtenerEstadoCorrespondiente(evento, ahora);
 
-            // Invalidar notificaciones que ya no corresponden
-            // al estado actual del evento.
+            // Invalidar notificaciones que ya no corresponden.
             var notificacionesInvalidas =
                 await contexto.NotificacionesEventos
                     .Where(n =>
@@ -123,60 +122,60 @@ public class EventosService(
                         ))
                     .ToListAsync();
 
-            foreach (var notificacionInvalida
-                     in notificacionesInvalidas)
+            foreach (var invalida in notificacionesInvalidas)
             {
-                notificacionInvalida.Confirmada = true;
-                notificacionInvalida.FechaConfirmacion = ahora;
+                invalida.Confirmada = true;
+                invalida.FechaConfirmacion = ahora;
             }
 
             if (notificacionesInvalidas.Count > 0)
                 await contexto.SaveChangesAsync();
 
-            // Si el estado no necesita cambiar, continuar.
             if (evento.Estado == estadoNuevo)
                 continue;
 
-            // Evitar notificaciones duplicadas.
-            bool existePendiente =
+            // Buscar una notificación pendiente existente.
+            var notificacion =
                 await contexto.NotificacionesEventos
-                    .AnyAsync(n =>
+                    .FirstOrDefaultAsync(n =>
                         n.EventoId == evento.EventoId &&
                         !n.Confirmada);
 
-            if (existePendiente)
-                continue;
-
-            // Crear una notificación pendiente.
-            var notificacion = new NotificacionEvento
+            // Crear solamente si todavía no existe.
+            if (notificacion == null)
             {
-                EventoId = evento.EventoId,
-                NombreEvento = evento.Nombre,
-                EstadoAnterior = evento.Estado,
-                EstadoNuevo = estadoNuevo,
-                Fecha = ahora,
-                Confirmada = false
-            };
+                notificacion = new NotificacionEvento
+                {
+                    EventoId = evento.EventoId,
+                    NombreEvento = evento.Nombre,
+                    EstadoAnterior = evento.Estado,
+                    EstadoNuevo = estadoNuevo,
+                    Fecha = ahora,
+                    Confirmada = false
+                };
 
-            contexto.NotificacionesEventos.Add(notificacion);
+                contexto.NotificacionesEventos.Add(notificacion);
 
-            await contexto.SaveChangesAsync();
+                await contexto.SaveChangesAsync();
+            }
 
-            // Avisar mediante SignalR sin cambiar el estado.
+            // Enviar también las notificaciones ya existentes.
             try
             {
                 await notificacionesApi.NotificarCambioEstado(
-                    evento.EventoId,
-                    evento.Nombre,
-                    evento.Estado,
-                    estadoNuevo);
+                    notificacion.EventoId,
+                    notificacion.NombreEvento,
+                    notificacion.EstadoAnterior,
+                    notificacion.EstadoNuevo);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR AL CONECTAR CON OURSPOT.API: {ex}");
+                Console.WriteLine(
+                    $"ERROR AL CONECTAR CON OURSPOT.API: {ex}");
             }
         }
     }
+
 
     public async Task<bool> ConfirmarCambioEstado(int notificacionId)
     {
@@ -239,6 +238,61 @@ public class EventosService(
             .AsNoTracking()
             .OrderBy(n => n.Fecha)
             .ToListAsync();
+    }
+
+    public async Task<bool> CancelarEvento(int idEvento)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+
+        var evento = await contexto.Eventos
+            .FirstOrDefaultAsync(e =>
+                e.EventoId == idEvento &&
+                !e.Eliminado &&
+                (e.Estado == "Pendiente" || e.Estado == "Activo"));
+
+        if (evento == null)
+            return false;
+
+        evento.Estado = "Cancelado";
+
+        // Invalidar las notificaciones pendientes de cambio de estado.
+        var notificaciones = await contexto.NotificacionesEventos
+            .Where(n => n.EventoId == idEvento && !n.Confirmada)
+            .ToListAsync();
+
+        foreach (var notificacion in notificaciones)
+        {
+            notificacion.Confirmada = true;
+            notificacion.FechaConfirmacion = DateTime.Now;
+        }
+
+        return await contexto.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> ReactivarEvento(int idEvento)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var evento = await contexto.Eventos
+            .FirstOrDefaultAsync(e =>
+                e.EventoId == idEvento &&
+                !e.Eliminado &&
+                e.Estado == "Cancelado");
+
+        if (evento == null)
+            return false;
+
+        var ahora = DateTime.Now;
+        var inicio = evento.FechaInicio.ToDateTime(evento.HoraInicio);
+        var cierre = evento.FechaCierre.ToDateTime(evento.HoraCierre);
+
+        if (ahora >= cierre)
+            return false;
+
+        evento.Estado = ahora >= inicio ? "Activo" : "Pendiente";
+
+        return await contexto.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> Eliminar(int idEvento)
@@ -598,8 +652,27 @@ public class EventosService(
         return guardado;
     }
 
+  public async Task<List<Evento>> ObtenerEventoDestacados()
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
 
+        var eventos = await contexto.Eventos.Where(e => e.Estado == "Finalizado" &&
+        !e.Eliminado).Select(e => new
+        {
+            Evento = e,
+            Promedio = e.calificacionEventos.Select(c => (double?)c.Estrellas)
+            .Average() ?? 0
 
+        })
+        .AsNoTracking()
+        .ToListAsync();
 
-
+        return eventos.OrderByDescending(e => e.Promedio).Take(5)
+            .Select(e =>
+            {
+                e.Evento.Estrella = e.Promedio;
+                return e.Evento;
+            })
+            .ToList();
+    }
 }

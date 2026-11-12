@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../OurSpot.api/OurSpot.api.csproj" />
   <Project Path="OurSpot/OurSpot.csproj" />
 </Solution>

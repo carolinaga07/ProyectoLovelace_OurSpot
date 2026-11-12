@@ -123,6 +123,19 @@
 
                     <ValidationMessage For="(() => evento.Tipo)" />
                 </div>
+               @*Categoria*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Categoria del evento: </strong></label>
+                    <InputSelect class="form-control" @bind-Value="evento.Categoria">
+                        <option value="" disabled selected> -- Seleccione una categoria --</option>
+                        <option value="Aniversario">Aniversario</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Celebración Religiosa">Celebración Religiosa</option>
+                        <option value="Graduación">Graduación</option>
+                        <option value="Funeral">Funeral</option>
+                    </InputSelect>
+                </div> 
 
                 @* Lugar *@
                 <div class="mb-3">

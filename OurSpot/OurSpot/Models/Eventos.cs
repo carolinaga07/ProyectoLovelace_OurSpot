@@ -35,13 +35,17 @@ namespace OurSpot.Models
 
         public string Estado { get; set; } = "Pendiente";
 
+        [Required(ErrorMessage = "La categoria del evento es obligatoria")]
+        public string Categoria { get; set; } = string.Empty;
         public bool Eliminado { get; set; } = false;
         public double Total { get; set; }
         
         [ForeignKey(nameof(Clientes))]
         public int? ClienteId { get; set; }
         public Clientes? Clientes { get; set; }
-        public int Estrella { get; set; }
+        [NotMapped]
+        public double Estrella { get; set; }
+        public ICollection<CalificacionEvento> calificacionEventos { get; set; } = new List<CalificacionEvento>();
         public List<EventoDetalles> EventosDetalles { get; set; } = new();
         public List<EventoImagen> Imagenes { get; set; } = new();
 

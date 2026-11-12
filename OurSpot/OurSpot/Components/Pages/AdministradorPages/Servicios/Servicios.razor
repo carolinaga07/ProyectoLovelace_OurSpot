@@ -1,5 +1,4 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
-@page "/Servicios"
+﻿@page "/Servicios"
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -71,23 +70,23 @@
         text-align: center;
     }
 
-    .bg-refrigeracion   { background-color: #BDD299; } 
-    .bg-refrigeracion i { color: #466D1D; }        
+    .bg-aniversario   { background-color: #BDD299; } 
+    .bg-aniversario i { color: #466D1D; }        
 
-    .bg-decoracion      { background-color: #EEBAB7; } 
-    .bg-decoracion i    { color: #9B4443; }
+    .bg-boda      { background-color: #EEBAB7; } 
+    .bg-boda i    { color: #9B4443; }
 
-    .bg-catering        { background-color: #EEE1B7; } 
-    .bg-catering i      { color: #9B8943; }
+    .bg-cumple        { background-color: #EEE1B7; } 
+    .bg-cumple i      { color: #9B8943; }
 
-    .bg-entretenimiento { background-color: #BAA8D6; } 
-    .bg-entretenimiento i { color: #57357D; }
+    .bg-religiosa { background-color: #BAA8D6; } 
+    .bg-religiosa i { color: #57357D; }
 
-    .bg-seguridad       { background-color: #A8C7D6; }
-    .bg-seguridad i     { color: #355C7D; }
+    .bg-graduacion       { background-color: #A8C7D6; }
+    .bg-graduacion i     { color: #355C7D; }
 
-    .bg-fotografia      { background-color: #8e8e8e; } 
-    .bg-fotografia i    { color: #2D3235; }
+    .bg-funeral      { background-color: #8e8e8e; } 
+    .bg-funeral i    { color: #2D3235; }
 
     </style>
 
@@ -100,43 +99,43 @@
         </div>
     
     <div class="buttons-grid d-flex justify-content-evenly align-items: center p-3 bg-light">
-        <a href="/Servicios/Refrigeracion" class="service-card">
-            <div class="icon-box bg-refrigeracion">
+            <a href="/Servicios/Aniversario" class="service-card">
+            <div class="icon-box bg-aniversario">
                     <i class="bi bi-calendar-heart"></i>
             </div>
                 <p>Aniversario</p>
         </a>
 
-        <a href="/Servicios/Decoracion" class="service-card">
-            <div class="icon-box bg-decoracion">
+            <a href="/Servicios/Boda" class="service-card">
+            <div class="icon-box bg-boda">
                    <i class="bi bi-hearts"></i>
             </div>
             <p>Boda</p>
         </a>
 
-        <a href="/Servicios/Catering" class="service-card">
-            <div class="icon-box bg-catering">
+            <a href="/Servicios/Cumpleanios" class="service-card">
+            <div class="icon-box bg-cumple">
                    <i class="fa-solid fa-cake-candles"></i>
             </div>
             <p>Cumplea&ntilde;os</p>
         </a>
 
-        <a href="/Servicios/Entretenimiento" class="service-card">
-            <div class="icon-box bg-entretenimiento">
+            <a href="/Servicios/CelebracionReligiosa" class="service-card">
+                <div class="icon-box bg-religiosa">
                     <i class="fa-solid fa-church"></i>
             </div>
                 <p>Celebraci&oacute;n Religiosa</p>
         </a>
 
-        <a href="/Servicios/Seguridad" class="service-card">
-            <div class="icon-box bg-seguridad">
+            <a href= "/Servicios/graduacion" class="service-card">
+                <div class="icon-box bg-graduacion">
                     <i class="fa-solid fa-user-graduate"></i>
             </div>
                 <p>Graduaci&oacute;n</p>
         </a>
 
-        <a href="/Servicios/Fotografia" class="service-card">
-            <div class="icon-box bg-fotografia">
+        <a href="/Servicios/Funeral" class="service-card">
+                <div class="icon-box bg-funeral">
                    <i class="fa-solid fa-skull"></i>
             </div>
             <p>Funeral</p>

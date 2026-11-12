@@ -141,6 +141,19 @@ else
 
                         <ValidationMessage For="(() => Evento.Tipo)" />
                     </div>
+                    @*Categoria*@
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Categoria del evento: </strong></label>
+                        <InputSelect class="form-control" @bind-Value="Evento.Categoria">
+                            <option value="" disabled selected> -- Seleccione una categoria --</option>
+                            <option value="Aniversario">Aniversario</option>
+                            <option value="Boda">Boda</option>
+                            <option value="Cumpleaños">Cumpleaños</option>
+                            <option value="Celebración Religiosa">Celebración Religiosa</option>
+                            <option value="Graduación">Graduación</option>
+                            <option value="Funeral">Funeral</option>
+                        </InputSelect>
+                    </div>
 
                     @* Lugar *@
                     <div class="mb-3">
@@ -251,6 +264,29 @@ else
                         <span class="bi bi-x-lg"></span> Eliminar
                     </button>
 
+                    @if (Evento.Estado == "Pendiente" || Evento.Estado == "Activo")
+                    {
+                        <button type="button"
+                                class="btn ms-2"
+                                style="background-color: #F3DFA5; color: #665329;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalCancelar"
+                                disabled="@procesando">
+                            <span class="bi bi-ban"></span> Cancelar Evento
+                        </button>
+                    }
+
+                    @if (Evento.Estado == "Cancelado")
+                    {
+                        <button type="button"
+                                class="btn btn-success ms-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalReactivar"
+                                disabled="@procesando">
+                            <span class="bi bi-arrow-clockwise"></span> Reactivar Evento
+                        </button>
+                    }
+
                 </div>
 
             </div>
@@ -298,6 +334,106 @@ else
                         disabled="@procesando"
                         @onclick="Eliminar">
                     Eliminar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Modal de Cancelación *@
+<div class="modal fade"
+     id="modalCancelar"
+     tabindex="-1"
+     aria-labelledby="modalCancelarTitulo"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalCancelarTitulo">
+                    Confirmación de cancelación
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>¿Desea cancelar el evento @Evento.Nombre?</p>
+                <p class="text-danger mb-0">
+                    El estado del evento cambiará a Cancelado.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+
+                <button type="button"
+                        class="btn ms-2"
+                        style="background-color: #F3DFA5; color: #665329;"
+                        data-bs-dismiss="modal"
+                        disabled="@procesando"
+                        @onclick="CancelarEvento">
+                    Confirmar cancelación
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Modal de Reactivación *@
+<div class="modal fade"
+     id="modalReactivar"
+     tabindex="-1"
+     aria-labelledby="modalReactivarTitulo"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalReactivarTitulo">
+                    Confirmación de reactivación
+                </h1>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>¿Desea reactivar el evento @Evento.Nombre?</p>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+
+                <button type="button"
+                        class="btn btn-success"
+                        data-bs-dismiss="modal"
+                        disabled="@procesando"
+                        @onclick="ReactivarEvento">
+                    Reactivar
                 </button>
 
             </div>
@@ -490,6 +626,76 @@ else
         {
             toastService.ShowError(
                 "Ocurrió un error al eliminar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+
+    private async Task CancelarEvento()
+    {
+        if (procesando)
+            return;
+
+        procesando = true;
+
+        try
+        {
+            var cancelado = await eventosService.CancelarEvento(EventoId);
+
+            if (cancelado)
+            {
+                toastService.ShowSuccess(
+                    "Evento cancelado correctamente.");
+
+                Navigation.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo cancelar el evento.");
+            }
+        }
+        catch (Exception)
+        {
+            toastService.ShowError(
+                "Ocurrió un error al cancelar el evento.");
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+
+    private async Task ReactivarEvento()
+    {
+        if (procesando)
+            return;
+
+        procesando = true;
+
+        try
+        {
+            var reactivado = await eventosService.ReactivarEvento(EventoId);
+
+            if (reactivado)
+            {
+                toastService.ShowSuccess(
+                    "Evento reactivado correctamente.");
+
+                Navigation.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "No se pudo reactivar el evento. Verifique su fecha de cierre.");
+            }
+        }
+        catch (Exception)
+        {
+            toastService.ShowError(
+                "Ocurrió un error al reactivar el evento.");
         }
         finally
         {
