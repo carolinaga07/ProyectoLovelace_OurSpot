@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace OurSpot.Services;
 
-public class PersonalService(IDbContextFactory<Contexto> contextFactory) : Aplicada1.Core.IService<Personal, int>
+public class PersonalService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : Aplicada1.Core.IService<Personal, int>
 {
     public async Task<bool> Guardar(Personal personal)
     {
@@ -29,14 +29,30 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory) : Aplic
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
         contexto.Personales.Add(personal);
-        return await contexto.SaveChangesAsync() > 0;
+        
+        var guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+        {
+            await auditoriaService.RegistrarAsync("Personal", "Insertar", $"Se creó el personal: {personal.Nombre}");
+        }
+
+        return guardado;
     }
 
     public async Task<bool> Modificar(Personal personal)
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
         contexto.Update(personal);
-        return await contexto.SaveChangesAsync() > 0;
+
+        var guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+        {
+            await auditoriaService.RegistrarAsync("Personal", "Modificar", $"Se actualizó el personal: {personal.Nombre}");
+        }
+
+        return guardado;
     }
 
     public async Task<Personal?> Buscar(int id)
@@ -56,7 +72,14 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory) : Aplic
 
         personal.Eliminado = true;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var eliminado = await contexto.SaveChangesAsync() > 0;
+
+        if (eliminado)
+        {
+            await auditoriaService.RegistrarAsync("Personal", "Eliminar", $"Se eliminó el personal: {personal.Nombre}");
+        }
+
+        return eliminado;
     }
 
     public async Task<List<Personal>> GetList(Expression<Func<Personal, bool>> criterio)
@@ -82,6 +105,13 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory) : Aplic
 
         personal.Eliminado = false;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var recuperado = await contexto.SaveChangesAsync() > 0;
+
+        if (recuperado)
+        {
+            await auditoriaService.RegistrarAsync("Personal", "Recuperar", $"Se recuperó el personal: {personal.Nombre}");
+        }
+
+        return recuperado;
     }
 }
