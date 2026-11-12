@@ -240,6 +240,61 @@ public class EventosService(
             .ToListAsync();
     }
 
+    public async Task<bool> CancelarEvento(int idEvento)
+    {
+        await using var contexto = await contextFactory.CreateDbContextAsync();
+
+        var evento = await contexto.Eventos
+            .FirstOrDefaultAsync(e =>
+                e.EventoId == idEvento &&
+                !e.Eliminado &&
+                (e.Estado == "Pendiente" || e.Estado == "Activo"));
+
+        if (evento == null)
+            return false;
+
+        evento.Estado = "Cancelado";
+
+        // Invalidar las notificaciones pendientes de cambio de estado.
+        var notificaciones = await contexto.NotificacionesEventos
+            .Where(n => n.EventoId == idEvento && !n.Confirmada)
+            .ToListAsync();
+
+        foreach (var notificacion in notificaciones)
+        {
+            notificacion.Confirmada = true;
+            notificacion.FechaConfirmacion = DateTime.Now;
+        }
+
+        return await contexto.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> ReactivarEvento(int idEvento)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var evento = await contexto.Eventos
+            .FirstOrDefaultAsync(e =>
+                e.EventoId == idEvento &&
+                !e.Eliminado &&
+                e.Estado == "Cancelado");
+
+        if (evento == null)
+            return false;
+
+        var ahora = DateTime.Now;
+        var inicio = evento.FechaInicio.ToDateTime(evento.HoraInicio);
+        var cierre = evento.FechaCierre.ToDateTime(evento.HoraCierre);
+
+        if (ahora >= cierre)
+            return false;
+
+        evento.Estado = ahora >= inicio ? "Activo" : "Pendiente";
+
+        return await contexto.SaveChangesAsync() > 0;
+    }
+
     public async Task<bool> Eliminar(int idEvento)
     {
         await using var contexto =

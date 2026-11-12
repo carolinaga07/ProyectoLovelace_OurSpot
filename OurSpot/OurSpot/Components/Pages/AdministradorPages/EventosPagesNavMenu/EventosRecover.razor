@@ -1,62 +1,320 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
+﻿
+@attribute [Authorize(Roles = "Administrador")]
 @page "/Eventos/Recuperar"
 @rendermode InteractiveServer
+
 @using Microsoft.AspNetCore.Components.QuickGrid
+
 @inject EventosService eventosService
 @inject ToastService toastService
 @inject NavigationManager navigationManager
 
 <PageTitle>Recuperar Eventos</PageTitle>
 
-<div class="container">
+<style>
+    .estado {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+    }
+
+    .pendiente {
+        background-color: #faf4e3;
+        color: #9a8550;
+    }
+
+    .activo {
+        background-color: #dce9df;
+        color: #416849;
+    }
+
+    .finalizado {
+        background-color: #e0eaf5;
+        color: #42678d;
+    }
+
+    .cancelado {
+        background-color: #f5dddd;
+        color: #a34c4c;
+    }
+</style>
+
+<div class="container-fluid px-3">
     <div class="card shadow-lg">
+
+        @* Encabezado *@
         <div class="card-header d-flex justify-content-between align-items-center mb-4">
             <h5 class="card-title align-content-center mt-2">
-                <a href="/eventos"><i class="bi bi-arrow-left-short fs-1 align-middle" style="color: #2D5056"></i></a>Recuperar Eventos
+                <a href="/eventos">
+                    <i class="bi bi-arrow-left-short fs-1 align-middle"
+                       style="color: #2D5056"></i>
+                </a>
+                Recuperar Eventos
             </h5>
         </div>
 
         <div class="card-body">
-            <div class="grid">
-                <QuickGrid Items="@itemsQueryable" Class="table table-hover">
-                    <PropertyColumn Property="@(e => e.EventoId)" Title="Id" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.Nombre)" Title="Nombre" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.FechaInicio)" Title="Fecha" Format="dd/MM/yyyy" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.Lugar)" Title="Lugar" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.Tipo)" Title="Tipo" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.Total)" Title="Total" Format="N2" Sortable="true" />
-                    <PropertyColumn Property="@(e => e.Estado)" Title="Estado" Sortable="true" />
-                    <TemplateColumn Title="Opciones">
-                        <button type="button" class="btn btn-outline-primary bi bi-plus-square" title="Recuperar" @onclick="() => Recuperar(context.EventoId)"></button>
+
+            @* Labels *@
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Tipo</strong>
+                    </label>
+                </div>
+
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong>Estado</strong>
+                    </label>
+                </div>
+
+                <div class="col-5">
+                    <label class="col-form-label">
+                        <strong>Búsqueda</strong>
+                    </label>
+                </div>
+            </div>
+
+            @* Filtros *@
+            <div class="row align-items-center mb-3">
+
+                @* Tipo *@
+                <div class="col-3">
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroTipo">
+                        <option value="">Todos los tipos</option>
+
+                        @foreach (var tipo in tiposDisponibles)
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                @* Estado *@
+                <div class="col-3">
+                    <InputSelect class="form-select"
+                                 @bind-Value="FiltroEstado">
+                        <option value="">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </InputSelect>
+                </div>
+
+                @* Búsqueda *@
+                <div class="col-5">
+                    <div class="input-group">
+                        <input class="form-control"
+                               @bind="FiltroBusqueda"
+                               placeholder="Buscar nombre, lugar o Id" />
+
+                        <button type="button"
+                                class="btn btn-outline-primary bi bi-search"
+                                title="Buscar"
+                                @onclick="Buscar">
+                        </button>
+                    </div>
+                </div>
+
+                @* Restablecer *@
+                <div class="col-1">
+                    <button type="button"
+                            class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            title="Restablecer"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+            </div>
+
+            @* Tabla *@
+            <div class="table-responsive">
+                <QuickGrid Items="listaEventos.AsQueryable()"
+                           class="table table-hover text-center mt-3"
+                           style="min-width: 950px;">
+
+                    <PropertyColumn Property="e => e.EventoId"
+                                    Title="Id"
+                                    Sortable="true" />
+
+                    <TemplateColumn Title="Fecha de inicio">
+                        <div class="text-nowrap">
+                            @context.FechaInicio.ToString("dd/MM/yyyy")
+                            @context.HoraInicio.ToString("HH:mm")
+                        </div>
                     </TemplateColumn>
+
+                    <TemplateColumn Title="Fecha de cierre">
+                        <div class="text-nowrap">
+                            @context.FechaCierre.ToString("dd/MM/yyyy")
+                            @context.HoraCierre.ToString("HH:mm")
+                        </div>
+                    </TemplateColumn>
+
+                    <PropertyColumn Property="e => e.Nombre"
+                                    Title="Nombre"
+                                    Sortable="true" />
+
+                    <PropertyColumn Property="e => e.Lugar"
+                                    Title="Lugar"
+                                    Sortable="true" />
+
+                    <PropertyColumn Property="e => e.Total"
+                                    Title="Total"
+                                    Sortable="true" />
+
+                    <TemplateColumn Title="Estado">
+                        <span class="estado @(context.Estado?.ToLowerInvariant())">
+                            @context.Estado
+                        </span>
+                    </TemplateColumn>
+
+                    @* Se conserva únicamente la opción Recuperar *@
+                    <TemplateColumn Title="Opciones">
+                        <div class="d-flex flex-nowrap justify-content-center align-items-center gap-1"
+                             style="min-width: 100px;">
+
+                            <button type="button"
+                                    class="btn btn-outline-primary bi bi-plus-square"
+                                    title="Recuperar"
+                                    disabled="@procesando"
+                                    @onclick="() => Recuperar(context.EventoId)">
+                            </button>
+
+                        </div>
+                    </TemplateColumn>
+
                 </QuickGrid>
             </div>
         </div>
+
+        @* Footer *@
+        <div class="card-footer d-flex justify-content-between align-items-center mb-4">
+            <label>
+                <strong>Cantidad: </strong>@listaEventos.Count
+            </label>
+        </div>
+
     </div>
 </div>
 
 @code {
-    private IQueryable<Evento> itemsQueryable = Enumerable.Empty<Evento>().AsQueryable();
+    private List<Evento> listaEventos = new();
+    private List<Evento> todosEventos = new();
+    private List<string> tiposDisponibles = new();
+
+    private string FiltroTipo { get; set; } = string.Empty;
+    private string FiltroEstado { get; set; } = string.Empty;
+    private string FiltroBusqueda { get; set; } = string.Empty;
+
+    private bool filtrosAplicados = false;
+    private bool procesando = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var items = await eventosService.GetList(e => e.Eliminado);
-        itemsQueryable = items.AsQueryable();
+        await CargarEventos();
+    }
+
+    private async Task CargarEventos()
+    {
+        var eventos = await eventosService.GetList(e => e.Eliminado);
+
+        todosEventos = eventos
+            .OrderByDescending(e => e.EventoId)
+            .ToList();
+
+        tiposDisponibles = todosEventos
+            .Where(e => !string.IsNullOrWhiteSpace(e.Tipo))
+            .Select(e => e.Tipo)
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        if (!filtrosAplicados)
+        {
+            listaEventos = todosEventos.ToList();
+            return;
+        }
+
+        var busqueda = FiltroBusqueda.Trim();
+
+        listaEventos = todosEventos
+            .Where(e =>
+                (FiltroTipo == "" ||
+                 e.Tipo == FiltroTipo) &&
+
+                (FiltroEstado == "" ||
+                 e.Estado == FiltroEstado) &&
+
+                (busqueda == "" ||
+                 e.Nombre.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.Lugar.Contains(
+                     busqueda,
+                     StringComparison.OrdinalIgnoreCase) ||
+                 e.EventoId.ToString().Contains(busqueda))
+            )
+            .ToList();
+    }
+
+    private void Buscar()
+    {
+        filtrosAplicados = true;
+        AplicarFiltros();
+    }
+
+    private void Restablecer()
+    {
+        FiltroTipo = string.Empty;
+        FiltroEstado = string.Empty;
+        FiltroBusqueda = string.Empty;
+
+        filtrosAplicados = false;
+
+        AplicarFiltros();
     }
 
     private async Task Recuperar(int id)
     {
-        var recuperado = await eventosService.Recuperar(id);
+        if (procesando)
+            return;
 
-        if (recuperado)
+        procesando = true;
+
+        try
         {
-            toastService.ShowSuccess("Evento recuperado exitosamente");
-            navigationManager.NavigateTo("/eventos");
+            var recuperado = await eventosService.Recuperar(id);
+
+            if (recuperado)
+            {
+                toastService.ShowSuccess(
+                    "Evento recuperado exitosamente");
+
+                navigationManager.NavigateTo("/eventos");
+            }
+            else
+            {
+                toastService.ShowError(
+                    "Error al recuperar el evento");
+            }
         }
-        else
+        catch (Exception)
         {
-            toastService.ShowError("Error al recuperar el evento");
+            toastService.ShowError(
+                "Ocurrió un error al recuperar el evento");
+        }
+        finally
+        {
+            procesando = false;
         }
     }
 }
-
