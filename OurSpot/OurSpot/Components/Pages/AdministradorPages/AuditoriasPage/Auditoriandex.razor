@@ -1,0 +1,139 @@
+﻿@attribute [Authorize(Roles = "Administrador")]
+@page "/Auditorias"
+@rendermode InteractiveServer
+@inject AuditoriaService auditoriaService
+@inject ToastService toastService
+
+<PageTitle>Auditorías</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title align-content-center mt-2">Auditor&iacute;as</h5>
+        </div>
+
+        <div class="card-body">
+
+            @*labels*@
+            <div class="row">
+                @*Sección*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Secci&oacute;n</strong></label>
+                </div>
+
+                @*Acción*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Acci&oacute;n</strong></label>
+                </div>
+
+                @*Búsqueda*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center mb-3">
+                @*Sección*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroSeccion">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Contrataciones">Contrataciones</option>
+                    </InputSelect>
+                </div>
+
+                @*Acción*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="FiltroAccion">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Insertar">Insertar</option>
+                        <option value="Modificar">Modificar</option>
+                        <option value="Eliminar">Eliminar</option>
+                    </InputSelect>
+                </div>
+
+                @*Búsqueda*@
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="FiltroBusqueda" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+
+                @*Restablecer*@
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-counterclockwise"
+                            @onclick="Restablecer">
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="grid">
+                <QuickGrid Items="@itemsQueryable">
+                    <PropertyColumn Property="a => a.AuditoriaId" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="a => a.Fecha" Title="Fecha" Sortable="true" Format="yyyy-MM-dd HH:mm:ss" />
+                    <PropertyColumn Property="a => a.UsuarioEmail" Title="Usuario" Sortable="true" />
+                    <PropertyColumn Property="a => a.Seccion" Title="Sección" Sortable="true" />
+                    <PropertyColumn Property="a => a.Accion" Title="Acción" Sortable="true" />
+                    <PropertyColumn Property="a => a.Detalle" Title="Detalle" Sortable="true" />
+                </QuickGrid>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-center mb-4">
+            <label><strong>Cantidad: </strong>@itemsQueryable?.Count()</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string FiltroSeccion { get; set; } = string.Empty;
+    public string FiltroAccion { get; set; } = string.Empty;
+    public string FiltroBusqueda { get; set; } = string.Empty;
+
+    public IQueryable<Auditoria> itemsQueryable =
+        Enumerable.Empty<Auditoria>().AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = await auditoriaService.GetListAsync();
+        itemsQueryable = items.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        var items = await auditoriaService.GetListAsync();
+        var query = items.AsQueryable();
+
+        if (!string.IsNullOrEmpty(FiltroSeccion))
+        {
+            query = query.Where(a => a.Seccion == FiltroSeccion);
+        }
+
+        if (!string.IsNullOrEmpty(FiltroAccion))
+        {
+            query = query.Where(a => a.Accion == FiltroAccion);
+        }
+
+        if (!string.IsNullOrWhiteSpace(FiltroBusqueda))
+        {
+            var busqueda = FiltroBusqueda.Trim().ToLower();
+            query = query.Where(a =>
+                (a.UsuarioEmail != null && a.UsuarioEmail.ToLower().Contains(busqueda)) ||
+                (a.Detalle != null && a.Detalle.ToLower().Contains(busqueda))
+            );
+        }
+
+        itemsQueryable = query;
+    }
+
+    private async Task Restablecer()
+    {
+        var items = await auditoriaService.GetListAsync();
+        itemsQueryable = items.AsQueryable();
+        FiltroSeccion = string.Empty;
+        FiltroAccion = string.Empty;
+        FiltroBusqueda = string.Empty;
+    }
+}

@@ -21,6 +21,7 @@ public class Contexto: IdentityDbContext<ApplicationUser>
     public DbSet<Personal> Personales { get; set; }
     public DbSet<Clientes> Clientes { get; set; }
     public DbSet<EventoImagen> EventoImagenes { get; set; }
+    public DbSet<Auditoria> Auditorias { get; set; }
     public DbSet<CalificacionEvento> CalificacionEventos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

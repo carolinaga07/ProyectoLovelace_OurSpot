@@ -222,6 +222,36 @@ namespace OurSpot.Migrations
                     b.ToTable("Proveedores");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.Auditoria", b =>
+                {
+                    b.Property<int>("AuditoriaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditoriaId"));
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Detalle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Seccion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UsuarioEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AuditoriaId");
+
+                    b.ToTable("Auditorias");
             modelBuilder.Entity("OurSpot.Models.CalificacionEvento", b =>
                 {
                     b.Property<int>("CalificacionId")
