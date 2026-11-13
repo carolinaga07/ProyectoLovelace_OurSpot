@@ -46,7 +46,7 @@ namespace OurSpot.Services
             var guardado = await contexto.SaveChangesAsync() > 0;
 
             if (guardado)
-                await auditoriaService.RegistrarAsync("Contrataciones", "Modificar", $"Se modificó la contratación ID: {contratacion.ContratacionId}");
+                await auditoriaService.RegistrarAsync("Contrataciones", "Modificar", $"Se modificó la contratación: {contratacion.Servicio}");
 
             return guardado;
         }
@@ -81,7 +81,7 @@ namespace OurSpot.Services
             var eliminado = await contexto.SaveChangesAsync() > 0;
 
             if (eliminado)
-                await auditoriaService.RegistrarAsync("Contrataciones", "Eliminar", $"Se eliminó la contratación ID: {idContratacion}");
+                await auditoriaService.RegistrarAsync("Contrataciones", "Eliminar", $"Se eliminó la contratación: {contratacion.Servicio}");
 
             return eliminado;
         }
@@ -100,7 +100,7 @@ namespace OurSpot.Services
             var recuperado = await contexto.SaveChangesAsync() > 0;
 
             if (recuperado)
-                await auditoriaService.RegistrarAsync("Contrataciones", "Recuperar", $"Se recuperó la contratación ID: {idContratacion}");
+                await auditoriaService.RegistrarAsync("Contrataciones", "Recuperar", $"Se recuperó la contratación: {contratacion.Servicio}");
 
             return recuperado;
         }
