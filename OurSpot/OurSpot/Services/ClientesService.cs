@@ -4,7 +4,7 @@ using OurSpot.Models.DTOs;
 
 namespace OurSpot.Services;
 
-public class ClientesService(IDbContextFactory<Contexto> contextFactory)
+public class ClientesService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService)
 {
     public async Task<PerfilClienteDto?> ObtenerPerfil(
        string applicationUserId)
@@ -54,7 +54,12 @@ public class ClientesService(IDbContextFactory<Contexto> contextFactory)
             usuario.NombreCompleto = cliente.Nombre;
         }
 
-        return await contexto.SaveChangesAsync() > 0;
+        var actualizado = await contexto.SaveChangesAsync() > 0;
+
+        if (actualizado)
+            await auditoriaService.RegistrarAsync("Clientes", "ActualizarPerfil", $"El cliente {cliente.Nombre} actualizó su perfil.");
+
+        return actualizado;
     }
 
 }

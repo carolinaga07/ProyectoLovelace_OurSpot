@@ -9,7 +9,7 @@ namespace OurSpot.Services;
 public class RegistroPersonalService(
     Contexto contexto,
     UserManager<ApplicationUser> userManager,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor, AuditoriaService auditoriaService)
 {
     public async Task<IdentityResult> Registrar(
         string nombre,
@@ -88,6 +88,8 @@ public class RegistroPersonalService(
 
         await contexto.SaveChangesAsync();
         await transaccion.CommitAsync();
+
+        await auditoriaService.RegistrarAsync("RegistroPersonal", "Registrar", $"Se registró el personal con rol {rol}: {nombre}");
 
         return IdentityResult.Success;
     }
@@ -300,6 +302,8 @@ public class RegistroPersonalService(
         await contexto.SaveChangesAsync();
         await transaccion.CommitAsync();
 
+        await auditoriaService.RegistrarAsync("RegistroPersonal", "Modificar", $"Se modificó el registro de personal ID: {personalId}");
+
         return IdentityResult.Success;
     }
 
@@ -400,6 +404,8 @@ public class RegistroPersonalService(
             return resultado;
 
         await transaccion.CommitAsync();
+
+        await auditoriaService.RegistrarAsync("RegistroPersonal", "Eliminar", $"Se eliminó el registro de personal ID: {personalId}");
 
         return IdentityResult.Success;
     }

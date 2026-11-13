@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace OurSpot.Services
 {
-    public class ProveedorService(IDbContextFactory<Contexto> contextFactory) : IService<Proveedores, int>
+    public class ProveedorService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : IService<Proveedores, int>
     {
         public async Task<bool> Guardar(Proveedores proveedor)
         {
@@ -31,14 +31,24 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             contexto.Proveedores.Add(proveedor);
-            return await contexto.SaveChangesAsync() > 0;
+            var guardado = await contexto.SaveChangesAsync() > 0;
+
+            if (guardado)
+                await auditoriaService.RegistrarAsync("Proveedores", "Insertar", $"Se creó el proveedor ID: {proveedor.Id}");
+
+            return guardado;
         }
 
         public async Task<bool> Modificar(Proveedores proveedor)
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             contexto.Update(proveedor);
-            return await contexto.SaveChangesAsync() > 0;
+            var guardado = await contexto.SaveChangesAsync() > 0;
+
+            if (guardado)
+                await auditoriaService.RegistrarAsync("Proveedores", "Modificar", $"Se modificó el proveedor ID: {proveedor.Id}");
+
+            return guardado;
         }
 
         public async Task<Proveedores?> Buscar(int id)
@@ -68,7 +78,12 @@ namespace OurSpot.Services
 
             proveedor.Eliminado = true;
 
-            return await contexto.SaveChangesAsync() > 0;
+            var eliminado = await contexto.SaveChangesAsync() > 0;
+
+            if (eliminado)
+                await auditoriaService.RegistrarAsync("Proveedores", "Eliminar", $"Se eliminó el proveedor ID: {idProveedor}");
+
+            return eliminado;
         }
     }
 }

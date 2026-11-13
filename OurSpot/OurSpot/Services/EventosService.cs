@@ -11,7 +11,7 @@ namespace OurSpot.Components.Pages.AdministradorPages.EventosPages.Services;
 
 public class EventosService(
     IDbContextFactory<Contexto> contextFactory,
-    NotificacionesApiService notificacionesApi)
+    NotificacionesApiService notificacionesApi, AuditoriaService auditoriaService)
     : IService<Evento, int>
 {
     private static string ObtenerEstadoCorrespondiente(
@@ -41,6 +41,8 @@ public class EventosService(
         if (cierre < inicio)
             return false;
 
+        bool esNuevo = eventos.EventoId == 0;
+
         if (eventos.EventoId == 0)
         {
             // Los eventos nuevos comienzan pendientes.
@@ -66,7 +68,11 @@ public class EventosService(
         bool guardado = await contexto.SaveChangesAsync() > 0;
 
         if (guardado)
+        {
             await RevisarEstadosPendientes();
+            string accion = esNuevo ? "Insertar" : "Modificar";
+            await auditoriaService.RegistrarAsync("Eventos", accion, $"Se guardó el evento: {eventos.Nombre}");
+        }
 
         return guardado;
     }
@@ -215,7 +221,12 @@ public class EventosService(
         notificacion.Confirmada = true;
         notificacion.FechaConfirmacion = DateTime.Now;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+            await auditoriaService.RegistrarAsync("Eventos", "CambioEstado", $"El evento '{evento.Nombre}' cambió su estado a {evento.Estado}");
+
+        return guardado;
     }
 
     public async Task<List<NotificacionEvento>>
@@ -310,7 +321,12 @@ public class EventosService(
 
         evento.Eliminado = true;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var eliminado = await contexto.SaveChangesAsync() > 0;
+
+        if (eliminado)
+            await auditoriaService.RegistrarAsync("Eventos", "Eliminar", $"Se eliminó el evento: {evento.Nombre}");
+
+        return eliminado;
     }
 
     public async Task<bool> ExisteNombre(
@@ -341,7 +357,12 @@ public class EventosService(
 
         evento.Eliminado = false;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var recuperado = await contexto.SaveChangesAsync() > 0;
+
+        if (recuperado)
+            await auditoriaService.RegistrarAsync("Eventos", "Recuperar", $"Se recuperó el evento: {evento.Nombre}");
+
+        return recuperado;
     }
 
 
@@ -458,7 +479,10 @@ public class EventosService(
         bool guardado = await contexto.SaveChangesAsync() > 0;
 
         if (guardado)
+        {
             await RevisarEstadosPendientes();
+            await auditoriaService.RegistrarAsync("Eventos", "CrearCliente", $"El cliente creó el evento: {evento.Nombre}");
+        }
 
         return guardado;
     }
@@ -647,7 +671,10 @@ public class EventosService(
         bool guardado = await contexto.SaveChangesAsync() > 0;
 
         if (guardado)
+        {
             await RevisarEstadosPendientes();
+            await auditoriaService.RegistrarAsync("Eventos", "ActualizarCliente", $"El cliente actualizó su evento: {evento.Nombre}");
+        }
 
         return guardado;
     }

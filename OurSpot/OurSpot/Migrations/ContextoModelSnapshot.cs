@@ -252,6 +252,8 @@ namespace OurSpot.Migrations
                     b.HasKey("AuditoriaId");
 
                     b.ToTable("Auditorias");
+                });
+
             modelBuilder.Entity("OurSpot.Models.CalificacionEvento", b =>
                 {
                     b.Property<int>("CalificacionId")

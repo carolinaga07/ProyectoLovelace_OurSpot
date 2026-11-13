@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace OurSpot.Services;
 
-public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IService<Lugares, int>
+public class LugaresService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : IService<Lugares, int>
 {
     public async Task<bool> Guardar(Lugares lugar)
     {
@@ -38,7 +38,12 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
         lugar.Eliminado = false;
 
         contexto.Lugares.Add(lugar);
-        return await contexto.SaveChangesAsync() > 0;
+        var guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+            await auditoriaService.RegistrarAsync("Lugares", "Insertar", $"Se creó el lugar: {lugar.Nombre}");
+
+        return guardado;
     }
 
     public async Task<bool> Modificar(Lugares lugar)
@@ -48,7 +53,12 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
         lugar.Nombre = lugar.Nombre.Trim();
 
         contexto.Update(lugar);
-        return await contexto.SaveChangesAsync() > 0;
+        var guardado = await contexto.SaveChangesAsync() > 0;
+
+        if (guardado)
+            await auditoriaService.RegistrarAsync("Lugares", "Modificar", $"Se modificó el lugar: {lugar.Nombre}");
+
+        return guardado;
     }
 
     public async Task<Lugares?> Buscar(int id)
@@ -81,7 +91,12 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
 
         lugar.Eliminado = true;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var eliminado = await contexto.SaveChangesAsync() > 0;
+
+        if (eliminado)
+            await auditoriaService.RegistrarAsync("Lugares", "Eliminar", $"Se eliminó el lugar: {lugar.Nombre}");
+
+        return eliminado;
     }
 
     public async Task<bool> Recuperar(int idLugar)
@@ -96,6 +111,11 @@ public class LugaresService(IDbContextFactory<Contexto> contextFactory) : IServi
 
         lugar.Eliminado = false;
 
-        return await contexto.SaveChangesAsync() > 0;
+        var recuperado = await contexto.SaveChangesAsync() > 0;
+
+        if (recuperado)
+            await auditoriaService.RegistrarAsync("Lugares", "Recuperar", $"Se recuperó el lugar: {lugar.Nombre}");
+
+        return recuperado;
     }
 }
