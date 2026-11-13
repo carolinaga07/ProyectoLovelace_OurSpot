@@ -5,7 +5,8 @@ using OurSpot.Security;
 namespace OurSpot.Services
 {
     public class AdministradoresService(
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        AuditoriaService auditoriaService)
     {
         public async Task<IdentityResult> Guardar(
             string nombre,
@@ -51,6 +52,8 @@ namespace OurSpot.Services
 
                 return resultado;
             }
+
+            await auditoriaService.RegistrarAsync("Administradores", "Crear", $"Se creó el administrador: {correo}");
 
             return IdentityResult.Success;
         }
