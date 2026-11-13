@@ -54,6 +54,8 @@ public class RegistroClientesService(
         await contexto.SaveChangesAsync();
         await transaccion.CommitAsync();
 
+        await auditoriaService.RegistrarAsync("Clientes", "Registrar", $"Se registró un nuevo cliente: {correo}");
+
         return IdentityResult.Success;
     }
 }
