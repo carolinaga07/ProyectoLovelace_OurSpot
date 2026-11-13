@@ -8,7 +8,7 @@ namespace OurSpot.Services;
 
 public class RegistroClientesService(
     Contexto contexto,
-    UserManager<ApplicationUser> userManager)
+    UserManager<ApplicationUser> userManager, AuditoriaService auditoriaService)
 {
     public async Task<IdentityResult> Registrar(
         string nombre,
