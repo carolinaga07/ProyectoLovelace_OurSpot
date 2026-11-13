@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        @if (auth.User.IsInRole("Administrador"))
+        {
+            <LayoutView Layout="@typeof(MainLayout)">
+                @Body
+            </LayoutView>
+        }
+        else if (auth.User.IsInRole("Cliente"))
+        {
+            <LayoutView Layout="@typeof(ClienteLayout)">
+                @Body
+            </LayoutView>
+        }
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public RenderFragment? Body { get; set; }
+}

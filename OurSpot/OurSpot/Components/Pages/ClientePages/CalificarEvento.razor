@@ -1,0 +1,123 @@
+﻿
+@inject CalificacionesService calificacionesService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
+@rendermode InteractiveServer
+
+@if (cargando)
+{
+    <p>Cargando calificación...</p>
+}
+else if (puedeCalificar)
+{
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+            <h5>Califica tu evento</h5>
+
+            <div class="d-flex gap-2 my-3">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    int valor = i;
+
+                    <button type="button"
+                            class="btn p-0 border-0"
+                            disabled="@guardando"
+                            @onclick="() => Seleccionar(valor)">
+                        <i class="bi @(valor <= estrellas
+                            ? "bi-star-fill text-warning"
+                            : "bi-star text-secondary")"
+                   style="font-size:2rem"></i>
+            </button>
+        }
+    </div>
+
+    <p>Tu puntuación: @estrellas / 5</p>
+
+    <button class="btn btn-primary"
+            disabled="@(estrellas == 0 || guardando)"
+            @onclick="Guardar">
+        @(guardando ? "Guardando..." : "Guardar calificación")
+    </button>
+
+    @if (!string.IsNullOrEmpty(mensaje))
+    {
+        <p class="mt-2">@mensaje</p>
+    }
+</div>
+</div>
+}
+
+@code {
+    [Parameter]
+    public int EventoId { get; set; }
+
+    private int estrellas;
+    private bool puedeCalificar;
+    private bool cargando = true;
+    private bool guardando;
+    private string? mensaje;
+    private string? applicationUserId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        puedeCalificar = false;
+        estrellas = 0;
+        mensaje = null;
+
+        var authState =
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        var usuario = await UserManager.GetUserAsync(authState.User);
+
+        applicationUserId = usuario?.Id;
+
+        if (applicationUserId != null)
+        {
+            puedeCalificar =
+                await calificacionesService.PuedeCalificar(
+                    EventoId, applicationUserId);
+
+            if (puedeCalificar)
+            {
+                estrellas =
+                    await calificacionesService.ObtenerCalificacion(
+                        EventoId, applicationUserId) ?? 0;
+            }
+        }
+
+        cargando = false;
+    }
+
+    private void Seleccionar(int valor)
+    {
+        estrellas = valor;
+        mensaje = null;
+    }
+
+    private async Task Guardar()
+    {
+        if (applicationUserId == null || guardando)
+            return;
+
+        guardando = true;
+
+        try
+        {
+            bool resultado =
+                await calificacionesService.GuardarCalificacion(
+                    EventoId,
+                    applicationUserId,
+                    estrellas);
+
+            mensaje = resultado
+                ? "Calificación guardada correctamente."
+                : "No se pudo guardar la calificación.";
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+}

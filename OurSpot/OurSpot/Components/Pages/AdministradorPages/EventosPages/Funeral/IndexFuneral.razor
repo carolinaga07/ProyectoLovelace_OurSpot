@@ -1,4 +1,4 @@
-﻿@attribute [Authorize(Roles = "Administrador")]
+﻿@attribute [Authorize(Roles = "Administrador,Cliente")]
 @page "/Servicios/Funeral"
 @rendermode InteractiveServer
 
@@ -178,10 +178,14 @@
                 <strong>Cantidad: </strong>@listaEventos.Count
             </label>
 
-            <a href="/Eventos/Recuperar"
-               class="btn btn-outline-primary bi bi-trash"
-               title="Recuperar">
-            </a>
+            <AuthorizeView Roles="Administrador">
+                <Authorized>
+                    <a href="/Eventos/Recuperar"
+                       class="btn btn-outline-primary bi bi-trash"
+                       title="Recuperar">
+                    </a>
+                </Authorized>
+            </AuthorizeView>
         </div>
     </div>
 </div>

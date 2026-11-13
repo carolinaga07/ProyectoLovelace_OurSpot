@@ -202,6 +202,26 @@
                     </ul>
                 </li>
 
+                @* RED DE CONEXIÓN *@
+                <li class="link @(MenuAbierto == "Conexion" ? "active" : "")">
+
+                    <div class="dropdown"
+                         @onclick='() => AlternarMenu("Conexion")'>
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-window-stack bi-menu-icon me-2"></i>
+                            Red de Conexi&oacute;n
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <ul class="SubmenuItems">
+                        <li>
+                            <a href="/Servicios">Servicios</a>
+                        </li>
+                    </ul>
+                </li>
+
                 @* MI CUENTA *@
                 <li class="link @(MenuAbierto == "Cuenta" ? "active" : "")">
                     <div class="dropdown"

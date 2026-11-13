@@ -6,18 +6,53 @@
 
         <Found Context="routeData">
 
-            <AuthorizeRouteView RouteData="routeData"
-                                DefaultLayout="typeof(Layout.MainLayout)">
+            <AuthorizeView>
+                <Authorized Context="usuarioAutenticado">
 
-                <NotAuthorized>
-                    <p>No tienes permiso para acceder a esta página.</p>
+                    @{
+                        Type layoutSeleccionado =
+                            usuarioAutenticado.User.IsInRole("Cliente")
+                                ? typeof(Layout.ClienteLayout)
+                                : typeof(Layout.MainLayout);
+                    }
+
+                    <AuthorizeRouteView RouteData="routeData"
+                                        DefaultLayout="@layoutSeleccionado">
+
+                        <NotAuthorized Context="rutaSinPermiso">
+                            <p>No tienes permiso para acceder a esta página.</p>
+                        </NotAuthorized>
+
+                        <Authorizing>
+                            <p>Verificando permisos...</p>
+                        </Authorizing>
+
+                    </AuthorizeRouteView>
+
+                </Authorized>
+
+                <NotAuthorized Context="usuarioNoAutenticado">
+
+                    <AuthorizeRouteView RouteData="routeData"
+                                        DefaultLayout="typeof(Layout.MainLayout)">
+
+                        <NotAuthorized Context="rutaPublicaSinPermiso">
+                            <p>No tienes permiso para acceder a esta página.</p>
+                        </NotAuthorized>
+
+                        <Authorizing>
+                            <p>Verificando permisos...</p>
+                        </Authorizing>
+
+                    </AuthorizeRouteView>
+
                 </NotAuthorized>
 
                 <Authorizing>
                     <p>Verificando permisos...</p>
                 </Authorizing>
 
-            </AuthorizeRouteView>
+            </AuthorizeView>
 
             <FocusOnNavigate RouteData="routeData"
                              Selector="h1" />

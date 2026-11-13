@@ -384,6 +384,7 @@ public class EventosService(
     }
 
 
+
     public async Task<bool> CrearEventoCliente(
         Evento nuevoEvento,
         string applicationUserId)
@@ -411,11 +412,25 @@ public class EventosService(
         if (string.IsNullOrWhiteSpace(nuevoEvento.Nombre) ||
             string.IsNullOrWhiteSpace(nuevoEvento.Descripcion) ||
             string.IsNullOrWhiteSpace(nuevoEvento.Tipo) ||
+            string.IsNullOrWhiteSpace(nuevoEvento.Categoria) ||
             string.IsNullOrWhiteSpace(nuevoEvento.Lugar))
             return false;
 
         if (nuevoEvento.Tipo != "Publico" &&
             nuevoEvento.Tipo != "Privado")
+            return false;
+
+        string[] categoriasValidas =
+        {
+        "Aniversario",
+        "Boda",
+        "Cumpleaños",
+        "Celebración Religiosa",
+        "Graduación",
+        "Funeral"
+    };
+
+        if (!categoriasValidas.Contains(nuevoEvento.Categoria))
             return false;
 
         bool lugarValido = await contexto.Lugares
@@ -449,6 +464,7 @@ public class EventosService(
             ClienteId = cliente.ClienteId,
             Nombre = nuevoEvento.Nombre.Trim(),
             Descripcion = nuevoEvento.Descripcion.Trim(),
+            Categoria = nuevoEvento.Categoria,
             FechaInicio = nuevoEvento.FechaInicio,
             HoraInicio = nuevoEvento.HoraInicio,
             FechaCierre = nuevoEvento.FechaCierre,
@@ -457,6 +473,7 @@ public class EventosService(
             Lugar = nuevoEvento.Lugar,
             Estado = "Pendiente",
             Eliminado = false,
+
             EventosDetalles = contrataciones.Select(c =>
                 new EventoDetalles
                 {
@@ -481,7 +498,11 @@ public class EventosService(
         if (guardado)
         {
             await RevisarEstadosPendientes();
-            await auditoriaService.RegistrarAsync("Eventos", "CrearCliente", $"El cliente creó el evento: {evento.Nombre}");
+
+            await auditoriaService.RegistrarAsync(
+                "Eventos",
+                "CrearCliente",
+                $"El cliente creó el evento: {evento.Nombre}");
         }
 
         return guardado;
@@ -528,6 +549,7 @@ public class EventosService(
     }
 
 
+
     public async Task<EditarEventoClienteDto?> ObtenerEventoParaEditarCliente(
         int eventoId,
         string applicationUserId)
@@ -548,6 +570,7 @@ public class EventosService(
                 EventoId = e.EventoId,
                 Nombre = e.Nombre,
                 Descripcion = e.Descripcion,
+                Categoria = e.Categoria,
                 FechaInicio = e.FechaInicio,
                 HoraInicio = e.HoraInicio,
                 FechaCierre = e.FechaCierre,
@@ -560,16 +583,17 @@ public class EventosService(
                     .ToList(),
 
                 Servicios = e.EventosDetalles
-                .Select(d => new ServicioEditableClienteDto
-                {
-                  ContratacionId = d.ContratacionId,
-                  Servicio = d.Servicio,
-                  PrecioFinal = d.PrecioFinal
-                })
-                .ToList()
+                    .Select(d => new ServicioEditableClienteDto
+                    {
+                        ContratacionId = d.ContratacionId,
+                        Servicio = d.Servicio,
+                        PrecioFinal = d.PrecioFinal
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
+
 
 
     public async Task<bool> ActualizarEventoCliente(
@@ -599,10 +623,24 @@ public class EventosService(
 
         if (string.IsNullOrWhiteSpace(datos.Nombre) ||
             string.IsNullOrWhiteSpace(datos.Descripcion) ||
+            string.IsNullOrWhiteSpace(datos.Categoria) ||
             string.IsNullOrWhiteSpace(datos.Lugar))
             return false;
 
         if (datos.Tipo != "Publico" && datos.Tipo != "Privado")
+            return false;
+
+        string[] categoriasValidas =
+        {
+        "Aniversario",
+        "Boda",
+        "Cumpleaños",
+        "Celebración Religiosa",
+        "Graduación",
+        "Funeral"
+    };
+
+        if (!categoriasValidas.Contains(datos.Categoria))
             return false;
 
         bool lugarValido = await contexto.Lugares
@@ -658,6 +696,7 @@ public class EventosService(
 
         evento.Nombre = datos.Nombre.Trim();
         evento.Descripcion = datos.Descripcion.Trim();
+        evento.Categoria = datos.Categoria;
         evento.FechaInicio = datos.FechaInicio;
         evento.HoraInicio = datos.HoraInicio;
         evento.FechaCierre = datos.FechaCierre;
@@ -673,13 +712,17 @@ public class EventosService(
         if (guardado)
         {
             await RevisarEstadosPendientes();
-            await auditoriaService.RegistrarAsync("Eventos", "ActualizarCliente", $"El cliente actualizó su evento: {evento.Nombre}");
+
+            await auditoriaService.RegistrarAsync(
+                "Eventos",
+                "ActualizarCliente",
+                $"El cliente actualizó su evento: {evento.Nombre}");
         }
 
         return guardado;
     }
 
-  public async Task<List<Evento>> ObtenerEventoDestacados()
+    public async Task<List<Evento>> ObtenerEventoDestacados()
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
 

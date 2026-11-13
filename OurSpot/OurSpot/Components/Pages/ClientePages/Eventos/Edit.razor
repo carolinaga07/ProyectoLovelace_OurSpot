@@ -118,6 +118,29 @@ else
                             <option value="Privado">Privado</option>
                         </InputSelect>
                     </div>
+                    
+                    @* Categoría *@
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Categoría del evento</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="Evento.Categoria">
+
+                            <option value="">-- Seleccione una categoría --</option>
+                            <option value="Aniversario">Aniversario</option>
+                            <option value="Boda">Boda</option>
+                            <option value="Cumpleaños">Cumpleaños</option>
+                            <option value="Celebración Religiosa">Celebración Religiosa</option>
+                            <option value="Graduación">Graduación</option>
+                            <option value="Funeral">Funeral</option>
+
+                        </InputSelect>
+
+                        <ValidationMessage For="@(() => Evento.Categoria)" />
+                    </div>
+
 
                     <div class="mb-3">
                         <label class="form-label">

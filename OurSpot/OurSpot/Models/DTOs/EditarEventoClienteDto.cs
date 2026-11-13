@@ -1,4 +1,6 @@
-﻿namespace OurSpot.Models.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OurSpot.Models.DTOs;
 
 public class EditarEventoClienteDto
 {
@@ -13,6 +15,8 @@ public class EditarEventoClienteDto
     public DateOnly FechaCierre { get; set; }
     public TimeOnly HoraCierre { get; set; }
 
+    [Required(ErrorMessage = "Seleccione una categoría")]
+    public string Categoria { get; set; } = string.Empty;
     public string Lugar { get; set; } = string.Empty;
     public string Tipo { get; set; } = string.Empty;
 
