@@ -77,6 +77,7 @@ public class EventosService(
         return guardado;
     }
 
+
     public async Task<Evento?> Buscar(int eventoId)
     {
         await using var contexto =
@@ -84,9 +85,12 @@ public class EventosService(
 
         return await contexto.Eventos
             .Include(e => e.EventosDetalles)
+            .Include(e => e.Imagenes)
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.EventoId == eventoId);
     }
+
+
 
     public async Task<List<Evento>> GetList(
         Expression<Func<Evento, bool>> criterio)
@@ -96,6 +100,7 @@ public class EventosService(
 
         return await contexto.Eventos
             .Where(criterio)
+            .Include(e => e.Imagenes)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -366,13 +371,16 @@ public class EventosService(
     }
 
 
+
     public async Task<List<Evento>> ObtenerEventosCliente(
         string applicationUserId)
     {
         await using var contexto =
             await contextFactory.CreateDbContextAsync();
 
-        return await contexto.Eventos
+        var eventos = await contexto.Eventos
+            .Include(e => e.Imagenes)
+            .Include(e => e.calificacionEventos)
             .Where(e =>
                 e.Clientes != null &&
                 e.Clientes.ApplicationUserId == applicationUserId &&
@@ -381,6 +389,15 @@ public class EventosService(
             .OrderBy(e => e.FechaInicio)
             .ThenBy(e => e.HoraInicio)
             .ToListAsync();
+
+        foreach (var evento in eventos)
+        {
+            evento.Estrella = evento.calificacionEventos
+                .Select(c => (double?)c.Estrellas)
+                .Average() ?? 0;
+        }
+
+        return eventos;
     }
 
 
@@ -722,27 +739,64 @@ public class EventosService(
         return guardado;
     }
 
+
+
     public async Task<List<Evento>> ObtenerEventoDestacados()
     {
-        await using var contexto = await contextFactory.CreateDbContextAsync();
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
 
-        var eventos = await contexto.Eventos.Where(e => e.Estado == "Finalizado" &&
-        !e.Eliminado).Select(e => new
+        var eventos = await contexto.Eventos
+            .Where(e => e.Estado == "Finalizado" && !e.Eliminado)
+            .Include(e => e.Imagenes)
+            .Include(e => e.calificacionEventos)
+            .AsNoTracking()
+            .ToListAsync();
+
+        foreach (var evento in eventos)
         {
-            Evento = e,
-            Promedio = e.calificacionEventos.Select(c => (double?)c.Estrellas)
-            .Average() ?? 0
+            evento.Estrella = evento.calificacionEventos
+                .Select(c => (double?)c.Estrellas)
+                .Average() ?? 0;
+        }
 
-        })
-        .AsNoTracking()
-        .ToListAsync();
-
-        return eventos.OrderByDescending(e => e.Promedio).Take(5)
-            .Select(e =>
-            {
-                e.Evento.Estrella = e.Promedio;
-                return e.Evento;
-            })
+        return eventos
+            .OrderByDescending(e => e.Estrella)
+            .Take(5)
             .ToList();
     }
+
+
+    public async Task<List<Evento>> ObtenerDestacadosCliente(
+        string usuarioId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var eventos = await contexto.Eventos
+            .Where(e =>
+                e.Clientes != null &&
+                e.Clientes.ApplicationUserId == usuarioId &&
+                e.Estado == "Finalizado" &&
+                !e.Eliminado)
+            .Include(e => e.Imagenes)
+            .Include(e => e.calificacionEventos)
+            .AsNoTracking()
+            .ToListAsync();
+
+        foreach (var evento in eventos)
+        {
+            evento.Estrella = evento.calificacionEventos
+                .Select(c => (double?)c.Estrellas)
+                .Average() ?? 0;
+        }
+
+        return eventos
+            .OrderByDescending(e => e.Estrella)
+            .Take(5)
+            .ToList();
+    }
+
+
+
 }

@@ -170,4 +170,99 @@ public class EventoImagenesService(
 
         return null;
     }
+
+
+    public async Task<(byte[] Contenido, string Tipo)?>
+        ObtenerArchivoImagen(int imagenId)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var imagen = await contexto.EventoImagenes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(i =>
+                i.EventoImagenId == imagenId &&
+                !i.Evento.Eliminado &&
+                i.Evento.Tipo == "Publico");
+
+        if (imagen == null)
+            return null;
+
+        var nombreArchivo = Path.GetFileName(imagen.RutaImagen);
+
+        var rutaFisica = Path.Combine(
+            CarpetaImagenes,
+            nombreArchivo);
+
+        if (!File.Exists(rutaFisica))
+            return null;
+
+        string tipo = Path.GetExtension(nombreArchivo).ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => ""
+        };
+
+        if (string.IsNullOrEmpty(tipo))
+            return null;
+
+        var contenido = await File.ReadAllBytesAsync(rutaFisica);
+
+        return (contenido, tipo);
+    }
+
+
+    public async Task<(byte[] Contenido, string Tipo)?>
+        ObtenerArchivoImagenAutorizada(
+            int imagenId,
+            string usuarioId,
+            bool esAdministrador)
+    {
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var imagen = await contexto.EventoImagenes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(i =>
+                i.EventoImagenId == imagenId &&
+                !i.Evento.Eliminado &&
+                (
+                    esAdministrador ||
+                    (
+                        i.Evento.Clientes != null &&
+                        i.Evento.Clientes.ApplicationUserId == usuarioId
+                    )
+                ));
+
+        if (imagen == null)
+            return null;
+
+        var nombreArchivo = Path.GetFileName(imagen.RutaImagen);
+
+        var rutaFisica = Path.Combine(
+            CarpetaImagenes,
+            nombreArchivo);
+
+        if (!File.Exists(rutaFisica))
+            return null;
+
+        string tipo = Path.GetExtension(nombreArchivo)
+            .ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => ""
+        };
+
+        if (string.IsNullOrEmpty(tipo))
+            return null;
+
+        var contenido = await File.ReadAllBytesAsync(rutaFisica);
+
+        return (contenido, tipo);
+    }
+
 }

@@ -87,66 +87,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-app.MapGet("/api/cliente/eventos/imagenes/{imagenId:int}",
-    async (
-        int imagenId,
-        System.Security.Claims.ClaimsPrincipal usuario,
-        IDbContextFactory<Contexto> factory,
-        IWebHostEnvironment entorno) =>
-    {
-        if (usuario.Identity?.IsAuthenticated != true ||
-            !usuario.IsInRole("Cliente"))
-            return Results.Forbid();
-
-        var usuarioId = usuario.FindFirst(
-            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrWhiteSpace(usuarioId))
-            return Results.Forbid();
-
-        await using var contexto =
-            await factory.CreateDbContextAsync();
-
-        var imagen = await contexto.EventoImagenes
-            .AsNoTracking()
-            .Where(i =>
-                i.EventoImagenId == imagenId &&
-                !i.Evento.Eliminado &&
-                i.Evento.Clientes != null &&
-                i.Evento.Clientes.ApplicationUserId == usuarioId)
-            .Select(i => i.RutaImagen)
-            .FirstOrDefaultAsync();
-
-        if (imagen == null)
-            return Results.NotFound();
-
-        var nombre = Path.GetFileName(imagen);
-
-        var ruta = Path.Combine(
-            entorno.ContentRootPath,
-            "ArchivosPrivados",
-            "Eventos",
-            nombre);
-
-        if (!File.Exists(ruta))
-            return Results.NotFound();
-
-        var tipo = Path.GetExtension(nombre).ToLowerInvariant() switch
-        {
-            ".jpg" => "image/jpeg",
-            ".png" => "image/png",
-            ".webp" => "image/webp",
-            _ => "application/octet-stream"
-        };
-
-        return Results.File(
-            ruta,
-            contentType: tipo,
-            enableRangeProcessing: false);
-    })
-    .RequireAuthorization();
-
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -154,6 +94,39 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
+app.MapGet("/api/eventos/imagenes/{imagenId:int}",
+    async (
+        int imagenId,
+        HttpContext httpContext,
+        EventoImagenesService imagenesService) =>
+    {
+        var usuario = httpContext.User;
+
+        if (usuario.Identity?.IsAuthenticated != true)
+            return Results.Unauthorized();
+
+        var usuarioId = usuario.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier
+        )?.Value;
+
+        if (string.IsNullOrEmpty(usuarioId))
+            return Results.Unauthorized();
+
+        var imagen = await imagenesService
+            .ObtenerArchivoImagenAutorizada(
+                imagenId,
+                usuarioId,
+                usuario.IsInRole("Administrador"));
+
+        if (imagen == null)
+            return Results.NotFound();
+
+        return Results.File(
+            imagen.Value.Contenido,
+            imagen.Value.Tipo);
+    })
+    .RequireAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
