@@ -42,7 +42,7 @@
                     <span class="mb-1 small">
                        @evento.Total.ToString("C2")
                     </span> 
-                    <p>Estrellas @evento.Estrella.ToString("N0") <i class="bi bi-star-fill text-danger"></i></p>
+                    <p>Estrellas @evento.Estrella.ToString("N1") <i class="bi bi-star-fill text-warning"></i></p>
                     <a href="/eventos/detalle/@evento.EventoId" class="btn btn-outline-dark btn-sm"> Leer mas</a>
                 </div>
             </div>
@@ -87,7 +87,7 @@
         ListaEventos = eventos.OrderBy(e => e.FechaInicio).ToList();
 
         var finalizados = await eventosService.GetList(e => e.Estado == "Finalizado" && !e.Eliminado);
-        ListaDestacados = finalizados.OrderByDescending(e => e.Estrella).Take(5).ToList();
+        ListaDestacados = await eventosService.ObtenerEventoDestacados();
 
         TotalContrataciones = (await contratacionesService.GetList(c => c.Estado == "Activa")).Count;
 
