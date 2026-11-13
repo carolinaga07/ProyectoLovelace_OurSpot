@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace OurSpot.Services
 {
-    public class ContratacionesService(IDbContextFactory<Contexto> contextFactory) : IService<Contrataciones, int>
+    public class ContratacionesService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : IService<Contrataciones, int>
     {
         public async Task<bool> Guardar(Contrataciones contratacion)
         {
@@ -31,14 +31,24 @@ namespace OurSpot.Services
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             contexto.Contrataciones.Add(contratacion);
-            return await contexto.SaveChangesAsync() > 0;
+            var guardado = await contexto.SaveChangesAsync() > 0;
+
+            if (guardado)
+                await auditoriaService.RegistrarAsync("Contrataciones", "Insertar", $"Se creó la contratación de servicio: {contratacion.Servicio}");
+
+            return guardado;
         }
 
         public async Task<bool> Modificar(Contrataciones contratacion)
         {
             await using var contexto = await contextFactory.CreateDbContextAsync();
             contexto.Update(contratacion);
-            return await contexto.SaveChangesAsync() > 0;
+            var guardado = await contexto.SaveChangesAsync() > 0;
+
+            if (guardado)
+                await auditoriaService.RegistrarAsync("Contrataciones", "Modificar", $"Se modificó la contratación ID: {contratacion.ContratacionId}");
+
+            return guardado;
         }
 
         public async Task<Contrataciones?> Buscar(int id)
@@ -68,7 +78,12 @@ namespace OurSpot.Services
 
             contratacion.Eliminado = true;
 
-            return await contexto.SaveChangesAsync() > 0;
+            var eliminado = await contexto.SaveChangesAsync() > 0;
+
+            if (eliminado)
+                await auditoriaService.RegistrarAsync("Contrataciones", "Eliminar", $"Se eliminó la contratación ID: {idContratacion}");
+
+            return eliminado;
         }
 
         public async Task<bool> Recuperar(int idContratacion)
@@ -82,7 +97,12 @@ namespace OurSpot.Services
 
             contratacion.Eliminado = false;
 
-            return await contexto.SaveChangesAsync() > 0;
+            var recuperado = await contexto.SaveChangesAsync() > 0;
+
+            if (recuperado)
+                await auditoriaService.RegistrarAsync("Contrataciones", "Recuperar", $"Se recuperó la contratación ID: {idContratacion}");
+
+            return recuperado;
         }
     }
 }
