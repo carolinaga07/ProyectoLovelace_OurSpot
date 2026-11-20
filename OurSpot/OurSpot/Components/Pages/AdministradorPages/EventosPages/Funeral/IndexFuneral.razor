@@ -132,10 +132,6 @@
                            class="table table-hover text-center mt-3"
                            style="min-width: 950px;">
 
-                    <PropertyColumn Property="e => e.EventoId"
-                                    Title="Id"
-                                    Sortable="true" />
-
                     <TemplateColumn Title="Fecha de inicio">
                         <div class="text-nowrap">
                             @context.FechaInicio.ToString("dd/MM/yyyy")
@@ -160,12 +156,17 @@
 
                     <PropertyColumn Property="e => e.Total"
                                     Title="Total"
+                                    Format="N2"
                                     Sortable="true" />
 
                     <TemplateColumn Title="Estado">
                         <span class="estado @(context.Estado?.ToLowerInvariant())">
                             @context.Estado
                         </span>
+                    </TemplateColumn>
+                    <TemplateColumn>
+                        <a href="/eventos/detalle/@context.EventoId" class="btn btn-outline-primary bi bi-eye"
+                           title="Ver detalles"> </a>
                     </TemplateColumn>
 
                 </QuickGrid>

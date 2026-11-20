@@ -161,12 +161,18 @@
 
                     <PropertyColumn Property="e => e.Total"
                                     Title="Total"
+                                    Format="N2"
                                     Sortable="true" />
 
                     <TemplateColumn Title="Estado">
                         <span class="estado @(context.Estado?.ToLowerInvariant())">
                             @context.Estado
                         </span>
+                    </TemplateColumn>
+
+                    <TemplateColumn>
+                        <a href="/eventos/detalle/@context.EventoId" class="btn btn-outline-primary bi bi-eye"
+                           title="Ver detalles"> </a>
                     </TemplateColumn>
 
                 </QuickGrid>

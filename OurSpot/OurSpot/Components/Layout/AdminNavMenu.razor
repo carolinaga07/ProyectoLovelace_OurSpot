@@ -208,7 +208,7 @@
                     </ul>
                 </li>
 
-                @* RED DE CONEXIÓN *@
+                @* Catalogo *@
                 <li class="link @(MenuAbierto == "Conexion" ? "active" : "")">
 
                     <div class="dropdown"
@@ -216,14 +216,14 @@
 
                         <div class="d-flex align-items-center">
                             <i class="bi bi-window-stack bi-menu-icon me-2"></i>
-                            Red de Conexi&oacute;n
+                            Cat&aacute;logo
                             <i class="bi bi-chevron-down"></i>
                         </div>
                     </div>
 
                     <ul class="SubmenuItems">
                         <li>
-                            <a href="/Servicios">Servicios</a>
+                            <a href="/Servicios">Paquetes</a>
                         </li>
 
                         <li>
@@ -239,34 +239,6 @@
                         <li>
                             <NavLink href="personal">
                                 Personal
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink href="recursos">
-                                Recursos
-                            </NavLink>
-                        </li>
-                    </ul>
-                </li>
-
-                @* PERSONAS *@
-                <li class="link @(MenuAbierto == "Personas" ? "active" : "")">
-
-                    <div class="dropdown"
-                         @onclick='() => AlternarMenu("Personas")'>
-
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-people bi-menu-icon me-2"></i>
-                            Personas
-                            <i class="bi bi-chevron-down"></i>
-                        </div>
-                    </div>
-
-                    <ul class="SubmenuItems">
-                        <li>
-                            <NavLink href="clientes">
-                                Clientes
                             </NavLink>
                         </li>
                     </ul>
