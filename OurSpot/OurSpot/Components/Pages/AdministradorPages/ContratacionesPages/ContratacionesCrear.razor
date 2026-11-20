@@ -7,8 +7,12 @@
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Contrataciones</PageTitle>
-<EditForm Model="Contratacion" OnValidSubmit="Guardar">
+<EditForm Model="Contratacion"
+          OnValidSubmit="Guardar"
+          OnInvalidSubmit="FormularioInvalido">
+
     <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="container mt-4">
         <div class="card shadow-lg">
             <div class="card-header">
@@ -25,18 +29,34 @@
                     <ValidationMessage For="() => Contratacion.Servicio" />
                 </div>
 
+                
+               
                 @* Proveedor *@
                 <div class="mb-3">
-                    <label class="form-label"><strong>Proveedor</strong></label>
-                    <InputSelect class="form-select" @bind-Value="Contratacion.Proveedor">
+                    <label class="form-label">
+                        <strong>Proveedor</strong>
+                    </label>
+
+                    <InputSelect TValue="int?"
+                                 class="form-select"
+                                 @bind-Value="Contratacion.ProveedorId"
+                                 @bind-Value:after="SeleccionarProveedor">
+
                         <option value="">Seleccione un proveedor</option>
+
                         @foreach (var proveedor in ListaProveedores)
                         {
-                            <option value="@proveedor.Nombre">@proveedor.Nombre</option>
+                            <option value="@proveedor.Id">
+                                @proveedor.Nombre
+                            </option>
                         }
+
                     </InputSelect>
-                    <ValidationMessage For="() => Contratacion.Proveedor" />
+
+                    <ValidationMessage For="() => Contratacion.ProveedorId" />
                 </div>
+
+
 
                 @* Categoria *@
                 <div class="mb-3">
@@ -75,27 +95,58 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var proveedores = await proveedorService.GetList(p => true);
-        ListaProveedores = proveedores;
+        ListaProveedores = await proveedorService
+            .GetList(p => !p.Eliminado);
     }
-
+   
     private async Task Guardar()
     {
-        bool guardado = await contratacionesService.Guardar(Contratacion);
+        var proveedorSeleccionado = ListaProveedores
+            .FirstOrDefault(p => p.Id == Contratacion.ProveedorId
+                                 && !p.Eliminado);
+
+        if (proveedorSeleccionado is null)
+        {
+            toastService.ShowError(
+                "Debe seleccionar un proveedor válido.");
+            return;
+        }
+
+        // Conservamos el nombre para compatibilidad
+        // con las páginas existentes.
+        Contratacion.Proveedor = proveedorSeleccionado.Nombre;
+
+        bool guardado = await contratacionesService
+            .Guardar(Contratacion);
 
         if (guardado)
         {
-            toastService.ShowSuccess("Contratación Guardada Exitosamente");
+            toastService.ShowSuccess(
+                "Contratación Guardada Exitosamente");
+
             navigationManager.NavigateTo("/Contrataciones");
         }
         else
         {
-            if (await contratacionesService.Existe(Contratacion.ContratacionId))
-            {
-                toastService.ShowError("Esta contratación ya fue registrada.");
-                return;
-            }
-            toastService.ShowError("Error al Guardar la Contratación");
+            toastService.ShowError(
+                "Error al Guardar la Contratación");
         }
+    }
+
+    
+    private void SeleccionarProveedor()
+    {
+        var proveedorId = Contratacion.ProveedorId;
+
+        var proveedor = ListaProveedores
+            .FirstOrDefault(p => p.Id == proveedorId);
+
+        Contratacion.Proveedor = proveedor?.Nombre ?? string.Empty;
+    }
+
+    private void FormularioInvalido()
+    {
+        toastService.ShowError(
+            "El formulario contiene errores de validación.");
     }
 }

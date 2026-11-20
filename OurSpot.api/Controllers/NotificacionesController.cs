@@ -55,4 +55,44 @@ public class NotificacionesController : ControllerBase
             mensaje = "Notificación enviada correctamente."
         });
     }
+
+
+    [HttpPost("proveedores")]
+    public async Task<IActionResult> NotificarProveedor(
+        [FromBody] NotificacionProveedorDto notificacion)
+    {
+        var claveConfigurada =
+            configuration["Notificaciones:ApiKey"];
+
+        var claveRecibida =
+            Request.Headers["X-OurSpot-Key"].ToString();
+
+        if (string.IsNullOrWhiteSpace(claveConfigurada) ||
+            string.IsNullOrWhiteSpace(claveRecibida) ||
+            claveRecibida != claveConfigurada)
+        {
+            return Unauthorized();
+        }
+
+        if (notificacion is null ||
+            notificacion.NotificacionProveedorId <= 0 ||
+            notificacion.EventoId <= 0 ||
+            notificacion.DetalleId <= 0 ||
+            string.IsNullOrWhiteSpace(notificacion.NombreEvento) ||
+            string.IsNullOrWhiteSpace(notificacion.Servicio) ||
+            string.IsNullOrWhiteSpace(notificacion.EstadoNuevo))
+        {
+            return BadRequest("Datos de notificación inválidos.");
+        }
+
+        await hubContext.Clients.All.SendAsync(
+            "RecibirNotificacionProveedor",
+            notificacion);
+
+        return Ok(new
+        {
+            mensaje = "Notificación del proveedor enviada correctamente."
+        });
+    }
+
 }

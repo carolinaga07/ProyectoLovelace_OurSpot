@@ -1,0 +1,119 @@
+﻿@inherits LayoutComponentBase
+
+<div class="proveedor-layout">
+
+    @* MENÚ LATERAL *@
+    <aside class="proveedor-sidebar">
+        <ProveedorNavMenu />
+    </aside>
+
+    @* CONTENIDO PRINCIPAL *@
+    <main class="proveedor-main">
+        <article class="proveedor-content">
+            @Body
+        </article>
+    </main>
+
+</div>
+
+@* MODAL DE CERRAR SESIÓN *@
+<div class="modal fade"
+     id="modalCerrarSesion"
+     tabindex="-1"
+     aria-labelledby="modalCerrarSesionLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-dark"
+                    id="modalCerrarSesionLabel">
+                    Confirmación de cierre de sesión
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body text-dark">
+                ¿Estás seguro de que deseas salir del sistema?
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <form method="post" action="/cuenta/logout">
+                    <AntiforgeryToken />
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Cerrar Sesión
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ESTRUCTURA GENERAL */
+
+    .proveedor-layout {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch;
+        width: 100%;
+        min-height: 100vh;
+        background: #f5f7f8;
+    }
+
+    /* MENÚ LATERAL */
+
+    .proveedor-sidebar {
+        flex: 0 0 260px;
+        width: 260px;
+        min-width: 260px;
+        min-height: 100vh;
+        background: #2D5056;
+    }
+
+    /* CONTENIDO PRINCIPAL */
+
+    .proveedor-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        background: #f5f7f8;
+    }
+
+    .proveedor-content {
+        padding: 24px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* AJUSTES PARA PANTALLAS PEQUEÑAS */
+
+    @@media (max-width: 768px) {
+
+        .proveedor-sidebar {
+            flex: 0 0 220px;
+            width: 220px;
+            min-width: 220px;
+        }
+
+        .proveedor-content {
+            padding: 12px;
+        }
+    }
+
+</style>

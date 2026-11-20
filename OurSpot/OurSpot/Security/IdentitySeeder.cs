@@ -15,7 +15,7 @@ public static class IdentitySeeder
         string[] roles =
         {
             "Administrador",
-            "Empleado",
+            "Proveedor",
             "Cliente"
         };
 

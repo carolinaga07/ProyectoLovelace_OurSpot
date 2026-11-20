@@ -1,0 +1,110 @@
+﻿@page "/cliente/cronograma"
+@layout ClienteLayout
+@attribute [Authorize(Roles = "Cliente")]
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using OurSpot.Models
+@using OurSpot.Models.DTOs
+@using OurSpot.Components.Shared.Calendario
+@using OurSpot.Components.Pages.AdministradorPages.EventosPages.Services
+
+@inject EventosService eventosService
+
+<PageTitle>Mi calendario de eventos</PageTitle>
+
+@if (cargando)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3">Cargando calendario...</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">
+        @error
+    </div>
+}
+else
+{
+    <CalendarioCompartido Items="@ItemsCalendario"
+                          Titulo="Mi calendario de eventos"
+                          Descripcion="Consulta las fechas y los detalles de tus eventos."
+                          MostrarFiltroEstado="true" />
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<CalendarioItemDto> ItemsCalendario = new();
+
+    private bool cargando = true;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask is null)
+            {
+                error = "No se pudo obtener la autenticación.";
+                return;
+            }
+
+            var authState = await AuthenticationStateTask;
+
+            var usuarioId = authState.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(usuarioId))
+            {
+                error = "No se pudo identificar al cliente.";
+                return;
+            }
+
+            var eventos = await eventosService
+                .ObtenerEventosCliente(usuarioId);
+
+            ItemsCalendario = ConvertirEventosCalendario(eventos);
+        }
+        catch (Exception ex)
+        {
+            error = "No se pudieron cargar los eventos del calendario.";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private List<CalendarioItemDto> ConvertirEventosCalendario(
+        List<Evento> eventos)
+    {
+        return eventos.Select(e => new CalendarioItemDto
+        {
+            Id = e.EventoId,
+            EventoId = e.EventoId,
+
+            Titulo = e.Nombre,
+            NombreEvento = e.Nombre,
+            Descripcion = e.Descripcion,
+            Lugar = e.Lugar,
+
+            Fecha = e.FechaInicio,
+            Hora = e.HoraInicio,
+
+            Estado = e.Estado,
+            Tipo = "Evento",
+
+            UrlDetalle =
+                $"/cliente/eventos/detalle/{e.EventoId}"
+
+        }).ToList();
+    }
+}

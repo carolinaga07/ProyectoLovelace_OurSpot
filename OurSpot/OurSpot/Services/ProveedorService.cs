@@ -39,14 +39,34 @@ namespace OurSpot.Services
             return guardado;
         }
 
+
         public async Task<bool> Modificar(Proveedores proveedor)
         {
-            await using var contexto = await contextFactory.CreateDbContextAsync();
-            contexto.Update(proveedor);
+            await using var contexto =
+                await contextFactory.CreateDbContextAsync();
+
+            var existente = await contexto.Proveedores
+                .FirstOrDefaultAsync(p =>
+                    p.Id == proveedor.Id && !p.Eliminado);
+
+            if (existente is null)
+                return false;
+
+            existente.Nombre = proveedor.Nombre;
+            existente.Rnc = proveedor.Rnc;
+            existente.Direccion = proveedor.Direccion;
+            existente.Contacto = proveedor.Contacto;
+            existente.Servicio = proveedor.Servicio;
+
             var guardado = await contexto.SaveChangesAsync() > 0;
 
             if (guardado)
-                await auditoriaService.RegistrarAsync("Proveedores", "Modificar", $"Se modificó el proveedor ID: {proveedor.Id}");
+            {
+                await auditoriaService.RegistrarAsync(
+                    "Proveedores",
+                    "Modificar",
+                    $"Se modificó el proveedor ID: {proveedor.Id}");
+            }
 
             return guardado;
         }

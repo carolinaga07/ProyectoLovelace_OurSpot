@@ -1,0 +1,107 @@
+﻿
+@page "/proveedor/cronograma"
+@layout ProveedorLayout
+@attribute [Authorize(Roles = "Proveedor")]
+@rendermode InteractiveServer
+
+@inject PortalProveedoresService portalProveedoresService
+
+<PageTitle>Calendario de servicios</PageTitle>
+
+@if (cargando)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3">Cargando calendario...</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">
+        @error
+    </div>
+}
+else
+{
+    <CalendarioCompartido
+    Items="@ItemsCalendario"
+    Titulo="Calendario de servicios"
+    Descripcion="Consulta tus servicios asignados."
+    MostrarFiltroEstado="false" />
+}
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<CalendarioItemDto> ItemsCalendario = new();
+
+    private bool cargando = true;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask is null)
+            {
+                error = "No se pudo obtener la autenticación.";
+                return;
+            }
+
+            var authState = await AuthenticationStateTask;
+
+            var usuarioId = authState.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(usuarioId))
+            {
+                error = "No se pudo identificar al proveedor.";
+                return;
+            }
+
+            var servicios = await portalProveedoresService
+                .ObtenerServiciosProveedor(usuarioId);
+
+            ItemsCalendario = ConvertirServiciosCalendario(servicios);
+        }
+        catch (Exception ex)
+        {
+            error = "No se pudieron cargar los servicios del calendario.";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private List<CalendarioItemDto> ConvertirServiciosCalendario(
+        List<ServicioProveedorDto> servicios)
+    {
+        return servicios.Select(s => new CalendarioItemDto
+        {
+            Id = s.DetalleId,
+            EventoId = s.EventoId,
+
+            Titulo = s.Servicio,
+            NombreEvento = s.NombreEvento,
+            Descripcion = s.Servicio,
+            Lugar = s.Lugar,
+
+            Fecha = s.FechaInicio,
+            Hora = s.HoraInicio,
+
+            Estado = s.EstadoOperativo,
+            Tipo = "Servicio",
+
+            Observaciones = s.ObservacionesProveedor,
+
+            UrlDetalle =
+                $"/proveedor/servicios/detalle/{s.DetalleId}"
+
+        }).ToList();
+    }
+}

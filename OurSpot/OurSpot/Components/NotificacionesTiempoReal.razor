@@ -1,12 +1,14 @@
 ﻿
 @implements IAsyncDisposable
 @rendermode InteractiveServer
-
+@using OurSpot.Services
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Components.Authorization
 @using OurSpot.Models
 @using OurSpot.Components.Pages.AdministradorPages.EventosPages.Services
 
+@inject NotificacionesProveedoresService notificacionesProveedoresService
+@inject NavigationManager Navigation
 @inject EventosService eventoService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -35,6 +37,12 @@
         color: #555;
         font-size: 14px;
     }
+    
+    .notificacion-proveedor {
+        top: 220px;
+        border-left-color: #0d6efd;
+    }
+
 </style>
 
 @if (esAdministrador && notificaciones.Count > 0)
@@ -86,6 +94,74 @@
     </div>
 }
 
+
+@if (esAdministrador && notificacionesProveedores.Count > 0)
+{
+    var aviso = notificacionesProveedores[0];
+
+    <div class="notificacion-evento notificacion-proveedor">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="notificacion-titulo">
+                <i class="bi bi-tools me-2"></i>
+                Actualización de servicio
+            </span>
+
+            <button type="button"
+                    class="btn-close"
+                    @onclick="() => CerrarProveedor(aviso.NotificacionProveedorId)">
+            </button>
+        </div>
+
+        <div class="notificacion-mensaje">
+            El servicio
+            <strong>@aviso.Servicio</strong>
+            del evento
+            <strong>@aviso.NombreEvento</strong>
+            cambió de
+            <strong>@aviso.EstadoAnterior</strong>
+            a
+            <strong>@aviso.EstadoNuevo</strong>.
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(aviso.Observaciones))
+        {
+            <p class="small text-muted mt-2 mb-0">
+                <strong>Observaciones:</strong>
+                @aviso.Observaciones
+            </p>
+        }
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    @onclick="() => VerEventoProveedor(aviso.EventoId)">
+                Ver evento
+            </button>
+
+            <button type="button"
+                    class="btn btn-sm btn-outline-success"
+                    disabled="@procesandoProveedor"
+                    @onclick="() => MarcarLeidaProveedor(aviso.NotificacionProveedorId)">
+                @(procesandoProveedor ? "Procesando..." : "Marcar como leída")
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(errorProveedor))
+        {
+            <small class="d-block mt-2 text-danger">
+                @errorProveedor
+            </small>
+        }
+
+        @if (notificacionesProveedores.Count > 1)
+        {
+            <small class="d-block mt-2 text-muted">
+                @(notificacionesProveedores.Count - 1) avisos más
+            </small>
+        }
+    </div>
+}
+
 @code {
     private HubConnection? hubConnection;
 
@@ -100,6 +176,14 @@
     private bool procesando;
     private string error = string.Empty;
 
+    private List<NotificacionProveedor> notificacionesProveedores = new();
+
+    private readonly HashSet<int> proveedoresOcultados = new();
+
+    private bool procesandoProveedor;
+
+    private string errorProveedor = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         var autenticacion =
@@ -112,7 +196,7 @@
             return;
 
         await CargarNotificaciones();
-
+        await CargarNotificacionesProveedores();
         cancelacion = new CancellationTokenSource();
 
         tareaActualizacion = ActualizarPeriodicamente(
@@ -132,9 +216,23 @@
                     await InvokeAsync(async () =>
                     {
                         await CargarNotificaciones();
+                        await CargarNotificacionesProveedores();
                         StateHasChanged();
                     });
                 });
+
+            
+            hubConnection.On<NotificacionProveedorRecibida>(
+                "RecibirNotificacionProveedor",
+                async _ =>
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await CargarNotificacionesProveedores();
+                        StateHasChanged();
+                    });
+                });
+
 
             await hubConnection.StartAsync();
         }
@@ -164,7 +262,7 @@
     }
 
     private async Task ActualizarPeriodicamente(
-        CancellationToken token)
+     CancellationToken token)
     {
         using var timer = new PeriodicTimer(
             TimeSpan.FromSeconds(5));
@@ -176,12 +274,20 @@
                 await InvokeAsync(async () =>
                 {
                     await CargarNotificaciones();
+                    await CargarNotificacionesProveedores();
+
                     StateHasChanged();
                 });
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
+            // Cancelación normal al finalizar el componente.
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error al actualizar notificaciones: {ex.Message}");
         }
     }
 
@@ -263,4 +369,88 @@
         public string EstadoAnterior { get; set; } = "";
         public string EstadoNuevo { get; set; } = "";
     }
+
+    
+    private async Task CargarNotificacionesProveedores()
+    {
+        try
+        {
+            var pendientes =
+                await notificacionesProveedoresService.ObtenerNoLeidas();
+
+            notificacionesProveedores = pendientes
+                .Where(n => !proveedoresOcultados.Contains(
+                    n.NotificacionProveedorId))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error al cargar notificaciones de proveedores: {ex.Message}");
+        }
+    }
+
+    private async Task MarcarLeidaProveedor(int notificacionId)
+    {
+        if (!esAdministrador || procesandoProveedor)
+            return;
+
+        procesandoProveedor = true;
+        errorProveedor = string.Empty;
+
+        try
+        {
+            bool resultado =
+                await notificacionesProveedoresService.MarcarComoLeida(
+                    notificacionId);
+
+            if (resultado)
+            {
+                proveedoresOcultados.Remove(notificacionId);
+                await CargarNotificacionesProveedores();
+            }
+            else
+            {
+                errorProveedor = "No se pudo marcar la notificación como leída.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorProveedor = "Ocurrió un error al actualizar la notificación.";
+        }
+        finally
+        {
+            procesandoProveedor = false;
+        }
+    }
+
+    private void CerrarProveedor(int notificacionId)
+    {
+        proveedoresOcultados.Add(notificacionId);
+
+        notificacionesProveedores.RemoveAll(
+            n => n.NotificacionProveedorId == notificacionId);
+
+        errorProveedor = string.Empty;
+    }
+
+    private void VerEventoProveedor(int eventoId)
+    {
+        Navigation.NavigateTo($"/eventos/detalle/{eventoId}");
+    }
+
+    public class NotificacionProveedorRecibida
+    {
+        public int NotificacionProveedorId { get; set; }
+        public int EventoId { get; set; }
+        public int DetalleId { get; set; }
+        public string NombreEvento { get; set; } = string.Empty;
+        public string Servicio { get; set; } = string.Empty;
+        public string EstadoAnterior { get; set; } = string.Empty;
+        public string EstadoNuevo { get; set; } = string.Empty;
+        public string? Observaciones { get; set; }
+        public DateTime Fecha { get; set; }
+    }
+
 }

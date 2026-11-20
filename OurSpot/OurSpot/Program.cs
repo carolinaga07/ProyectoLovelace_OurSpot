@@ -56,6 +56,10 @@ builder.Services.AddScoped<ContrasenasService>();
 builder.Services.AddScoped<EventoImagenesService>();
 builder.Services.AddScoped<AuditoriaService>();
 builder.Services.AddScoped<CalificacionesService>();
+builder.Services.AddScoped<PortalProveedoresService>();
+builder.Services.AddScoped<RegistroProveedoresService>();
+builder.Services.AddScoped<NotificacionesProveedoresService>();
+builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddHttpClient<NotificacionesApiService>();
@@ -127,6 +131,17 @@ app.MapGet("/api/eventos/imagenes/{imagenId:int}",
             imagen.Value.Tipo);
     })
     .RequireAuthorization();
+
+
+app.MapPost("/cuenta/logout", async (
+    SignInManager<ApplicationUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+
+    return Results.LocalRedirect("/");
+})
+.RequireAuthorization();
+
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

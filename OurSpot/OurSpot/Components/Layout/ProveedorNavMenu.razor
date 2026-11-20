@@ -1,0 +1,286 @@
+﻿@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using OurSpot.Security
+
+@inject UserManager<ApplicationUser> userManager
+
+<div class="proveedor-header px-3 d-flex flex-column align-items-center">
+    <div class="container-fluid justify-content-center">
+        <a class="navbar-brand" href="/proveedor/home">
+            <img src="/lib/Imagenes/OurSpot-Logo.png"
+                 style="max-height:55px" />
+        </a>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+        <img src="/lib/Imagenes/icono-person.png"
+             style="max-height:50px" />
+
+        <div class="d-flex flex-column">
+            <span class="text-white fw-bold">
+                @nombreUsuario
+            </span>
+            <small class="text-white-50">
+                Proveedor
+            </small>
+        </div>
+    </div>
+
+</div>
+
+<div class="nav-scrollable proveedor-nav">
+
+    <ul class="accordion-menu">
+
+        <li class="link @(MenuAbierto == "Principal" ? "active" : "")">
+
+            <div class="dropdown"
+                 @onclick='() => AlternarMenu("Principal")'>
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-house-door-fill bi-menu-icon me-2"></i>
+                    Principal
+                </div>
+
+                <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <ul class="SubmenuItems">
+
+                <li>
+                    <NavLink href="/proveedor/home"
+                             Match="NavLinkMatch.All">
+                        Inicio
+                    </NavLink>
+                </li>
+
+            </ul>
+        </li>
+
+        <li class="link @(MenuAbierto == "Servicios" ? "active" : "")">
+
+            <div class="dropdown"
+                 @onclick='() => AlternarMenu("Servicios")'>
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check bi-menu-icon me-2"></i>
+                    Mis Servicios
+                </div>
+
+                <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <ul class="SubmenuItems">
+                <li>
+                    <NavLink href="/proveedor/servicios">
+                        Servicios asignados
+                    </NavLink>
+                </li>
+            </ul>
+        </li>
+
+        <li class="link">
+
+            <NavLink href="/proveedor/cronograma"
+                     class="dropdown"
+                     Match="NavLinkMatch.All">
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar3 bi-menu-icon me-2"></i>
+                    Calendario
+                </div>
+
+            </NavLink>
+
+        </li>
+
+        @* MI PERFIL *@
+        <li class="link">
+            <NavLink href="/proveedor/perfil"
+                     class="dropdown"
+                     Match="NavLinkMatch.All">
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle bi-menu-icon me-2"></i>
+                    Mi Perfil
+                </div>
+
+            </NavLink>
+        </li>
+       
+        <li class="link">
+            <button type="button"
+                    class="dropdown proveedor-cerrar-sesion"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCerrarSesion">
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-box-arrow-right bi-menu-icon me-2"></i>
+                    Cerrar Sesión
+                </div>
+
+            </button>
+        </li>
+
+    </ul>
+
+   
+
+</div>
+
+<style>
+    .proveedor-nav {
+        background: #2D5056;
+        min-height: calc(100vh - 130px);
+        display: flex;
+        flex-direction: column;
+    }
+
+        .proveedor-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .proveedor-nav .accordion-menu {
+            background: #2D5056;
+            width: 100%;
+        }
+
+        .proveedor-nav .dropdown {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            color: white;
+            cursor: pointer;
+            border-bottom: 1px solid #B4C8CC;
+        }
+
+            .proveedor-nav .dropdown:hover {
+                background: #4C6D76;
+            }
+
+        .proveedor-nav .SubmenuItems {
+            display: none;
+            background: #2D5056;
+        }
+
+        .proveedor-nav li.active > .SubmenuItems {
+            display: block;
+        }
+
+        .proveedor-nav .SubmenuItems a {
+            display: block;
+            padding: 12px 12px 12px 45px;
+            color: white;
+            text-decoration: none;
+        }
+
+            .proveedor-nav .SubmenuItems a:hover {
+                background: #5c7185;
+            }
+
+        .proveedor-nav .config-btn {
+            background: #2D5056;
+            color: white;
+            padding: 15px 20px;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+            .proveedor-nav .config-btn:hover {
+                background: #4C6D76;
+            }
+
+    
+
+        .proveedor-header {
+            background: #2D5056;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            gap: 15px;
+        }
+
+        .proveedor-header .navbar-brand {
+            margin: 0;
+        }
+
+            .proveedor-header .navbar-brand img {
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+      .proveedor-nav .accordion-menu a.dropdown {
+        text-decoration: none;
+      }
+
+        .proveedor-nav .accordion-menu a.dropdown.active {
+            background: #4C6D76;
+            color: white;
+            font-weight: 600;
+        }
+
+    .proveedor-nav {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 130px);
+    }
+
+    .proveedor-logout {
+        margin-top: auto;
+        padding: 20px 15px;
+        width: 100%;
+    }
+
+    .proveedor-cerrar-sesion {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #B4C8CC;
+        color: white;
+        text-align: left;
+        font: inherit;
+        cursor: pointer;
+    }
+
+        .proveedor-cerrar-sesion:hover {
+            background: #4C6D76;
+        }
+
+</style>
+
+@code {
+    private string MenuAbierto = "Principal";
+    private string nombreUsuario = "Proveedor";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateTask is null)
+            return;
+
+        var authState = await AuthenticationStateTask;
+
+        if (authState.User.Identity?.IsAuthenticated != true)
+            return;
+
+        var usuario = await userManager.GetUserAsync(authState.User);
+
+        nombreUsuario = usuario?.NombreCompleto
+            ?? authState.User.Identity.Name
+            ?? "Proveedor";
+    }
+
+    private void AlternarMenu(string menu)
+    {
+        MenuAbierto = MenuAbierto == menu
+            ? ""
+            : menu;
+    }
+}

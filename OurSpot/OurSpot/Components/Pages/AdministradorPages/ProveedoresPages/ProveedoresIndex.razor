@@ -59,9 +59,54 @@
                         <PropertyColumn Property="p => p.Direccion" Title="Direcci&oacute;n" Sortable="true" />
                         <PropertyColumn Property="p => p.Contacto" Title="Contacto" Sortable="true" />
                         <PropertyColumn Property="p => p.Servicio" Title="Servicio" Sortable="true" />
-                        <TemplateColumn Title="Opciones">
-                            <a href="@($"/Proveedores/Editar/{context.Id}")" class="btn btn-outline-primary bi bi-pencil-square" title="Modificar"></a>
+                        
+                        <TemplateColumn Title="Acceso" Context="proveedor">
+
+                            @if (!string.IsNullOrEmpty(proveedor.ApplicationUserId))
+                            {
+                                <span class="badge bg-success">
+                                    Habilitado
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Sin cuenta
+                                </span>
+                            }
+
                         </TemplateColumn>
+
+                        <TemplateColumn Title="Opciones" Context="proveedor">
+
+                            <div class="d-flex gap-2">
+
+                                @* Editar proveedor *@
+                                <a href="@($"/Proveedores/Editar/{proveedor.Id}")"
+                                   class="btn btn-outline-primary bi bi-pencil-square"
+                                   title="Modificar">
+                                </a>
+
+                                @* Crear acceso al sistema *@
+                                @if (string.IsNullOrEmpty(proveedor.ApplicationUserId))
+                                {
+                                    <a href="@($"/Proveedores/CrearCuenta/{proveedor.Id}")"
+                                       class="btn btn-outline-success bi bi-person-plus"
+                                       title="Crear cuenta de acceso">
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success align-self-center">
+                                        <i class="bi bi-check-circle"></i>
+                                        Con acceso
+                                    </span>
+                                }
+
+                            </div>
+
+                        </TemplateColumn>
+
                     </QuickGrid>
                 </div>
             </div>

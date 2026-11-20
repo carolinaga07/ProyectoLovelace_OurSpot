@@ -136,9 +136,9 @@
                             {
                                <span>Administrador</span> 
                             }
-                            else if (auth.User.IsInRole("Empleado"))
+                            else if (auth.User.IsInRole("Proveedor"))
                             {
-                                <span>Empleado</span>
+                                <span>Proveedor</span>
                             }
                         </small>
                     </div>
@@ -177,7 +177,7 @@
                         </li>
 
                         <li>
-                            <NavLink href="cronograma">
+                            <NavLink href="/administrador/cronograma">
                                 Cronograma
                             </NavLink>
                         </li>

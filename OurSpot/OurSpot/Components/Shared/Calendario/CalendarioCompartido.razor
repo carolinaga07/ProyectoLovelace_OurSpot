@@ -1,0 +1,606 @@
+﻿
+@using OurSpot.Models.DTOs
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+@inject NavigationManager Navigation
+
+<div class="calendario-compartido">
+
+    <div class="mb-4">
+        <h3>@Titulo</h3>
+        <p class="text-muted">@Descripcion</p>
+    </div>
+
+    <div class="cronograma-contenido">
+
+        @* PANEL LATERAL *@
+        <aside class="cronograma-panel">
+
+            @if (ItemSeleccionado is not null)
+            {
+                <div class="cronograma-panel-header">
+                    <h5>Detalle</h5>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            @onclick="CerrarPanel">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div class="cronograma-detalle">
+
+                    <div>
+                        <strong>Evento</strong>
+                        <span>@ItemSeleccionado.NombreEvento</span>
+                    </div>
+
+                    <div>
+                        <strong>Descripción</strong>
+                        <span>@ItemSeleccionado.Descripcion</span>
+                    </div>
+
+                    <div>
+                        <strong>Fecha</strong>
+                        <span>
+                            @ItemSeleccionado.Fecha.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
+
+                    <div>
+                        <strong>Hora</strong>
+                        <span>@FormatearHora(ItemSeleccionado.Hora)</span>
+                    </div>
+
+                    <div>
+                        <strong>Lugar</strong>
+                        <span>@ItemSeleccionado.Lugar</span>
+                    </div>
+
+                    <div>
+                        <strong>Estado</strong>
+                        <span class="cronograma-evento @ClaseEstado(ItemSeleccionado.Estado)">
+                            @ItemSeleccionado.Estado
+                        </span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(ItemSeleccionado.Observaciones))
+                    {
+                        <div>
+                            <strong>Observaciones</strong>
+                            <span>@ItemSeleccionado.Observaciones</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(ItemSeleccionado.UrlDetalle))
+                    {
+                        <button type="button"
+                                class="btn btn-primary mt-3"
+                                @onclick="AbrirDetalle">
+                            Ver detalle completo
+                        </button>
+                    }
+
+                </div>
+            }
+            else if (FechaSeleccionada.HasValue)
+            {
+                <div class="cronograma-panel-header">
+                    <h5>
+                        @FechaSeleccionada.Value.ToString("dd MMMM yyyy", Cultura)
+                    </h5>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            @onclick="CerrarPanel">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                
+                    var itemsDia = ObtenerItemsDia(FechaSeleccionada.Value);
+                
+
+                @if (itemsDia.Any())
+                {
+                    @foreach (var item in itemsDia)
+                    {
+                        <button type="button"
+                                class="cronograma-item-lista"
+                                @onclick="() => SeleccionarItem(item)">
+
+                            <strong>@item.Titulo</strong>
+                            <span>@item.NombreEvento</span>
+                            <small>@FormatearHora(item.Hora)</small>
+
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">
+                        No hay elementos programados para este día.
+                    </p>
+                }
+            }
+            else
+            {
+                <div class="cronograma-panel-header">
+                    <h5>Próximamente</h5>
+                </div>
+
+                @if (ProximosItems.Any())
+                {
+                    @foreach (var item in ProximosItems)
+                    {
+                        <button type="button"
+                                class="cronograma-item-lista"
+                                @onclick="() => SeleccionarItem(item)">
+
+                            <strong>@item.Titulo</strong>
+                            <span>@item.NombreEvento</span>
+
+                            <small>
+                                @item.Fecha.ToString("dd MMM", Cultura)
+                                - @FormatearHora(item.Hora)
+                            </small>
+
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">
+                        No hay próximos eventos o servicios.
+                    </p>
+                }
+            }
+
+        </aside>
+
+        @* CALENDARIO *@
+        <section class="cronograma-calendario">
+
+            <div class="cronograma-encabezado">
+
+                <h4>@NombreMes @AnioActual</h4>
+
+                <div class="cronograma-controles">
+
+                    @if (MostrarFiltroEstado)
+                    {
+                        <select class="form-select form-select-sm"
+                                value="@EstadoSeleccionado"
+                                @onchange="CambiarEstado">
+
+                            <option value="Todos">Todos los estados</option>
+
+                            @foreach (var estado in EstadosDisponibles)
+                            {
+                                <option value="@estado">@estado</option>
+                            }
+
+                        </select>
+                    }
+
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            @onclick="MesAnterior">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            @onclick="IrHoy">
+                        Hoy
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            @onclick="MesSiguiente">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="cronograma-grid">
+
+                @foreach (var nombre in DiasSemana)
+                {
+                    <div class="cronograma-dia-semana">
+                        @nombre
+                    </div>
+                }
+
+                @foreach (var fecha in DiasCalendario)
+                {
+                    <div class="cronograma-dia
+                                @(fecha.Month != MesActual ? "otro-mes" : "")
+                                @(fecha.Date == DateTime.Today ? "dia-hoy" : "")"
+                         @onclick="() => SeleccionarDia(fecha)">
+
+                        <span class="cronograma-numero">
+                            @fecha.Day
+                        </span>
+
+                        @foreach (var item in ObtenerItemsDia(fecha))
+                        {
+                            <button type="button"
+                                    class="cronograma-evento @ClaseEstado(item.Estado)"
+                                    title="@item.NombreEvento"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => SeleccionarItem(item)">
+
+                                <strong>@item.Titulo</strong>
+                                <small>@FormatearHora(item.Hora)</small>
+
+                            </button>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+    </div>
+</div>
+
+<style>
+    .cronograma-contenido {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .cronograma-panel,
+    .cronograma-calendario {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        min-width: 0;
+    }
+
+    .cronograma-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .cronograma-panel-header h5 {
+        margin: 0;
+        color: #2D5056;
+        font-weight: 600;
+    }
+
+    .cronograma-item-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        background: #f5f7f8;
+        border: 1px solid #e3e8ea;
+        border-radius: 8px;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .cronograma-item-lista:hover {
+        background: #e6eff0;
+    }
+
+    .cronograma-item-lista span,
+    .cronograma-item-lista small {
+        color: #66777b;
+    }
+
+    .cronograma-detalle {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .cronograma-detalle > div {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .cronograma-detalle strong {
+        color: #2D5056;
+    }
+
+    .cronograma-encabezado {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .cronograma-encabezado h4 {
+        margin: 0;
+        text-transform: capitalize;
+    }
+
+    .cronograma-controles {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .cronograma-controles select {
+        width: 180px;
+    }
+
+    .cronograma-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 5px;
+    }
+
+    .cronograma-dia-semana {
+        background: #2D5056;
+        color: white;
+        text-align: center;
+        font-weight: 600;
+        padding: 12px 4px;
+    }
+
+    .cronograma-dia {
+        min-height: 115px;
+        padding: 8px;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        min-width: 0;
+    }
+
+    .cronograma-dia:hover {
+        background: #f5f9f9;
+    }
+
+    .cronograma-dia.otro-mes {
+        background: #f1f3f5;
+        color: #999;
+    }
+
+    .cronograma-dia.dia-hoy {
+        border: 2px solid #2D5056;
+    }
+
+    .cronograma-numero {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .cronograma-evento {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+        padding: 6px;
+        margin-bottom: 5px;
+        text-align: left;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+        cursor: pointer;
+    }
+
+    .cronograma-evento:hover {
+        opacity: 0.85;
+    }
+
+    .cronograma-estado-pendiente {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .cronograma-estado-proceso {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .cronograma-estado-completado {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .cronograma-estado-otro {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    @@media (max-width: 1100px) {
+        .cronograma-contenido {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .cronograma-panel,
+        .cronograma-calendario {
+            padding: 10px;
+        }
+
+        .cronograma-dia {
+            min-height: 75px;
+            padding: 3px;
+        }
+
+        .cronograma-evento {
+            font-size: 10px;
+            padding: 3px;
+        }
+
+        .cronograma-estado-cancelado {
+            background: #f8d7da;
+            color: #842029;
+        }
+    }
+</style>
+
+@code {
+    [Parameter]
+    public List<CalendarioItemDto> Items { get; set; } = new();
+
+    [Parameter]
+    public string Titulo { get; set; } = "Calendario";
+
+    [Parameter]
+    public string Descripcion { get; set; } = "";
+
+    [Parameter]
+    public bool MostrarFiltroEstado { get; set; } = true;
+
+    private static readonly CultureInfo Cultura =
+        CultureInfo.GetCultureInfo("es-ES");
+
+    private static readonly string[] DiasSemana =
+    {
+        "Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"
+    };
+
+    private int MesActual = DateTime.Today.Month;
+    private int AnioActual = DateTime.Today.Year;
+
+    private string EstadoSeleccionado = "Todos";
+
+    private DateTime? FechaSeleccionada;
+    private CalendarioItemDto? ItemSeleccionado;
+
+    private string NombreMes =>
+        Cultura.TextInfo.ToTitleCase(
+            Cultura.DateTimeFormat.GetMonthName(MesActual));
+
+    private IEnumerable<string> EstadosDisponibles =>
+        Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.Estado))
+            .Select(i => i.Estado)
+            .Distinct()
+            .OrderBy(e => e);
+
+    private IEnumerable<CalendarioItemDto> ItemsFiltrados =>
+        EstadoSeleccionado == "Todos"
+            ? Items
+            : Items.Where(i => i.Estado == EstadoSeleccionado);
+
+    private List<CalendarioItemDto> ProximosItems =>
+        ItemsFiltrados
+            .Where(i => i.Fecha.ToDateTime(i.Hora) >= DateTime.Now)
+            .OrderBy(i => i.Fecha)
+            .ThenBy(i => i.Hora)
+            .Take(8)
+            .ToList();
+
+    private List<DateTime> DiasCalendario
+    {
+        get
+        {
+            var primerDia = new DateTime(AnioActual, MesActual, 1);
+
+            var inicio = primerDia.AddDays(
+                -(int)primerDia.DayOfWeek);
+
+            return Enumerable.Range(0, 42)
+                .Select(i => inicio.AddDays(i))
+                .ToList();
+        }
+    }
+
+    private List<CalendarioItemDto> ObtenerItemsDia(DateTime fecha)
+    {
+        return ItemsFiltrados
+            .Where(i => i.Fecha == DateOnly.FromDateTime(fecha))
+            .OrderBy(i => i.Hora)
+            .ToList();
+    }
+
+    private void SeleccionarDia(DateTime fecha)
+    {
+        FechaSeleccionada = fecha;
+        ItemSeleccionado = null;
+    }
+
+    private void SeleccionarItem(CalendarioItemDto item)
+    {
+        ItemSeleccionado = item;
+        FechaSeleccionada = item.Fecha.ToDateTime(item.Hora);
+    }
+
+    private void CerrarPanel()
+    {
+        FechaSeleccionada = null;
+        ItemSeleccionado = null;
+    }
+
+    private void CambiarEstado(ChangeEventArgs e)
+    {
+        EstadoSeleccionado = e.Value?.ToString() ?? "Todos";
+        CerrarPanel();
+    }
+
+    private void MesAnterior() => CambiarMes(-1);
+
+    private void MesSiguiente() => CambiarMes(1);
+
+    private void CambiarMes(int cantidad)
+    {
+        var fecha = new DateTime(AnioActual, MesActual, 1)
+            .AddMonths(cantidad);
+
+        MesActual = fecha.Month;
+        AnioActual = fecha.Year;
+
+        CerrarPanel();
+    }
+
+    private void IrHoy()
+    {
+        MesActual = DateTime.Today.Month;
+        AnioActual = DateTime.Today.Year;
+        CerrarPanel();
+    }
+
+    private string FormatearHora(TimeOnly hora)
+    {
+        return hora.ToString("hh:mm tt", Cultura);
+    }
+
+    private string ClaseEstado(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "cronograma-estado-pendiente",
+            "En proceso" => "cronograma-estado-proceso",
+            "Activo" => "cronograma-estado-proceso",
+            "Completado" => "cronograma-estado-completado",
+            "Finalizado" => "cronograma-estado-completado",
+            "Cancelado" => "cronograma-estado-cancelado",
+            _ => "cronograma-estado-otro"
+        };
+    }
+    private void AbrirDetalle()
+    {
+        if (ItemSeleccionado is null ||
+            string.IsNullOrWhiteSpace(ItemSeleccionado.UrlDetalle))
+            return;
+
+        if (ItemSeleccionado.UrlDetalle.StartsWith("/") &&
+            !ItemSeleccionado.UrlDetalle.StartsWith("//"))
+        {
+            Navigation.NavigateTo(ItemSeleccionado.UrlDetalle);
+        }
+    }
+}

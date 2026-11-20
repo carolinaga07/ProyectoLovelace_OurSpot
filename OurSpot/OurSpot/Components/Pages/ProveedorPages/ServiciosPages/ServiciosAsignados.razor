@@ -1,0 +1,249 @@
+﻿@page "/proveedor/servicios"
+@layout ProveedorLayout
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Proveedor")]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using OurSpot.Models.DTOs
+@using OurSpot.Services
+
+@inject PortalProveedoresService portalProveedoresService
+
+<PageTitle>Servicios Asignados - OurSpot</PageTitle>
+
+<div class="container-fluid p-4">
+
+    <h2 class="mb-2">Servicios Asignados</h2>
+    <p class="text-muted mb-4">
+        Consulta los servicios contratados y administra
+        su estado operativo.
+    </p>
+
+    @if (cargando)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border"></div>
+            <p class="mt-3">Cargando servicios...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-header text-white"
+                 style="background:#2D5056">
+                <h5 class="mb-0">Mis Servicios Contratados</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-5">
+                        <label class="form-label">
+                            Buscar servicio
+                        </label>
+
+                        <input class="form-control"
+                               placeholder="Buscar evento, servicio o lugar..."
+                               @bind="busqueda"
+                               @bind:event="oninput" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Estado operativo
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="filtroEstado">
+                            <option value="Todos">Todos</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Completado">Completados</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="button"
+                                class="btn text-white w-100"
+                                style="background:#2D5056"
+                                disabled="@actualizando"
+                                @onclick="ActualizarServicios">
+
+                            @(actualizando
+                                ? "Actualizando..."
+                                : "Actualizar")
+                        </button>
+                    </div>
+
+                </div>
+
+                <p class="text-muted small">
+                    Mostrando @ServiciosFiltrados.Count
+                    de @servicios.Count servicios.
+                </p>
+
+                @if (ServiciosFiltrados.Count == 0)
+                {
+                    <div class="alert alert-info">
+                        No se encontraron servicios.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+
+                        <QuickGrid Items="ServiciosFiltrados.AsQueryable()"
+                                   class="table table-hover align-middle">
+
+                            <PropertyColumn Property="s => s.NombreEvento"
+                                            Title="Evento"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.Servicio"
+                                            Title="Servicio"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.FechaInicio"
+                                            Title="Fecha"
+                                            Format="dd/MM/yyyy"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.Lugar"
+                                            Title="Lugar"
+                                            Sortable="true" />
+
+                            <TemplateColumn Title="Estado">
+                                <span class="@ObtenerClaseEstado(context.EstadoOperativo)">
+                                    @context.EstadoOperativo
+                                </span>
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Acciones">
+                                <a href="@($"/proveedor/servicios/detalle/{context.DetalleId}")"
+                                   class="btn btn-sm text-white"
+                                   style="background:#2D5056">
+                                    Ver detalles
+                                </a>
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask
+    { get; set; }
+
+    private List<ServicioProveedorDto> servicios = new();
+
+    private string busqueda = string.Empty;
+    private string filtroEstado = "Todos";
+
+    private string? usuarioId;
+    private string? error;
+
+    private bool cargando = true;
+    private bool actualizando;
+
+    private List<ServicioProveedorDto> ServiciosFiltrados =>
+        servicios
+            .Where(s =>
+                filtroEstado == "Todos" ||
+                s.EstadoOperativo == filtroEstado)
+            .Where(s =>
+                string.IsNullOrWhiteSpace(busqueda) ||
+                (s.NombreEvento?.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Servicio?.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Lugar?.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase) ?? false))
+            .OrderBy(s => s.FechaInicio)
+            .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (AuthenticationStateTask is null)
+            {
+                error = "No se pudo obtener la sesión.";
+                return;
+            }
+
+            var authState = await AuthenticationStateTask;
+
+            usuarioId = authState.User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(usuarioId))
+            {
+                error = "No se pudo identificar al proveedor.";
+                return;
+            }
+
+            servicios = await portalProveedoresService
+                .ObtenerServiciosProveedor(usuarioId);
+        }
+        catch (Exception)
+        {
+            error = "Ocurrió un error al cargar los servicios.";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task ActualizarServicios()
+    {
+        if (actualizando || string.IsNullOrWhiteSpace(usuarioId))
+            return;
+
+        actualizando = true;
+        error = null;
+
+        try
+        {
+            servicios = await portalProveedoresService
+                .ObtenerServiciosProveedor(usuarioId);
+        }
+        catch (Exception)
+        {
+            error = "No se pudieron actualizar los servicios.";
+        }
+        finally
+        {
+            actualizando = false;
+        }
+    }
+
+    private string ObtenerClaseEstado(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "badge bg-warning text-dark",
+            "En proceso" => "badge bg-primary",
+            "Completado" => "badge bg-success",
+            _ => "badge bg-secondary"
+        };
+    }
+}

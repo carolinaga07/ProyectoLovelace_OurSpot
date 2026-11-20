@@ -14,6 +14,12 @@
                 @Body
             </LayoutView>
         }
+        else if (auth.User.IsInRole("Proveedor"))
+        {
+            <LayoutView Layout="@typeof(ProveedorLayout)">
+                @Body
+            </LayoutView>
+        }
     </Authorized>
 </AuthorizeView>
 
