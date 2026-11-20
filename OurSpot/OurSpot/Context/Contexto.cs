@@ -1,16 +1,16 @@
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using OurSpot.Components.Models;
 using OurSpot.Models;
 using OurSpot.Security;
 
 namespace OurSpot.Context;
 
-public class Contexto: IdentityDbContext<ApplicationUser>
+public class Contexto : IdentityDbContext<ApplicationUser>
 {
-    public Contexto(DbContextOptions<Contexto> options): base(options)
+    public Contexto(DbContextOptions<Contexto> options)
+        : base(options)
     {
-
     }
 
     public DbSet<Evento> Eventos { get; set; }
@@ -24,13 +24,18 @@ public class Contexto: IdentityDbContext<ApplicationUser>
     public DbSet<Auditoria> Auditorias { get; set; }
     public DbSet<CalificacionEvento> CalificacionEventos { get; set; }
 
+    // Nuevo DbSet
+    public DbSet<EventoDetalles> EventosDetalles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // CALIFICACIONES (configuración existente)
+
         modelBuilder.Entity<CalificacionEvento>()
-       .HasIndex(c => new { c.EventoId, c.ClienteId })
-       .IsUnique();
+            .HasIndex(c => new { c.EventoId, c.ClienteId })
+            .IsUnique();
 
         modelBuilder.Entity<CalificacionEvento>()
             .HasOne(c => c.Evento)
@@ -42,6 +47,42 @@ public class Contexto: IdentityDbContext<ApplicationUser>
             .HasOne(c => c.Clientes)
             .WithMany()
             .HasForeignKey(c => c.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // PROVEEDORES - APPLICATIONUSER
+
+        modelBuilder.Entity<Proveedores>()
+            .HasOne(p => p.ApplicationUser)
+            .WithMany()
+            .HasForeignKey(p => p.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Proveedores>()
+            .HasIndex(p => p.ApplicationUserId)
+            .IsUnique();
+
+        // PROVEEDORES - CONTRATACIONES
+
+        modelBuilder.Entity<Contrataciones>()
+            .HasOne(c => c.ProveedorEntidad)
+            .WithMany(p => p.Contrataciones)
+            .HasForeignKey(c => c.ProveedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // EVENTOS - EVENTODETALLES
+
+        modelBuilder.Entity<EventoDetalles>()
+            .HasOne(d => d.Evento)
+            .WithMany(e => e.EventosDetalles)
+            .HasForeignKey(d => d.EventoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CONTRATACIONES - EVENTODETALLES
+
+        modelBuilder.Entity<EventoDetalles>()
+            .HasOne(d => d.Contrataciones)
+            .WithMany()
+            .HasForeignKey(d => d.ContratacionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

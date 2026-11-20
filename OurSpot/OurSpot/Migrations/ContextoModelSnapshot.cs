@@ -155,73 +155,6 @@ namespace OurSpot.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("OurSpot.Components.Models.Lugares", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Capacidad")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Ubicacion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Lugares");
-                });
-
-            modelBuilder.Entity("OurSpot.Components.Models.Proveedores", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Contacto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Direccion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rnc")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Servicio")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Proveedores");
-                });
-
             modelBuilder.Entity("OurSpot.Models.Auditoria", b =>
                 {
                     b.Property<int>("AuditoriaId")
@@ -339,11 +272,16 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProveedorId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Servicio")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ContratacionId");
+
+                    b.HasIndex("ProveedorId");
 
                     b.ToTable("Contrataciones");
                 });
@@ -419,11 +357,18 @@ namespace OurSpot.Migrations
                     b.Property<int>("ContratacionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("EstadoOperativo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("EventoId")
                         .HasColumnType("int");
 
-                    b.Property<double>("PorcentajeGanacia")
-                        .HasColumnType("float");
+                    b.Property<DateTime?>("FechaActualizacionEstado")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ObservacionesProveedor")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("PorcentajeGanancia")
                         .HasColumnType("float");
@@ -444,7 +389,7 @@ namespace OurSpot.Migrations
 
                     b.HasIndex("EventoId");
 
-                    b.ToTable("EventoDetalles");
+                    b.ToTable("EventosDetalles");
                 });
 
             modelBuilder.Entity("OurSpot.Models.EventoImagen", b =>
@@ -470,6 +415,37 @@ namespace OurSpot.Migrations
                     b.HasIndex("EventoId");
 
                     b.ToTable("EventoImagenes");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Lugares", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacidad")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ubicacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lugares");
                 });
 
             modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
@@ -509,6 +485,49 @@ namespace OurSpot.Migrations
                     b.HasIndex("EventoId");
 
                     b.ToTable("NotificacionesEventos");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Proveedores", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Contacto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rnc")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Servicio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique()
+                        .HasFilter("[ApplicationUserId] IS NOT NULL");
+
+                    b.ToTable("Proveedores");
                 });
 
             modelBuilder.Entity("OurSpot.Security.ApplicationUser", b =>
@@ -708,6 +727,16 @@ namespace OurSpot.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.Contrataciones", b =>
+                {
+                    b.HasOne("OurSpot.Models.Proveedores", "ProveedorEntidad")
+                        .WithMany("Contrataciones")
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ProveedorEntidad");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Evento", b =>
                 {
                     b.HasOne("OurSpot.Models.Clientes", "Clientes")
@@ -722,16 +751,18 @@ namespace OurSpot.Migrations
                     b.HasOne("OurSpot.Models.Contrataciones", "Contrataciones")
                         .WithMany()
                         .HasForeignKey("ContratacionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("OurSpot.Models.Evento", null)
+                    b.HasOne("OurSpot.Models.Evento", "Evento")
                         .WithMany("EventosDetalles")
                         .HasForeignKey("EventoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Contrataciones");
+
+                    b.Navigation("Evento");
                 });
 
             modelBuilder.Entity("OurSpot.Models.EventoImagen", b =>
@@ -756,6 +787,16 @@ namespace OurSpot.Migrations
                     b.Navigation("Evento");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.Proveedores", b =>
+                {
+                    b.HasOne("OurSpot.Security.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("Personal", b =>
                 {
                     b.HasOne("OurSpot.Security.ApplicationUser", "ApplicationUser")
@@ -777,6 +818,11 @@ namespace OurSpot.Migrations
                     b.Navigation("Imagenes");
 
                     b.Navigation("calificacionEventos");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.Proveedores", b =>
+                {
+                    b.Navigation("Contrataciones");
                 });
 #pragma warning restore 612, 618
         }
