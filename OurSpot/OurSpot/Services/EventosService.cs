@@ -468,7 +468,7 @@ public class EventosService(
             .Where(c =>
                 ids.Contains(c.ContratacionId) &&
                 !c.Eliminado &&
-                c.Estado == "Activo")
+                c.Estado == "Activa")
             .ToListAsync();
 
         if (contrataciones.Count != ids.Count)
@@ -683,7 +683,7 @@ public class EventosService(
             .Where(c =>
                 idsNuevos.Contains(c.ContratacionId) &&
                 !c.Eliminado &&
-                c.Estado == "Activo")
+                c.Estado == "Activa")
             .ToListAsync();
 
         if (nuevasContrataciones.Count != idsNuevos.Count)
