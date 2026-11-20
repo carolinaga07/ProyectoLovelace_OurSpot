@@ -155,8 +155,9 @@
             @if (evento.EventosDetalles?.Any() == true)
             {
                 <div class="table-responsive">
+                    
                     <QuickGrid Items="evento.EventosDetalles.AsQueryable()"
-                               class="table table-light text-center">
+                               class="table table-light text-center align-middle">
 
                         <PropertyColumn Property="d => d.ContratacionId"
                                         Title="Id" />
@@ -175,7 +176,49 @@
                                         Title="Precio final"
                                         Format="C2" />
 
+                        @* Estado operativo del proveedor *@
+                        <TemplateColumn Title="Estado operativo">
+                            <span class="@ObtenerClaseEstado(context.EstadoOperativo)">
+                                @context.EstadoOperativo
+                            </span>
+                        </TemplateColumn>
+
+                        @* Observaciones del proveedor *@
+                        <TemplateColumn Title="Observaciones">
+                            @if (string.IsNullOrWhiteSpace(context.ObservacionesProveedor))
+                            {
+                                <span class="text-muted">
+                                    Sin observaciones
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="white-space:normal; overflow-wrap:anywhere;">
+                                    @context.ObservacionesProveedor
+                                </span>
+                            }
+                        </TemplateColumn>
+
+                        @* Última actualización *@
+                        <TemplateColumn Title="Última actualización">
+                            @if (context.FechaActualizacionEstado.HasValue)
+                            {
+                                <span>
+                                    @context.FechaActualizacionEstado.Value
+                                    .ToLocalTime()
+                                    .ToString("dd/MM/yyyy hh:mm tt")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Sin actualizar
+                                </span>
+                            }
+                        </TemplateColumn>
+
                     </QuickGrid>
+
                 </div>
             }
             else
@@ -263,4 +306,17 @@
         if (imagenes.Count > 0)
             indice = (indice + 1) % imagenes.Count;
     }
+
+    
+    private string ObtenerClaseEstado(string? estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "badge bg-warning text-dark",
+            "En proceso" => "badge bg-primary",
+            "Completado" => "badge bg-success",
+            _ => "badge bg-secondary"
+        };
+    }
+
 }

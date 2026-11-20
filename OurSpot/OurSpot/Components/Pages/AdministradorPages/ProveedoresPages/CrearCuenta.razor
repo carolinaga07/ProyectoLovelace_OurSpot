@@ -1,0 +1,128 @@
+﻿@page "/Proveedores/CrearCuenta/{ProveedorId:int}"
+@attribute [Authorize(Roles = "Administrador")]
+@rendermode InteractiveServer
+
+@inject RegistroProveedoresService registroProveedoresService
+@inject ProveedorService proveedorService
+@inject NavigationManager navigationManager
+@inject ToastService toastService
+
+<PageTitle>Crear acceso de proveedor</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+
+        <div class="card-header">
+            <h5>Crear cuenta de proveedor</h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (proveedor is null)
+            {
+                <p>Cargando proveedor...</p>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <strong>Proveedor:</strong> @proveedor.Nombre
+                </div>
+
+                <EditForm Model="modelo"
+                          OnValidSubmit="Guardar"
+                          FormName="crearCuentaProveedor">
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Correo electrónico
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="modelo.Correo" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Contraseña
+                        </label>
+
+                        <InputText class="form-control"
+                                   type="password"
+                                   @bind-Value="modelo.Contrasena" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Confirmar contraseña
+                        </label>
+
+                        <InputText class="form-control"
+                                   type="password"
+                                   @bind-Value="modelo.ConfirmarContrasena" />
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="submit"
+                                class="btn btn-primary"
+                                disabled="@guardando"
+                                style="background-color:#2D5056">
+
+                            @(guardando ? "Creando cuenta..." : "Crear cuenta")
+                        </button>
+                    </div>
+
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ProveedorId { get; set; }
+
+    private RegistroProveedor modelo = new();
+    private Proveedores? proveedor;
+    private bool guardando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        proveedor = await proveedorService.Buscar(ProveedorId);
+    }
+
+    private async Task Guardar()
+    {
+        if (guardando)
+            return;
+
+        guardando = true;
+
+        try
+        {
+            var resultado = await registroProveedoresService.Registrar(
+                ProveedorId,
+                modelo.Correo,
+                modelo.Contrasena);
+
+            if (resultado.Succeeded)
+            {
+                toastService.ShowSuccess(
+                    "Cuenta del proveedor creada correctamente.");
+
+                navigationManager.NavigateTo("/Proveedores");
+            }
+            else
+            {
+                foreach (var error in resultado.Errors)
+                    toastService.ShowError(error.Description);
+            }
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+}

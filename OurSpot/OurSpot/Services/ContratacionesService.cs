@@ -8,17 +8,35 @@ namespace OurSpot.Services
 {
     public class ContratacionesService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : IService<Contrataciones, int>
     {
+
         public async Task<bool> Guardar(Contrataciones contratacion)
         {
+            if (contratacion.ProveedorId is null)
+                return false;
+
+            await using var contexto =
+                await contextFactory.CreateDbContextAsync();
+
+            var proveedor = await contexto.Proveedores
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.Id == contratacion.ProveedorId.Value &&
+                    !p.Eliminado);
+
+            if (proveedor is null)
+                return false;
+
+            // El servidor determina el nombre correcto.
+            contratacion.Proveedor = proveedor.Nombre;
+
             if (!await Existe(contratacion.ContratacionId))
             {
                 return await Insertar(contratacion);
             }
-            else
-            {
-                return await Modificar(contratacion);
-            }
+
+            return await Modificar(contratacion);
         }
+
 
         public async Task<bool> Existe(int id)
         {
@@ -27,14 +45,28 @@ namespace OurSpot.Services
                 .AnyAsync(c => c.ContratacionId == id);
         }
 
+
         public async Task<bool> Insertar(Contrataciones contratacion)
         {
-            await using var contexto = await contextFactory.CreateDbContextAsync();
+            await using var contexto =
+                await contextFactory.CreateDbContextAsync();
+
+            // Las contrataciones creadas por el administrador
+            // comienzan activas.
+            contratacion.Estado = "Activo";
+
             contexto.Contrataciones.Add(contratacion);
+
             var guardado = await contexto.SaveChangesAsync() > 0;
 
             if (guardado)
-                await auditoriaService.RegistrarAsync("Contrataciones", "Insertar", $"Se creó la contratación de servicio: {contratacion.Servicio}");
+            {
+                await auditoriaService.RegistrarAsync(
+                    "Contrataciones",
+                    "Insertar",
+                    $"Se creó la contratación de servicio: {contratacion.Servicio}"
+                );
+            }
 
             return guardado;
         }

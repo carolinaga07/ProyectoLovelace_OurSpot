@@ -487,6 +487,55 @@ namespace OurSpot.Migrations
                     b.ToTable("NotificacionesEventos");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.NotificacionProveedor", b =>
+                {
+                    b.Property<int>("NotificacionProveedorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificacionProveedorId"));
+
+                    b.Property<int>("DetalleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstadoAnterior")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EstadoNuevo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EventoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaLectura")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Leida")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NombreEvento")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Servicio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NotificacionProveedorId");
+
+                    b.HasIndex("EventoId");
+
+                    b.ToTable("NotificacionesProveedores");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Proveedores", b =>
                 {
                     b.Property<int>("Id")
@@ -777,6 +826,17 @@ namespace OurSpot.Migrations
                 });
 
             modelBuilder.Entity("OurSpot.Models.NotificacionEvento", b =>
+                {
+                    b.HasOne("OurSpot.Models.Evento", "Evento")
+                        .WithMany()
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evento");
+                });
+
+            modelBuilder.Entity("OurSpot.Models.NotificacionProveedor", b =>
                 {
                     b.HasOne("OurSpot.Models.Evento", "Evento")
                         .WithMany()
