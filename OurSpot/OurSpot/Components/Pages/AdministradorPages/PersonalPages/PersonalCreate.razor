@@ -7,6 +7,7 @@
 @attribute [Authorize(Roles = "Administrador")]
 
 @inject RegistroPersonalService registroPersonalService
+@inject PersonalService personalService
 @inject NavigationManager navigationManager
 
 <PageTitle>Crear Personal</PageTitle>
@@ -21,7 +22,7 @@
             </h4>
         </div>
 
-        <EditForm Model="modelo"
+        <EditForm Model="modelo.Personal"
                   OnValidSubmit="Guardar"
                   FormName="crear-personal">
 
@@ -61,36 +62,6 @@
 
                 <div class="mb-3">
                     <label class="form-label">
-                        <strong>Contraseña</strong>
-                    </label>
-
-                    <div class="input-group">
-                        <InputText type="@tipoPasswordContrasena" class="form-control" @bind-Value="modelo.Contrasena"></InputText>
-                        <button type="button" class="btn btn-outline-secondary" @onclick="AlternarContrasena">
-                            <span class="bi @iconoPasswordContrasena"></span>
-                        </button>
-                    </div>
-
-                    <ValidationMessage For="() => modelo.Contrasena" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        <strong>Confirmar contraseña</strong>
-                    </label>
-
-                    <div class="input-group">
-                        <InputText type="@tipoPasswordConfirmar" class="form-control" @bind-Value="modelo.ConfirmarContrasena"></InputText>
-                        <button type="button" class="btn btn-outline-secondary" @onclick="AlternarConfirmar">
-                            <span class="bi @iconoPasswordConfirmar"></span>
-                        </button>
-                    </div>
-
-                    <ValidationMessage For="() => modelo.ConfirmarContrasena" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
                         <strong>Cargo</strong>
                     </label>
 
@@ -101,20 +72,81 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">
-                        <strong>Rol de acceso</strong>
-                    </label>
+                    <div class="form-check">
+                        <InputCheckbox class="form-check-input"
+                                       @bind-Value="modelo.TieneUsuario" />
 
-                    <InputSelect class="form-select"
-                                 @bind-Value="modelo.Personal.Rol">
-
-                        <option value="Empleado">Empleado</option>
-                        <option value="Administrador">Administrador</option>
-
-                    </InputSelect>
-
-                    <ValidationMessage For="() => modelo.Personal.Rol" />
+                        <label class="form-check-label">
+                            <strong>Crear cuenta de usuario para este personal</strong>
+                        </label>
+                    </div>
                 </div>
+
+                @if (modelo.TieneUsuario)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Contraseña</strong>
+                        </label>
+
+                        <div class="input-group">
+                            <InputText type="@tipoPasswordContrasena"
+                                       class="form-control"
+                                       @bind-Value="modelo.Contrasena" />
+
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    @onclick="AlternarContrasena">
+
+                                <span class="bi @iconoPasswordContrasena"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Confirmar contraseña</strong>
+                        </label>
+
+                        <div class="input-group">
+                            <InputText type="@tipoPasswordConfirmar"
+                                       class="form-control"
+                                       @bind-Value="modelo.ConfirmarContrasena" />
+
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    @onclick="AlternarConfirmar">
+
+                                <span class="bi @iconoPasswordConfirmar"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Rol de acceso</strong>
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="modelo.Personal.Rol">
+
+                            <option value="Empleado">Empleado</option>
+                            <option value="Administrador">Administrador</option>
+
+                        </InputSelect>
+
+                        <ValidationMessage For="() => modelo.Personal.Rol" />
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Este personal será registrado sin una cuenta de usuario.
+                        No podrá iniciar sesión en el sistema.
+                    </div>
+
+                    <InputHidden @bind-Value="modelo.Personal.Rol" />
+                }
 
                 <div class="mb-3">
                     <label class="form-label">
@@ -146,26 +178,61 @@
 </div>
 
 @code {
-    [SupplyParameterFromForm(FormName = "crear-personal")]
     private CrearPersonalModel modelo { get; set; } = new();
 
     private string? Mensaje;
-    
+
     private bool mostrarContrasena = false;
-    private string tipoPasswordContrasena => mostrarContrasena ? "text" : "password";
-    private string iconoPasswordContrasena => mostrarContrasena ? "bi-eye-slash" : "bi-eye";
+
+    private string tipoPasswordContrasena =>
+        mostrarContrasena ? "text" : "password";
+
+    private string iconoPasswordContrasena =>
+        mostrarContrasena ? "bi-eye-slash" : "bi-eye";
 
     private bool mostrarConfirmar = false;
-    private string tipoPasswordConfirmar => mostrarConfirmar ? "text" : "password";
-    private string iconoPasswordConfirmar => mostrarConfirmar ? "bi-eye-slash" : "bi-eye";
+
+    private string tipoPasswordConfirmar =>
+        mostrarConfirmar ? "text" : "password";
+
+    private string iconoPasswordConfirmar =>
+        mostrarConfirmar ? "bi-eye-slash" : "bi-eye";
 
     private async Task Guardar()
     {
         Mensaje = null;
 
-        try
+        var personal = modelo.Personal;
+
+        personal.Nombre = personal.Nombre.Trim();
+        personal.Correo = personal.Correo.Trim();
+        personal.Cargo = personal.Cargo.Trim();
+
+        if (await personalService.ExisteCorreo(personal.Correo))
         {
-            var personal = modelo.Personal;
+            Mensaje = "Ya existe personal con ese correo.";
+            return;
+        }
+
+        if (modelo.TieneUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(modelo.Contrasena))
+            {
+                Mensaje = "La contraseña es obligatoria.";
+                return;
+            }
+
+            if (modelo.Contrasena.Length < 8)
+            {
+                Mensaje = "La contraseña debe tener mínimo 8 caracteres.";
+                return;
+            }
+
+            if (modelo.Contrasena != modelo.ConfirmarContrasena)
+            {
+                Mensaje = "Las contraseñas no coinciden.";
+                return;
+            }
 
             var resultado = await registroPersonalService.Registrar(
                 personal.Nombre,
@@ -175,35 +242,42 @@
                 personal.Rol,
                 personal.Estado);
 
-            if (resultado.Succeeded)
-            {
-                navigationManager.NavigateTo(
-                    "/personal",
-                    forceLoad: true);
-            }
-            else
+            if (!resultado.Succeeded)
             {
                 Mensaje = string.Join("; ",
                     resultado.Errors.Select(e => e.Description));
+
+                return;
             }
         }
-        catch (Exception)
+        else
         {
-            Mensaje = "No se pudo registrar el personal.";
+            personal.Usuario = string.Empty;
+            personal.Contrasena = string.Empty;
+            personal.ApplicationUserId = null;
+            personal.ApplicationUser = null;
+            personal.Eliminado = false;
+
+            var resultado = await personalService.Insertar(personal);
+
+            if (!resultado)
+            {
+                Mensaje = "No se pudo registrar el personal.";
+                return;
+            }
         }
+
+        navigationManager.NavigateTo("/personal", forceLoad: true);
     }
 
     private sealed class CrearPersonalModel
     {
         public Personal Personal { get; set; } = new();
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [MinLength(8, ErrorMessage = "Mínimo 8 caracteres")]
+        public bool TieneUsuario { get; set; } = true;
+
         public string Contrasena { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Confirma la contraseña")]
-        [Compare(nameof(Contrasena),
-            ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarContrasena { get; set; } = string.Empty;
     }
 

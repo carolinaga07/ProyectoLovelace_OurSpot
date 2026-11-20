@@ -1,4 +1,5 @@
 ﻿@page "/personal/eliminar/{Id:int}"
+@rendermode InteractiveServer
 
 @using Microsoft.AspNetCore.Authorization
 @using OurSpot.Services
@@ -8,12 +9,14 @@
 @inject PersonalService personalService
 @inject RegistroPersonalService registroPersonalService
 @inject NavigationManager navigationManager
+@inject ToastService toastService
 
 <PageTitle>Eliminar Personal</PageTitle>
 
 @if (personal == null)
 {
     <div class="container mt-4">
+
         <div class="alert alert-warning text-center">
             No se encontró el personal solicitado.
         </div>
@@ -21,6 +24,7 @@
         <a href="/personal" class="btn btn-secondary">
             Volver
         </a>
+
     </div>
 }
 else
@@ -52,6 +56,13 @@ else
                     </div>
                 }
 
+                @if (personal.Rol == "Administrador")
+                {
+                    <div class="alert alert-warning mt-3">
+                        No está permitido eliminar registros de administradores.
+                    </div>
+                }
+
                 <ul class="list-group list-group-flush mt-4">
 
                     <li class="list-group-item">
@@ -78,40 +89,44 @@ else
                         <strong>Estado:</strong> @personal.Estado
                     </li>
 
+                    <li class="list-group-item">
+                        <strong>Cuenta de usuario:</strong>
+
+                        @(string.IsNullOrEmpty(personal.ApplicationUserId)
+                            ? "Sin cuenta"
+                            : "Con cuenta")
+                    </li>
+
                 </ul>
 
             </div>
 
             <div class="card-footer text-center">
 
-                <form method="post"
-                      @formname="eliminar-personal"
-                      @onsubmit="ConfirmarEliminar"
-                      data-enhance="false">
+                <a href="/personal"
+                   class="btn btn-secondary me-2">
 
-                    <AntiforgeryToken />
+                    <span class="bi bi-arrow-left"></span>
+                    Volver
 
-                    <a href="/personal"
-                       class="btn btn-secondary me-2">
+                </a>
 
-                        <span class="bi bi-arrow-left"></span>
-                        Volver
-
-                    </a>
-
-                    <button type="submit"
-                            class="btn btn-danger">
+                @if (personal.Rol != "Administrador")
+                {
+                    <button type="button"
+                            class="btn btn-danger"
+                            @onclick="ConfirmarEliminar">
 
                         <span class="bi bi-trash"></span>
                         Eliminar
 
                     </button>
-
-                </form>
+                }
 
             </div>
 
         </div>
+
     </div>
 }
 
@@ -120,6 +135,7 @@ else
     public int Id { get; set; }
 
     private Personal? personal;
+
     private string? Mensaje;
 
     protected override async Task OnInitializedAsync()
@@ -131,16 +147,19 @@ else
     {
         Mensaje = null;
 
+        if (personal == null)
+            return;
+
         try
         {
-            var resultado =
-                await registroPersonalService.Eliminar(Id);
+            var resultado = await registroPersonalService.Eliminar(Id);
 
             if (resultado.Succeeded)
             {
-                navigationManager.NavigateTo(
-                    "/personal",
-                    forceLoad: true);
+                toastService.ShowSuccess(
+                    "Personal eliminado correctamente.");
+
+                navigationManager.NavigateTo("/personal");
             }
             else
             {
