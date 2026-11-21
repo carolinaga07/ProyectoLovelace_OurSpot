@@ -5,7 +5,6 @@ namespace OurSpot.Models;
 
 public class Contrataciones
 {
-
     [Key]
     public int ContratacionId { get; set; }
 
@@ -34,4 +33,15 @@ public class Contrataciones
     [Required(ErrorMessage = "Este campo es obligatorio")]
     public string Servicio { get; set; } = string.Empty;
 
+    // Fecha en que el proveedor responde
+    public DateTime? FechaRespuesta { get; set; }
+
+    // Motivo cuando el proveedor rechaza
+    public string? MotivoRechazo { get; set; }
+
+    // Fecha de cancelación
+    public DateTime? FechaCancelacion { get; set; }
+
+    // Motivo de cancelación
+    public string? MotivoCancelacion { get; set; }
 }

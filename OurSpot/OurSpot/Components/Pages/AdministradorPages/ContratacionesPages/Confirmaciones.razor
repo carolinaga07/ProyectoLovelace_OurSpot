@@ -1,0 +1,525 @@
+﻿@page "/administrador/contrataciones/confirmaciones"
+@layout MainLayout
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Administrador")]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using OurSpot.Models.DTOs
+@using OurSpot.Services
+
+@inject ConfirmacionesService confirmacionesService
+
+<PageTitle>Gestión de Confirmaciones - OurSpot</PageTitle>
+
+<div class="container-fluid p-4">
+
+    <div class="d-flex justify-content-between
+        align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">Gestión de Confirmaciones</h2>
+
+            <p class="text-muted mb-0">
+                Supervisa las solicitudes enviadas a los
+                proveedores y sus respuestas.
+            </p>
+        </div>
+
+        <button type="button"
+                class="btn text-white"
+                style="background:#2D5056"
+                disabled="@actualizando"
+                @onclick="ActualizarConfirmaciones">
+
+            @(actualizando ? "Actualizando..." : "Actualizar")
+
+        </button>
+
+    </div>
+
+    @if (cargando)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border"></div>
+            <p class="mt-3">Cargando confirmaciones...</p>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger">
+                @error
+            </div>
+        }
+
+        <!-- INDICADORES -->
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted">
+                            Total de solicitudes
+                        </h6>
+                        <h2>@confirmaciones.Count</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted">
+                            Pendientes
+                        </h6>
+                        <h2 class="text-warning">
+                            @TotalPendientes
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted">
+                            Aceptadas
+                        </h6>
+                        <h2 class="text-success">
+                            @TotalAceptadas
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted">
+                            Rechazadas
+                        </h6>
+                        <h2 class="text-danger">
+                            @TotalRechazadas
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TABLA PRINCIPAL -->
+
+        <div class="card shadow-sm">
+
+            <div class="card-header text-white"
+                 style="background:#2D5056">
+
+                <h5 class="mb-0">
+                    Solicitudes de Contratación
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <!-- FILTROS -->
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-5">
+
+                        <label class="form-label">
+                            Buscar
+                        </label>
+
+                        <input class="form-control"
+                               placeholder="Evento, proveedor o servicio..."
+                               @bind="busqueda"
+                               @bind:event="oninput" />
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Estado de confirmación
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="filtroEstado">
+
+                            <option value="Todos">Todos</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Aceptada">Aceptadas</option>
+                            <option value="Rechazada">Rechazadas</option>
+
+                        </InputSelect>
+
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+
+                        <button type="button"
+                                class="btn btn-outline-secondary w-100"
+                                @onclick="LimpiarFiltros">
+
+                            Limpiar filtros
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <p class="text-muted small">
+                    Mostrando @ConfirmacionesFiltradas.Count
+                    de @confirmaciones.Count solicitudes.
+                </p>
+
+                @if (ConfirmacionesFiltradas.Count == 0)
+                {
+                    <div class="alert alert-info">
+                        No se encontraron confirmaciones
+                        con los filtros seleccionados.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+
+                        <QuickGrid Items="ConfirmacionesFiltradas.AsQueryable()"
+                                   class="table table-hover align-middle">
+
+                            <PropertyColumn Property="c => c.NombreEvento"
+                                            Title="Evento"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="c => c.NombreProveedor"
+                                            Title="Proveedor"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="c => c.Servicio"
+                                            Title="Servicio"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="c => c.FechaInicio"
+                                            Title="Fecha"
+                                            Format="dd/MM/yyyy"
+                                            Sortable="true" />
+
+                            <TemplateColumn Title="Confirmación">
+
+                                <span class="@ObtenerClaseConfirmacion(context.EstadoConfirmacion)">
+                                    @context.EstadoConfirmacion
+                                </span>
+
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Estado operativo">
+
+                                <span class="@ObtenerClaseOperativa(context.EstadoOperativo)">
+                                    @context.EstadoOperativo
+                                </span>
+
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Acciones">
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => VerDetalle(context)">
+
+                                        Detalles
+
+                                    </button>
+
+                                    @if (context.EstadoConfirmacion == "Rechazada")
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => VerMotivo(context)">
+
+                                            Ver rechazo
+
+                                        </button>
+                                    }
+
+                                </div>
+
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- DETALLE DE SOLICITUD -->
+        @if (confirmacionSeleccionada is not null)
+        {
+            <div class="card shadow-sm mt-4">
+
+                <div class="card-header text-white"
+                     style="background:#2D5056">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <h5 class="mb-0">
+                            Detalle de la contratación
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-sm btn-light"
+                                @onclick="CerrarDetalle">
+
+                            Cerrar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <strong>Evento:</strong>
+                            @confirmacionSeleccionada.NombreEvento
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Proveedor:</strong>
+                            @confirmacionSeleccionada.NombreProveedor
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Servicio:</strong>
+                            @confirmacionSeleccionada.Servicio
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Categoría:</strong>
+                            @confirmacionSeleccionada.Categoria
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Lugar:</strong>
+                            @confirmacionSeleccionada.Lugar
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Fecha del evento:</strong>
+                            @confirmacionSeleccionada.FechaInicio.ToString("dd/MM/yyyy")
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Confirmación:</strong>
+
+                            <span class="@ObtenerClaseConfirmacion(confirmacionSeleccionada.EstadoConfirmacion)">
+                                @confirmacionSeleccionada.EstadoConfirmacion
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Estado operativo:</strong>
+
+                            <span class="@ObtenerClaseOperativa(confirmacionSeleccionada.EstadoOperativo)">
+                                @confirmacionSeleccionada.EstadoOperativo
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <strong>Fecha de respuesta (UTC):</strong>
+
+                            @(confirmacionSeleccionada.FechaRespuesta?.ToString("dd/MM/yyyy HH:mm")
+                                ?? "Sin respuesta")
+                        </div>
+
+                    </div>
+
+                    @if (confirmacionSeleccionada.EstadoConfirmacion == "Rechazada")
+                    {
+                        <div class="alert alert-danger mt-4 mb-0">
+
+                            <strong>Motivo del rechazo:</strong>
+
+                            <p class="mb-0 mt-2">
+                                @(string.IsNullOrWhiteSpace(confirmacionSeleccionada.MotivoRechazo)
+                                    ? "No se registró un motivo."
+                                    : confirmacionSeleccionada.MotivoRechazo)
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
+
+@code {
+
+    private List<ConfirmacionContratacionDto> confirmaciones = new();
+
+    private ConfirmacionContratacionDto? confirmacionSeleccionada;
+
+    private string busqueda = string.Empty;
+    private string filtroEstado = "Todos";
+
+    private string? error;
+
+    private bool cargando = true;
+    private bool actualizando;
+
+    // INDICADORES
+
+    private int TotalPendientes =>
+        confirmaciones.Count(c =>
+            c.EstadoConfirmacion == "Pendiente");
+
+    private int TotalAceptadas =>
+        confirmaciones.Count(c =>
+            c.EstadoConfirmacion == "Aceptada");
+
+    private int TotalRechazadas =>
+        confirmaciones.Count(c =>
+            c.EstadoConfirmacion == "Rechazada");
+
+    // FILTROS
+
+    private List<ConfirmacionContratacionDto> ConfirmacionesFiltradas =>
+        confirmaciones
+            .Where(c =>
+                filtroEstado == "Todos" ||
+                c.EstadoConfirmacion == filtroEstado)
+            .Where(c =>
+                string.IsNullOrWhiteSpace(busqueda) ||
+                c.NombreEvento.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase) ||
+                c.NombreProveedor.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase) ||
+                c.Servicio.Contains(
+                    busqueda,
+                    StringComparison.OrdinalIgnoreCase))
+            .OrderBy(c => c.FechaInicio)
+            .ToList();
+
+    // CARGA INICIAL
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            confirmaciones = await confirmacionesService
+                .ObtenerConfirmaciones();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            error = "No se pudieron cargar las confirmaciones.";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    // ACTUALIZAR
+
+    private async Task ActualizarConfirmaciones()
+    {
+        if (actualizando)
+            return;
+
+        actualizando = true;
+        error = null;
+
+        try
+        {
+            confirmaciones = await confirmacionesService
+                .ObtenerConfirmaciones();
+
+            if (confirmacionSeleccionada is not null)
+            {
+                confirmacionSeleccionada = confirmaciones
+                    .FirstOrDefault(c =>
+                        c.DetalleId == confirmacionSeleccionada.DetalleId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            error = "No se pudieron actualizar las confirmaciones.";
+        }
+        finally
+        {
+            actualizando = false;
+        }
+    }
+
+    // LIMPIAR FILTROS
+
+    private void LimpiarFiltros()
+    {
+        busqueda = string.Empty;
+        filtroEstado = "Todos";
+    }
+
+    // DETALLES
+
+    private void VerDetalle(ConfirmacionContratacionDto confirmacion)
+    {
+        confirmacionSeleccionada = confirmacion;
+    }
+
+    private void VerMotivo(ConfirmacionContratacionDto confirmacion)
+    {
+        confirmacionSeleccionada = confirmacion;
+    }
+
+    private void CerrarDetalle()
+    {
+        confirmacionSeleccionada = null;
+    }
+
+    // ESTILOS DE CONFIRMACIÓN
+
+    private string ObtenerClaseConfirmacion(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "badge bg-warning text-dark",
+            "Aceptada" => "badge bg-success",
+            "Rechazada" => "badge bg-danger",
+            _ => "badge bg-secondary"
+        };
+    }
+
+    // ESTILOS OPERATIVOS
+
+    private string ObtenerClaseOperativa(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "badge bg-warning text-dark",
+            "En proceso" => "badge bg-primary",
+            "Completado" => "badge bg-success",
+            _ => "badge bg-secondary"
+        };
+    }
+}

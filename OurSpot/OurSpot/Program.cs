@@ -60,6 +60,7 @@ builder.Services.AddScoped<PortalProveedoresService>();
 builder.Services.AddScoped<RegistroProveedoresService>();
 builder.Services.AddScoped<NotificacionesProveedoresService>();
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddScoped<ConfirmacionesService>();
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddHttpClient<NotificacionesApiService>();

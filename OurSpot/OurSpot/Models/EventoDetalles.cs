@@ -26,12 +26,17 @@ public class EventoDetalles
 
     public double PrecioFinal { get; set; }
 
-    // Estado que actualiza el proveedor
+    // Confirmación del proveedor
+    public string EstadoConfirmacion { get; set; } = "Pendiente";
+
+    public DateTime? FechaRespuesta { get; set; }
+
+    public string? MotivoRechazo { get; set; }
+
+    // Ejecución del servicio
     public string EstadoOperativo { get; set; } = "Pendiente";
 
-    // Observaciones del proveedor
     public string? ObservacionesProveedor { get; set; }
 
-    // Última actualización
     public DateTime? FechaActualizacionEstado { get; set; }
 }

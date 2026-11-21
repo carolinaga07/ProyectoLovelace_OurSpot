@@ -19,4 +19,10 @@ public class ServicioProveedorDto
     public string EstadoOperativo { get; set; } = string.Empty;
 
     public string? ObservacionesProveedor { get; set; }
+
+    public string EstadoConfirmacion { get; set; } = "Pendiente";
+
+    public DateTime? FechaRespuesta { get; set; }
+
+    public string? MotivoRechazo { get; set; }
 }

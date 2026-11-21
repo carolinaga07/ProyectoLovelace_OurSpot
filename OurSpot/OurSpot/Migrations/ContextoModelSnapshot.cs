@@ -268,6 +268,18 @@ namespace OurSpot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("FechaCancelacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaRespuesta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MotivoCancelacion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MotivoRechazo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Proveedor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -357,6 +369,10 @@ namespace OurSpot.Migrations
                     b.Property<int>("ContratacionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("EstadoConfirmacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EstadoOperativo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -366,6 +382,12 @@ namespace OurSpot.Migrations
 
                     b.Property<DateTime?>("FechaActualizacionEstado")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaRespuesta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MotivoRechazo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ObservacionesProveedor")
                         .HasColumnType("nvarchar(max)");

@@ -5,6 +5,7 @@
 
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using System.Security.Claims
 @using OurSpot.Models.DTOs
 @using OurSpot.Services
@@ -16,9 +17,10 @@
 <div class="container-fluid p-4">
 
     <h2 class="mb-2">Servicios Asignados</h2>
+
     <p class="text-muted mb-4">
-        Consulta los servicios contratados y administra
-        su estado operativo.
+        Consulta tus solicitudes de contratación, confirma
+        tu disponibilidad y administra tus servicios.
     </p>
 
     @if (cargando)
@@ -28,17 +30,243 @@
             <p class="mt-3">Cargando servicios...</p>
         </div>
     }
-    else if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger">@error</div>
-    }
     else
     {
-        <div class="card shadow-sm">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger alert-dismissible fade show"
+                 role="alert">
+
+                @error
+
+                <button type="button"
+                        class="btn-close"
+                        aria-label="Cerrar"
+                        @onclick="() => error = null">
+                </button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success alert-dismissible fade show"
+                 role="alert">
+
+                @mensajeExito
+
+                <button type="button"
+                        class="btn-close"
+                        aria-label="Cerrar"
+                        @onclick="() => mensajeExito = null">
+                </button>
+            </div>
+        }
+
+        <!-- RESUMEN -->
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Solicitudes pendientes
+                        </h6>
+
+                        <h2 class="text-warning">
+                            @SolicitudesPendientes.Count
+                        </h2>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Servicios aceptados
+                        </h6>
+
+                        <h2 class="text-success">
+                            @ServiciosAceptados.Count
+                        </h2>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Solicitudes rechazadas
+                        </h6>
+
+                        <h2 class="text-danger">
+                            @SolicitudesRechazadas.Count
+                        </h2>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SOLICITUDES PENDIENTES -->
+
+        <div class="card shadow-sm mb-4">
 
             <div class="card-header text-white"
                  style="background:#2D5056">
-                <h5 class="mb-0">Mis Servicios Contratados</h5>
+
+                <h5 class="mb-0">
+                    Solicitudes pendientes de confirmación
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                @if (SolicitudesPendientes.Count == 0)
+                {
+                    <div class="alert alert-info mb-0">
+                        No tienes solicitudes pendientes
+                        de confirmación.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+
+                        <QuickGrid Items="SolicitudesPendientes.AsQueryable()"
+                                   class="table table-hover align-middle">
+
+                            <PropertyColumn Property="s => s.NombreEvento"
+                                            Title="Evento"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.Servicio"
+                                            Title="Servicio"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.FechaInicio"
+                                            Title="Fecha"
+                                            Format="dd/MM/yyyy"
+                                            Sortable="true" />
+
+                            <PropertyColumn Property="s => s.Lugar"
+                                            Title="Lugar" />
+
+                            <TemplateColumn Title="Estado">
+
+                                <span class="badge bg-warning text-dark">
+                                    Pendiente
+                                </span>
+
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Acciones">
+
+                                <div class="d-flex gap-2">
+
+                                    <button type="button"
+                                            class="btn btn-success btn-sm"
+                                            disabled="@procesandoSolicitud"
+                                            @onclick="() => AceptarSolicitud(context.DetalleId)">
+
+                                        Aceptar
+
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            disabled="@procesandoSolicitud"
+                                            @onclick="() => PrepararRechazo(context.DetalleId)">
+
+                                        Rechazar
+
+                                    </button>
+
+                                </div>
+
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <!-- FORMULARIO DE RECHAZO -->
+        @if (detalleRechazoId.HasValue)
+        {
+            <div class="card border-danger mb-4">
+
+                <div class="card-header bg-danger text-white">
+                    Rechazar contratación
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Indica por qué no puedes aceptar
+                        esta contratación.
+                    </p>
+
+                    <label class="form-label">
+                        Motivo del rechazo
+                    </label>
+
+                    <InputTextArea class="form-control mb-3"
+                                   rows="3"
+                                   maxlength="500"
+                                   @bind-Value="motivoRechazo" />
+
+                    <div class="d-flex gap-2">
+
+                        <button type="button"
+                                class="btn btn-danger"
+                                disabled="@procesandoSolicitud"
+                                @onclick="ConfirmarRechazo">
+
+                            @(procesandoSolicitud
+                                ? "Procesando..."
+                                : "Confirmar rechazo")
+
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                disabled="@procesandoSolicitud"
+                                @onclick="CancelarRechazo">
+
+                            Cancelar
+
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        }
+
+        <!-- SERVICIOS ACEPTADOS -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header text-white"
+                 style="background:#2D5056">
+
+                <h5 class="mb-0">
+                    Mis Servicios Contratados
+                </h5>
+
             </div>
 
             <div class="card-body">
@@ -46,6 +274,7 @@
                 <div class="row g-3 mb-4">
 
                     <div class="col-md-5">
+
                         <label class="form-label">
                             Buscar servicio
                         </label>
@@ -54,46 +283,57 @@
                                placeholder="Buscar evento, servicio o lugar..."
                                @bind="busqueda"
                                @bind:event="oninput" />
+
                     </div>
 
                     <div class="col-md-4">
+
                         <label class="form-label">
                             Estado operativo
                         </label>
 
                         <InputSelect class="form-select"
                                      @bind-Value="filtroEstado">
+
                             <option value="Todos">Todos</option>
                             <option value="Pendiente">Pendientes</option>
                             <option value="En proceso">En proceso</option>
                             <option value="Completado">Completados</option>
+
                         </InputSelect>
+
                     </div>
 
                     <div class="col-md-3 d-flex align-items-end">
+
                         <button type="button"
                                 class="btn text-white w-100"
                                 style="background:#2D5056"
-                                disabled="@actualizando"
+                                disabled="@(actualizando || procesandoSolicitud)"
                                 @onclick="ActualizarServicios">
 
                             @(actualizando
                                 ? "Actualizando..."
                                 : "Actualizar")
+
                         </button>
+
                     </div>
 
                 </div>
 
                 <p class="text-muted small">
+
                     Mostrando @ServiciosFiltrados.Count
-                    de @servicios.Count servicios.
+                    de @ServiciosAceptados.Count
+                    servicios aceptados.
+
                 </p>
 
                 @if (ServiciosFiltrados.Count == 0)
                 {
                     <div class="alert alert-info">
-                        No se encontraron servicios.
+                        No se encontraron servicios aceptados.
                     </div>
                 }
                 else
@@ -120,18 +360,91 @@
                                             Title="Lugar"
                                             Sortable="true" />
 
-                            <TemplateColumn Title="Estado">
+                            <TemplateColumn Title="Estado operativo">
+
                                 <span class="@ObtenerClaseEstado(context.EstadoOperativo)">
                                     @context.EstadoOperativo
                                 </span>
+
                             </TemplateColumn>
 
                             <TemplateColumn Title="Acciones">
+
                                 <a href="@($"/proveedor/servicios/detalle/{context.DetalleId}")"
                                    class="btn btn-sm text-white"
                                    style="background:#2D5056">
+
                                     Ver detalles
+
                                 </a>
+
+                            </TemplateColumn>
+
+                        </QuickGrid>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE RECHAZOS -->
+
+        <div class="card shadow-sm">
+
+            <div class="card-header text-white"
+                 style="background:#2D5056">
+
+                <h5 class="mb-0">
+                    Historial de solicitudes rechazadas
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                @if (SolicitudesRechazadas.Count == 0)
+                {
+                    <div class="alert alert-info mb-0">
+                        No tienes solicitudes rechazadas.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+
+                        <QuickGrid Items="SolicitudesRechazadas.AsQueryable()"
+                                   class="table table-hover align-middle">
+
+                            <PropertyColumn Property="s => s.NombreEvento"
+                                            Title="Evento" />
+
+                            <PropertyColumn Property="s => s.Servicio"
+                                            Title="Servicio" />
+
+                            <PropertyColumn Property="s => s.FechaInicio"
+                                            Title="Fecha del evento"
+                                            Format="dd/MM/yyyy" />
+
+                            <TemplateColumn Title="Estado">
+
+                                <span class="badge bg-danger">
+                                    Rechazada
+                                </span>
+
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Motivo">
+
+                                @context.MotivoRechazo
+
+                            </TemplateColumn>
+
+                            <TemplateColumn Title="Fecha de respuesta">
+
+                                @(context.FechaRespuesta?.ToString("dd/MM/yyyy HH:mm")
+                                    ?? "Sin fecha")
+
                             </TemplateColumn>
 
                         </QuickGrid>
@@ -142,9 +455,11 @@
             </div>
         </div>
     }
+
 </div>
 
 @code {
+
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationStateTask
     { get; set; }
@@ -156,12 +471,43 @@
 
     private string? usuarioId;
     private string? error;
+    private string? mensajeExito;
 
     private bool cargando = true;
     private bool actualizando;
+    private bool procesandoSolicitud;
+
+    private int? detalleRechazoId;
+
+    private string motivoRechazo = string.Empty;
+
+    // SOLICITUDES PENDIENTES
+
+    private List<ServicioProveedorDto> SolicitudesPendientes =>
+        servicios
+            .Where(s => s.EstadoConfirmacion == "Pendiente")
+            .OrderBy(s => s.FechaInicio)
+            .ToList();
+
+    // SERVICIOS ACEPTADOS
+
+    private List<ServicioProveedorDto> ServiciosAceptados =>
+        servicios
+            .Where(s => s.EstadoConfirmacion == "Aceptada")
+            .ToList();
+
+    // SOLICITUDES RECHAZADAS
+
+    private List<ServicioProveedorDto> SolicitudesRechazadas =>
+        servicios
+            .Where(s => s.EstadoConfirmacion == "Rechazada")
+            .OrderByDescending(s => s.FechaRespuesta)
+            .ToList();
+
+    // FILTROS DE SERVICIOS ACEPTADOS
 
     private List<ServicioProveedorDto> ServiciosFiltrados =>
-        servicios
+        ServiciosAceptados
             .Where(s =>
                 filtroEstado == "Todos" ||
                 s.EstadoOperativo == filtroEstado)
@@ -178,6 +524,8 @@
                     StringComparison.OrdinalIgnoreCase) ?? false))
             .OrderBy(s => s.FechaInicio)
             .ToList();
+
+    // CARGAR SERVICIOS
 
     protected override async Task OnInitializedAsync()
     {
@@ -203,8 +551,10 @@
             servicios = await portalProveedoresService
                 .ObtenerServiciosProveedor(usuarioId);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
+
             error = "Ocurrió un error al cargar los servicios.";
         }
         finally
@@ -213,9 +563,13 @@
         }
     }
 
+    // ACTUALIZAR SERVICIOS
+
     private async Task ActualizarServicios()
     {
-        if (actualizando || string.IsNullOrWhiteSpace(usuarioId))
+        if (actualizando ||
+            procesandoSolicitud ||
+            string.IsNullOrWhiteSpace(usuarioId))
             return;
 
         actualizando = true;
@@ -226,8 +580,10 @@
             servicios = await portalProveedoresService
                 .ObtenerServiciosProveedor(usuarioId);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
+
             error = "No se pudieron actualizar los servicios.";
         }
         finally
@@ -235,6 +591,140 @@
             actualizando = false;
         }
     }
+
+    // ACEPTAR SOLICITUD
+
+    private async Task AceptarSolicitud(int detalleId)
+    {
+        if (procesandoSolicitud ||
+            string.IsNullOrWhiteSpace(usuarioId))
+            return;
+
+        procesandoSolicitud = true;
+
+        error = null;
+        mensajeExito = null;
+
+        try
+        {
+            bool aceptada = await portalProveedoresService
+                .AceptarSolicitud(detalleId, usuarioId);
+
+            if (!aceptada)
+            {
+                error = "No se pudo aceptar la contratación. " +
+                        "Es posible que ya haya sido respondida.";
+
+                return;
+            }
+
+            servicios = await portalProveedoresService
+                .ObtenerServiciosProveedor(usuarioId);
+
+            CancelarRechazo();
+
+            mensajeExito =
+                "La contratación fue aceptada correctamente.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            error = "Ocurrió un error al aceptar la contratación.";
+        }
+        finally
+        {
+            procesandoSolicitud = false;
+        }
+    }
+
+    // PREPARAR RECHAZO
+
+    private void PrepararRechazo(int detalleId)
+    {
+        if (procesandoSolicitud)
+            return;
+
+        detalleRechazoId = detalleId;
+
+        motivoRechazo = string.Empty;
+
+        error = null;
+        mensajeExito = null;
+    }
+
+    // CONFIRMAR RECHAZO
+
+    private async Task ConfirmarRechazo()
+    {
+        if (procesandoSolicitud ||
+            !detalleRechazoId.HasValue ||
+            string.IsNullOrWhiteSpace(usuarioId))
+            return;
+
+        if (string.IsNullOrWhiteSpace(motivoRechazo))
+        {
+            error = "Debes indicar el motivo del rechazo.";
+            return;
+        }
+
+        if (motivoRechazo.Trim().Length > 500)
+        {
+            error = "El motivo no puede superar los 500 caracteres.";
+            return;
+        }
+
+        procesandoSolicitud = true;
+
+        error = null;
+        mensajeExito = null;
+
+        try
+        {
+            bool rechazada = await portalProveedoresService
+                .RechazarSolicitud(
+                    detalleRechazoId.Value,
+                    usuarioId,
+                    motivoRechazo.Trim());
+
+            if (!rechazada)
+            {
+                error = "No se pudo rechazar la contratación. " +
+                        "Es posible que ya haya sido respondida.";
+
+                return;
+            }
+
+            servicios = await portalProveedoresService
+                .ObtenerServiciosProveedor(usuarioId);
+
+            CancelarRechazo();
+
+            mensajeExito =
+                "La contratación fue rechazada correctamente.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            error = "Ocurrió un error al rechazar la contratación.";
+        }
+        finally
+        {
+            procesandoSolicitud = false;
+        }
+    }
+
+    // CANCELAR RECHAZO
+
+    private void CancelarRechazo()
+    {
+        detalleRechazoId = null;
+
+        motivoRechazo = string.Empty;
+    }
+
+    // CLASE CSS DEL ESTADO OPERATIVO
 
     private string ObtenerClaseEstado(string estado)
     {

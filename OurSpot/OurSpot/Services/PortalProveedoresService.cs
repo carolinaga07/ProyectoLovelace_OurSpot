@@ -35,8 +35,12 @@ public class PortalProveedoresService(
                 Lugar = d.Evento.Lugar,
                 FechaInicio = d.Evento.FechaInicio,
                 HoraInicio = d.Evento.HoraInicio,
+                EstadoConfirmacion = d.EstadoConfirmacion,
+                FechaRespuesta = d.FechaRespuesta,
+                MotivoRechazo = d.MotivoRechazo,
                 EstadoOperativo = d.EstadoOperativo,
                 ObservacionesProveedor = d.ObservacionesProveedor
+               
             })
             .OrderBy(d => d.FechaInicio)
             .ThenBy(d => d.HoraInicio)
@@ -72,6 +76,9 @@ public class PortalProveedoresService(
                 Lugar = d.Evento.Lugar,
                 FechaInicio = d.Evento.FechaInicio,
                 HoraInicio = d.Evento.HoraInicio,
+                EstadoConfirmacion = d.EstadoConfirmacion,
+                FechaRespuesta = d.FechaRespuesta,
+                MotivoRechazo = d.MotivoRechazo,
                 EstadoOperativo = d.EstadoOperativo,
                 ObservacionesProveedor = d.ObservacionesProveedor
             })
@@ -103,17 +110,17 @@ public class PortalProveedoresService(
             await contextFactory.CreateDbContextAsync();
 
         var detalle = await contexto.EventosDetalles
-            .FirstOrDefaultAsync(d =>
-                d.DetalleId == detalleId &&
-                d.Evento != null &&
-                !d.Evento.Eliminado &&
-                d.Contrataciones != null &&
-                !d.Contrataciones.Eliminado &&
-                d.Contrataciones.ProveedorEntidad != null &&
-                !d.Contrataciones.ProveedorEntidad.Eliminado &&
-                d.Contrataciones.ProveedorEntidad.ApplicationUserId
-                    == applicationUserId);
-
+        .FirstOrDefaultAsync(d =>
+        d.DetalleId == detalleId &&
+        d.EstadoConfirmacion == "Aceptada" &&
+        d.Evento != null &&
+        !d.Evento.Eliminado &&
+        d.Contrataciones != null &&
+        !d.Contrataciones.Eliminado &&
+        d.Contrataciones.ProveedorEntidad != null &&
+        !d.Contrataciones.ProveedorEntidad.Eliminado &&
+        d.Contrataciones.ProveedorEntidad.ApplicationUserId
+            == applicationUserId);
 
         if (detalle is null)
             return false;
@@ -239,6 +246,74 @@ public class PortalProveedoresService(
         return true;
     }
 
+    public async Task<bool> AceptarSolicitud(
+    int detalleId,
+    string applicationUserId)
+    {
+        if (string.IsNullOrWhiteSpace(applicationUserId))
+            return false;
 
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
 
+        var ahora = DateTime.UtcNow;
+
+        var filasActualizadas = await contexto.EventosDetalles
+            .Where(d =>
+                d.DetalleId == detalleId &&
+                d.EstadoConfirmacion == "Pendiente" &&
+                d.Evento != null &&
+                !d.Evento.Eliminado &&
+                d.Contrataciones != null &&
+                !d.Contrataciones.Eliminado &&
+                d.Contrataciones.ProveedorEntidad != null &&
+                !d.Contrataciones.ProveedorEntidad.Eliminado &&
+                d.Contrataciones.ProveedorEntidad.ApplicationUserId
+                    == applicationUserId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(d => d.EstadoConfirmacion, "Aceptada")
+                .SetProperty(d => d.FechaRespuesta, ahora)
+                .SetProperty(d => d.MotivoRechazo, (string?)null));
+
+        return filasActualizadas == 1;
+    }
+   
+    public async Task<bool> RechazarSolicitud(
+    int detalleId,
+    string applicationUserId,
+    string motivo)
+    {
+        if (string.IsNullOrWhiteSpace(applicationUserId) ||
+            string.IsNullOrWhiteSpace(motivo))
+            return false;
+
+        motivo = motivo.Trim();
+
+        if (motivo.Length > 500)
+            return false;
+
+        await using var contexto =
+            await contextFactory.CreateDbContextAsync();
+
+        var ahora = DateTime.UtcNow;
+
+        var filasActualizadas = await contexto.EventosDetalles
+            .Where(d =>
+                d.DetalleId == detalleId &&
+                d.EstadoConfirmacion == "Pendiente" &&
+                d.Evento != null &&
+                !d.Evento.Eliminado &&
+                d.Contrataciones != null &&
+                !d.Contrataciones.Eliminado &&
+                d.Contrataciones.ProveedorEntidad != null &&
+                !d.Contrataciones.ProveedorEntidad.Eliminado &&
+                d.Contrataciones.ProveedorEntidad.ApplicationUserId
+                    == applicationUserId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(d => d.EstadoConfirmacion, "Rechazada")
+                .SetProperty(d => d.FechaRespuesta, ahora)
+                .SetProperty(d => d.MotivoRechazo, motivo));
+
+        return filasActualizadas == 1;
+    }
 }
