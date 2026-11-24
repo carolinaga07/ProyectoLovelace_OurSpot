@@ -24,7 +24,8 @@ public class Contexto : IdentityDbContext<ApplicationUser>
     public DbSet<Auditoria> Auditorias { get; set; }
     public DbSet<CalificacionEvento> CalificacionEventos { get; set; }
     public DbSet<NotificacionProveedor> NotificacionesProveedores { get; set; }
-    
+    public DbSet<HistorialConfirmacion> HistorialConfirmaciones { get; set; }
+
 
     // Nuevo DbSet
     public DbSet<EventoDetalles> EventosDetalles { get; set; }

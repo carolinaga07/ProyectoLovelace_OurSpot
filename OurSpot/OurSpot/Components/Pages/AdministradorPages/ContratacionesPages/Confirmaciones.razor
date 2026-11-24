@@ -12,6 +12,159 @@
 
 <PageTitle>Gestión de Confirmaciones - OurSpot</PageTitle>
 
+
+
+<style>
+    .reasignacion-overlay {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100dvh;
+        z-index: 99999;
+        background-color: rgba(0, 0, 0, 0.65);
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .reasignacion-dialog {
+        width: 100%;
+        max-width: 750px;
+        max-height: calc(100dvh - 40px);
+        margin: auto;
+    }
+
+        .reasignacion-dialog .modal-content {
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            max-height: calc(100dvh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reasignacion-dialog .modal-body {
+            overflow-y: auto;
+        }
+
+        .reasignacion-dialog .modal-header {
+            background: #2D5056;
+            color: white;
+        }
+
+        
+    
+        .reasignacion-overlay {
+            position: fixed !important;
+            inset: 0;
+            width: 100%;
+            height: 100dvh;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.60);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .reasignacion-dialog {
+            width: 100%;
+            max-width: 650px;
+            max-height: calc(100dvh - 40px);
+            margin: auto;
+        }
+
+            .reasignacion-dialog .modal-content {
+                display: flex;
+                flex-direction: column;
+                max-height: calc(100dvh - 40px);
+                background: #fff;
+                border: none;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+            }
+
+        .reasignacion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 24px;
+            background: #2D5056;
+            color: white;
+        }
+
+            .reasignacion-header .modal-title {
+                font-size: 1.15rem;
+                font-weight: 600;
+            }
+
+            .reasignacion-header .btn-close {
+                flex-shrink: 0;
+                margin: 0;
+                padding: 8px;
+                opacity: 0.85;
+            }
+
+                .reasignacion-header .btn-close:hover {
+                    opacity: 1;
+                }
+
+        .reasignacion-dialog .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .reasignacion-dialog .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e9ecef;
+            gap: 10px;
+        }
+
+        .reasignacion-dialog .form-select {
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        @@media (max-width: 576px) {
+            .reasignacion-overlay {
+                padding: 12px;
+            }
+
+            .reasignacion-dialog {
+                max-height: calc(100dvh - 24px);
+            }
+
+                .reasignacion-dialog .modal-content {
+                    max-height: calc(100dvh - 24px);
+                }
+
+            .reasignacion-header {
+                padding: 15px 18px;
+            }
+
+            .reasignacion-dialog .modal-body {
+                padding: 18px;
+            }
+
+            .reasignacion-dialog .modal-footer {
+                padding: 14px 18px;
+            }
+        }
+</style>
+
+
+
+
 <div class="container-fluid p-4">
 
     <div class="d-flex justify-content-between
@@ -243,11 +396,18 @@
                                         <button type="button"
                                                 class="btn btn-sm btn-outline-danger"
                                                 @onclick="() => VerMotivo(context)">
-
                                             Ver rechazo
+                                        </button>
 
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-success"
+                                                @onclick="() => PrepararReasignacion(context)">
+                                            <i class="bi bi-arrow-repeat me-1"></i>
+                                            Reasignar
                                         </button>
                                     }
+
+                                   
 
                                 </div>
 
@@ -265,28 +425,35 @@
         <!-- DETALLE DE SOLICITUD -->
         @if (confirmacionSeleccionada is not null)
         {
-            <div class="card shadow-sm mt-4">
+            <div class="reasignacion-overlay"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-label="Detalle de la contratación">
 
-                <div class="card-header text-white"
-                     style="background:#2D5056">
+                <div class="reasignacion-dialog">
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="card shadow-lg">
 
-                        <h5 class="mb-0">
-                            Detalle de la contratación
-                        </h5>
+               
+                        <div class="modal-header reasignacion-header">
 
-                        <button type="button"
-                                class="btn btn-sm btn-light"
-                                @onclick="CerrarDetalle">
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0"
+                                id="tituloReasignacion">
 
-                            Cerrar
+                                <i class="bi bi-arrow-repeat"></i>
+                                Reasignar contratación
 
-                        </button>
+                            </h5>
 
-                    </div>
+                            <button type="button"
+                                    class="btn-close btn-close-white"
+                                    aria-label="Cerrar"
+                                    disabled="@procesandoReasignacion"
+                                    @onclick="CancelarReasignacion">
+                            </button>
 
-                </div>
+                        </div>
+
 
                 <div class="card-body">
 
@@ -364,17 +531,206 @@
 
                 </div>
 
-            </div>
+             </div>
+
+        
+           </div>
+        
+        </div>
         }
+
     }
 
 </div>
+
+@if (confirmacionReasignar is not null)
+{
+    <div class="reasignacion-overlay"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="tituloReasignacion">
+
+        <div class="reasignacion-dialog">
+
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+
+            <div class="modal-content shadow-lg">
+
+                <div class="modal-header text-white justify-content-between"
+                     style="background:#2D5056">
+                     
+                    <h5 class="modal-title" id="tituloReasignacion">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Reasignar contratación
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            aria-label="Cerrar"
+                            disabled="@procesandoReasignacion"
+                            @onclick="CancelarReasignacion">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-4">
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-6">
+                            <label class="text-muted small">
+                                Evento
+                            </label>
+
+                            <div class="fw-semibold">
+                                @confirmacionReasignar.NombreEvento
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-muted small">
+                                Servicio solicitado
+                            </label>
+
+                            <div class="fw-semibold">
+                                @confirmacionReasignar.Servicio
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-muted small">
+                                Proveedor anterior
+                            </label>
+
+                            <div class="fw-semibold">
+                                @confirmacionReasignar.NombreProveedor
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-muted small">
+                                Fecha del evento
+                            </label>
+
+                            <div class="fw-semibold">
+                                @confirmacionReasignar.FechaInicio.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-warning">
+
+                        <strong>
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Motivo del rechazo
+                        </strong>
+
+                        <p class="mb-0 mt-2">
+                            @(string.IsNullOrWhiteSpace(confirmacionReasignar.MotivoRechazo)
+                                ? "No se registró un motivo."
+                                : confirmacionReasignar.MotivoRechazo)
+                        </p>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Seleccionar nueva contratación
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="nuevaContratacionId"
+                                     disabled="@procesandoReasignacion">
+
+                            <option value="0">
+                                Seleccione un proveedor y servicio
+                            </option>
+
+                            @foreach (var contratacion in contratacionesDisponibles)
+                            {
+                                <option value="@contratacion.ContratacionId">
+                                    @contratacion.Proveedor -
+                                    @contratacion.Servicio
+                                </option>
+                            }
+
+                        </InputSelect>
+
+                    </div>
+
+                    @if (contratacionesDisponibles.Count == 0)
+                    {
+                        <div class="alert alert-info mb-0">
+                            No existen otras contrataciones activas
+                            para esta categoría.
+                        </div>
+                    }
+
+                    <p class="text-muted small mt-3 mb-0">
+                        Al confirmar, la contratación anterior quedará
+                        registrada en el historial y el nuevo proveedor
+                        recibirá una solicitud pendiente de aceptación.
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            disabled="@procesandoReasignacion"
+                            @onclick="CancelarReasignacion">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="button"
+                            class="btn text-white"
+                            style="background:#2D5056"
+                            disabled="@(procesandoReasignacion ||
+                                        nuevaContratacionId == 0)"
+                            @onclick="ConfirmarReasignacion">
+
+                        @if (procesandoReasignacion)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Reasignando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span>Confirmar reasignación</span>
+                        }
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+       </div>
+    </div>
+}
+
 
 @code {
 
     private List<ConfirmacionContratacionDto> confirmaciones = new();
 
     private ConfirmacionContratacionDto? confirmacionSeleccionada;
+
+    private ConfirmacionContratacionDto? confirmacionReasignar;
+
+    private List<Contrataciones> contratacionesDisponibles = new();
+
+    private int nuevaContratacionId;
+
+    private bool procesandoReasignacion;
 
     private string busqueda = string.Empty;
     private string filtroEstado = "Todos";
@@ -521,5 +877,83 @@
             "Completado" => "badge bg-success",
             _ => "badge bg-secondary"
         };
+    }
+
+    private async Task PrepararReasignacion(
+    ConfirmacionContratacionDto confirmacion)
+    {
+        if (procesandoReasignacion)
+            return;
+
+        error = null;
+
+        confirmacionReasignar = confirmacion;
+
+        nuevaContratacionId = 0;
+
+        contratacionesDisponibles = new();
+
+        try
+        {
+            contratacionesDisponibles = await confirmacionesService
+                .ObtenerContratacionesDisponibles(confirmacion.DetalleId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            error = "No se pudieron cargar las contrataciones disponibles.";
+
+            CancelarReasignacion();
+        }
+    }
+
+    private async Task ConfirmarReasignacion()
+    {
+        if (procesandoReasignacion ||
+            confirmacionReasignar is null ||
+            nuevaContratacionId == 0)
+            return;
+
+        procesandoReasignacion = true;
+
+        error = null;
+
+        try
+        {
+            bool reasignada = await confirmacionesService
+                .ReasignarContratacion(
+                    confirmacionReasignar.DetalleId,
+                    nuevaContratacionId);
+
+            if (!reasignada)
+            {
+                error = "No se pudo reasignar la contratación.";
+                return;
+            }
+
+            CancelarReasignacion();
+
+            await ActualizarConfirmaciones();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            error = "Ocurrió un error al reasignar la contratación.";
+        }
+        finally
+        {
+            procesandoReasignacion = false;
+        }
+    }
+
+    private void CancelarReasignacion()
+    {
+        confirmacionReasignar = null;
+
+        contratacionesDisponibles.Clear();
+
+        nuevaContratacionId = 0;
     }
 }

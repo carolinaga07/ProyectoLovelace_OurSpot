@@ -270,13 +270,11 @@
     }
 
     private List<ServicioProveedorDto> ProximosServicios =>
-    servicios
-        .Where(s =>
-            s.FechaInicio >= DateOnly.FromDateTime(DateTime.Today) &&
-            (s.EstadoOperativo == "Pendiente" ||
-             s.EstadoOperativo == "En proceso"))
-        .OrderBy(s => s.FechaInicio)
-        .Take(5)
-        .ToList();
-
+     servicios
+         .Where(s =>
+             s.EstadoConfirmacion == "Aceptada" &&
+             s.FechaInicio >= DateOnly.FromDateTime(DateTime.Today) &&
+             s.EstadoOperativo != "Completado")
+         .OrderBy(s => s.FechaInicio)
+         .ToList();
 }

@@ -5,6 +5,7 @@ using OurSpot.Components.Pages.AdministradorPages.EventosPages.Services;
 using OurSpot.Context;
 using OurSpot.Security;
 using OurSpot.Services;
+using OurSpot.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddSignalR();
 
 //builder.Services.AddDbContextFactory<Contexto>(o => o.UseInMemoryDatabase("OurSpotTempDb"));
 builder.Services.AddScoped<EventosService>();
@@ -146,5 +148,7 @@ app.MapPost("/cuenta/logout", async (
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapHub<NotificacionesHub>("/notificacionesHub");
 
 app.Run();

@@ -31,4 +31,10 @@ public class NotificacionProveedor
     public bool Leida { get; set; } = false;
 
     public DateTime? FechaLectura { get; set; }
+
+    public string TipoNotificacion { get; set; } = "EstadoOperativo";
+
+    public string? DestinatarioId { get; set; }
+
+    public string? RolDestinatario { get; set; }
 }

@@ -439,6 +439,41 @@ namespace OurSpot.Migrations
                     b.ToTable("EventoImagenes");
                 });
 
+            modelBuilder.Entity("OurSpot.Models.HistorialConfirmacion", b =>
+                {
+                    b.Property<int>("HistorialConfirmacionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HistorialConfirmacionId"));
+
+                    b.Property<int>("ContratacionIdAnterior")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContratacionIdNueva")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DetalleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstadoAnterior")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaReasignacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaRespuestaAnterior")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MotivoRechazo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("HistorialConfirmacionId");
+
+                    b.ToTable("HistorialConfirmaciones");
+                });
+
             modelBuilder.Entity("OurSpot.Models.Lugares", b =>
                 {
                     b.Property<int>("Id")
@@ -517,6 +552,9 @@ namespace OurSpot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificacionProveedorId"));
 
+                    b.Property<string>("DestinatarioId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("DetalleId")
                         .HasColumnType("int");
 
@@ -547,7 +585,14 @@ namespace OurSpot.Migrations
                     b.Property<string>("Observaciones")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RolDestinatario")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Servicio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TipoNotificacion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
