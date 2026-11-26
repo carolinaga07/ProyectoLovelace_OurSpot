@@ -1,11 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OurSpot.Context;
 using OurSpot.Models;
+using OurSpot.Security;
 using System.Linq.Expressions;
 
 namespace OurSpot.Services;
 
-public class PersonalService(IDbContextFactory<Contexto> contextFactory, AuditoriaService auditoriaService) : Aplicada1.Core.IService<Personal, int>
+public class PersonalService(
+    IDbContextFactory<Contexto> contextFactory,
+    AuditoriaService auditoriaService,
+    IHttpContextAccessor httpContextAccessor,
+    UserManager<ApplicationUser> userManager) : Aplicada1.Core.IService<Personal, int>
 {
     public async Task<bool> Guardar(Personal personal)
     {
@@ -29,7 +35,7 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory, Auditor
     {
         await using var contexto = await contextFactory.CreateDbContextAsync();
         contexto.Personales.Add(personal);
-        
+
         var guardado = await contexto.SaveChangesAsync() > 0;
 
         if (guardado)
@@ -63,11 +69,44 @@ public class PersonalService(IDbContextFactory<Contexto> contextFactory, Auditor
 
     public async Task<bool> Eliminar(int id)
     {
+        var usuarioActual = httpContextAccessor.HttpContext?.User;
+
+        if (usuarioActual?.Identity?.IsAuthenticated != true ||
+            !usuarioActual.IsInRole("Administrador"))
+        {
+            return false;
+        }
+
         await using var contexto = await contextFactory.CreateDbContextAsync();
 
         var personal = await contexto.Personales.FirstOrDefaultAsync(c => c.Id == id && !c.Eliminado);
 
         if (personal == null)
+            return false;
+
+        var usuarioActualId = userManager.GetUserId(usuarioActual);
+        var correoActual = usuarioActual.Identity?.Name;
+
+        bool esMismaCuenta =
+            (!string.IsNullOrEmpty(personal.ApplicationUserId) && personal.ApplicationUserId == usuarioActualId) ||
+            (!string.IsNullOrEmpty(correoActual) && string.Equals(personal.Correo, correoActual, StringComparison.OrdinalIgnoreCase));
+
+        if (esMismaCuenta)
+            return false;
+
+        bool esAdministrador =
+            string.Equals(personal.Rol, "Administrador", StringComparison.OrdinalIgnoreCase);
+
+        if (!esAdministrador && !string.IsNullOrEmpty(personal.ApplicationUserId))
+        {
+            var usuarioObjetivo = await userManager.FindByIdAsync(personal.ApplicationUserId);
+            if (usuarioObjetivo != null)
+            {
+                esAdministrador = await userManager.IsInRoleAsync(usuarioObjetivo, "Administrador");
+            }
+        }
+
+        if (esAdministrador)
             return false;
 
         personal.Eliminado = true;

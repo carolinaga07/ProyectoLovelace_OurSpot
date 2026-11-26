@@ -157,12 +157,20 @@ else
 
     private async Task Eliminar()
     {
+        if (personal == null) return;
+
         bool eliminado = await personalService.Eliminar(personal.Id);
 
         if (eliminado)
         {
             toastService.ShowSuccess("Personal Eliminado Exitosamente");
             navigationManager.NavigateTo("/personal");
+            return;
+        }
+
+        if (string.Equals(personal.Rol, "Administrador", StringComparison.OrdinalIgnoreCase))
+        {
+            toastService.ShowError("No puedes eliminar tu propia cuenta ni a otro administrador.");
         }
         else
         {
