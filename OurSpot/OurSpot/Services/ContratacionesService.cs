@@ -53,7 +53,7 @@ namespace OurSpot.Services
 
             // Las contrataciones creadas por el administrador
             // comienzan activas.
-            contratacion.Estado = "Activo";
+            contratacion.Estado = "Activa";
 
             contexto.Contrataciones.Add(contratacion);
 
